@@ -1,0 +1,26 @@
+[project]
+name = "auth-service"
+version = "1.0.0"
+description = "Authentication and Authorization Service"
+readme = "README.md"
+requires-python = ">=3.12"
+
+# uv sync --frozen --no-dev, installs only [project].dependencies
+dependencies = [
+    "fastapi[all]",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "passlib[bcrypt]",
+    "python-jose[cryptography]",
+    "pydantic-settings"
+]
+
+# uv sync --frozen --dev, installs both dependencies + dev-dependencies
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "pytest-dotenv",
+    "pytest-asyncio",
+    "httpx",
+]

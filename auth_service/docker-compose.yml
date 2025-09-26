@@ -1,0 +1,35 @@
+version: '3.8'
+
+
+services:
+  identity-db:
+    image: postgres:15
+    container_name: identity-db
+    env_file:
+      - .env
+    volumes:
+      - identity_db_data:/var/lib/postgresql/data/
+      - ./db_init:/docker-entrypoint-initdb.d  # runs any .sql files it finds in /docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432" # Expose on host port 5433 for inspection
+    networks:
+      - food_delivery_network
+
+  identity-api:
+    build: .
+    container_name: identity-api
+    env_file:
+      - .env
+    ports:
+      - "8001:8000" # Expose on host port 8001
+    depends_on:
+      - identity-db
+    networks:
+      - food_delivery_network
+
+volumes:
+  identity_db_data:
+
+networks:
+  food_delivery_network:
+    driver: bridge
