@@ -8,15 +8,14 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 
 ## Where we are
 
-- M0 (setup) and M1 (foundations page 01 plus its visual) are built. The owner is reviewing them.
-- **Waiting on the owner:** the visual format for simple diagrams (interactive stepper vs static PNG vs static HTML vs Mermaid only).
+- M0 (setup) and M1 (foundations page 01 with its Mermaid diagram) are built. The owner is reviewing them.
 - **On hold:** M2. Don't start it until the owner says so.
 
 ## Decisions the owner made
 
 - One repo with docs, examples and the Foodpanda project. Commit and push straight to `main`.
 - Markdown first (plus `llms.txt`). Hosting is decided later.
-- Visuals: plain SVG is the default tool (chosen 2026-11-22). The format for simple diagrams is still open; see "Where we are".
+- Diagrams: Mermaid in the page by default. No PNGs, no static HTML. An interactive plain-SVG page only when stepping through a flow is the lesson, and only with the owner's OK.
 - Spell out every abbreviation at its first use.
 - Order: a foundations prelude ("how a request travels"), then project-first (auth_service is step 1).
 - Sources: official or authoritative docs only. The owner's Google Doc "System Design" is a **topic list only**, never a source.
@@ -34,7 +33,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Ponytail pass and comment review on all Python, including auth_service.
 - auth_service tests verified: 6 pass against Postgres. Fixed two dependency breaks (psycopg 3 driver, `bcrypt<5`). `uv.lock` committed.
 - M1 Tasks 6–7: research note approved; foundations page 01 written ([01-how-a-request-travels.md](00-foundations/01-how-a-request-travels.md)).
-- M1 Task 8: the owner chose **plain SVG** as the default visual tool. See [the page 01 visual](../html/00-foundations/01-how-a-request-travels.html) and the spec, section 8.
+- M1 Task 8: visual spike done. Plain SVG won over `visual-explainer`, then the owner chose **Mermaid only** for simple diagrams, so page 01 has no HTML. See the spec, section 8.
 - History: `git log --oneline`.
 
 ## Next

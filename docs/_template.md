@@ -30,4 +30,4 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 - [<Title>](<primary source URL>)
 
 ## Animation script
-<Visual topics only. Numbered steps, one claim each. The HTML is generated from this. Never edit the HTML by hand.>
+<Only for a flow where stepping through it is the lesson (e.g. a handshake). Numbered steps, one claim each. The interactive HTML is built from this. Delete this section otherwise.>

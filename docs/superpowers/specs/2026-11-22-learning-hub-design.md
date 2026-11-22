@@ -89,7 +89,7 @@ Every concept or foundations page has the same sections, in this order. A sectio
 5. **Try it** (optional): at most 3 commands, for example `dig google.com`.
 6. **Remember**: 3 bullets.
 7. **Sources**: the primary sources used.
-8. **Animation script** (visual topics only): a numbered list of what the HTML visual shows at each step. The HTML is built from this. Nobody edits the HTML by hand.
+8. **Animation script** (only when an interactive page is approved): a numbered list of what the HTML shows at each step. The HTML is built from this.
 
 Front matter on each page: `prerequisites` (pages or terms the reader needs first) and `grounds` (terms this page introduces). This keeps the order honest: a page never leans on a term that no earlier page introduced.
 
@@ -133,7 +133,7 @@ For each topic, in order:
 4. **Concept brief, for the user to check.** A 5–10 line summary, the grounding list and the sources. The user says go or corrects it.
 5. **Write the page** using the template (section 6), with Mermaid via `markdown-mermaid-writing`.
 6. **Write the code** (`ponytail`): the smallest example that shows the idea, with one assert or test if it has logic. It goes in `examples/` or the project service.
-7. **Make the visual** (only for visual topics): turn the animation script into a self-contained plain-SVG page at `html/<path>.html`.
+7. **Make the visual**: a Mermaid diagram in the page. An interactive plain-SVG page at `html/<path>.html` only when stepping through a flow is the lesson and the owner agrees.
 8. **Update the indexes**: `llms.txt`, the README table of contents, `CONTEXT.md`, and the project build log.
 9. **Check**:
    - Every link resolves (a small script).
@@ -148,6 +148,7 @@ For each topic, in order:
 The user compares them and picks the default. Later topics can still pick another tool when the concept needs it.
 
 - 2026-11-22: **Plain SVG chosen as the default.** It is 10 KB instead of 57 KB and needs no build step. Its current step stands out more, and its arrow keys work anywhere on the page. `visual-explainer` stays vendored for concepts that need it.
+- 2026-11-22: **Mermaid only for simple diagrams.** The owner chose this over PNG, static HTML or an interactive page. Page 01's interactive HTML was removed; its Mermaid diagram covers it. Interactive pages are kept for flows where stepping through is the lesson, with the owner's OK.
 
 ## 9. Milestones
 
