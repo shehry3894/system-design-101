@@ -11,8 +11,10 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - M0 (setup) and M1 (foundations page 01 with its Mermaid diagram) are built.
 - M2 (design-decision pages) has started with **API styles**. The owner approved the plan on 2026-11-22.
 - The research note is done: [docs/research/api-styles.md](research/api-styles.md). It is long on purpose, for the writer.
-- 2026-11-23: the owner shared a video's list of 15 "API styles" (REST, SOAP, gRPC, GraphQL, webhooks, WebSocket, WebRTC, MCP, RPC, SSE, MQTT, AMQP, event-driven, Kafka, AsyncAPI). It is a topic list, not a source. The research note already has SOAP, JSON-RPC, WebSocket, SSE, webhooks and AsyncAPI as one-liners; WebRTC, MCP, MQTT, AMQP, Kafka and event-driven are not researched yet.
-- **Waiting on the owner:** how to fit the wider list. Proposed: a hub page that groups all 15 by kind (request-response, server push, messaging), then one short page per group, API styles first. Also still open: the title and "REST" vs "HTTP API". Don't write pages until then.
+- 2026-11-23: the owner shared a video's list of 15 "API styles" (REST, SOAP, gRPC, GraphQL, webhooks, WebSocket, WebRTC, MCP, RPC, SSE, MQTT, AMQP, event-driven, Kafka, AsyncAPI). It is a topic list, not a source. The owner chose **a hub page plus one page per group** (request-response, server push, messaging), API styles first.
+- Hub research done from official docs: [docs/research/communication-styles.md](research/communication-styles.md). It classifies all 15 and checks 21 of the video's claims (several fail).
+- Design written: [2026-11-23-communication-styles-design.md](superpowers/specs/2026-11-23-communication-styles-design.md) (umbrella term "communication style", file names, a decision-page template, order).
+- **Waiting on the owner:** approval of that design. Don't write pages until then.
 
 ## Decisions the owner made
 
@@ -43,17 +45,20 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - M1 Task 8: visual spike done. Plain SVG won over `visual-explainer`, then the owner chose **Mermaid only** for simple diagrams, so page 01 has no HTML. See the spec, section 8.
 - Docs audit: all Markdown brought in line with the decisions above (spec, plan status, `CLAUDE.md`, glossary, Foodpanda and auth_service READMEs).
 - M2 API styles: research note written ([api-styles.md](research/api-styles.md)) and spot-checked.
+- M2 communication styles hub: research note written from official docs ([communication-styles.md](research/communication-styles.md)); design doc written.
 - History: `git log --oneline`.
 
 ## Next
 
-1. **API styles page** (plan approved 2026-11-22):
+1. **Communication styles: hub + API styles page** (structure approved 2026-11-23):
    1. ~~Survey the API styles in official sources.~~ Done.
    2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
-   3. Concept brief sent to the owner. The owner then asked to cover a wider list (see Where we are). **Waiting on the owner's choice of structure.**
-   4. Page `docs/concepts/api/api-styles.md`: comparison table, pros and cons, when to use each, one Mermaid diagram, sources.
-   5. Code `examples/api/`: the same order encoded as JSON and as Protobuf, printing the byte counts, with a test.
-   6. Update `CONTEXT.md`, `README.md`, `llms.txt` and this file.
+   3. ~~Hub research note `docs/research/communication-styles.md`.~~ Done.
+   4. Design doc sent to the owner. **Waiting on approval.** Then `superpowers:writing-plans`.
+   5. Template `docs/_template-decision.md`; hub `docs/concepts/communication/00-overview.md`; page `01-api-styles.md`. Each with a Mermaid diagram and sources.
+   6. Code `examples/communication/request_payload_size.py`: the same order as JSON and as Protobuf, printing the byte counts, with a test.
+   7. Update `CONTEXT.md` (terms: communication style, API style, HTTP API, server push, messaging), `README.md`, `llms.txt`, the spec and this file.
+   8. Later, each with the owner's go-ahead: `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
 2. Proposed order after that: password hashing (bcrypt vs scrypt vs Argon2id), sessions vs tokens (JWT), token signing (HS256 vs RS256), then database decisions.
 3. Separate task, when the owner says: `project/foodpanda/services/auth_service/GAPS.md` (bad practice, why it is bad, the fix, link to the concept page). The current list is in [project/foodpanda/README.md](../project/foodpanda/README.md).
 

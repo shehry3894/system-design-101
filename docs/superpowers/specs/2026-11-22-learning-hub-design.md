@@ -153,6 +153,7 @@ The user compares them and picks the default. Later topics can still pick anothe
 - 2026-11-22: **Plain SVG chosen as the default.** It is 10 KB instead of 57 KB and needs no build step. Its current step stands out more, and its arrow keys work anywhere on the page. `visual-explainer` stays vendored for concepts that need it.
 - 2026-11-22: **Mermaid only for simple diagrams.** The owner chose this over PNG, static HTML or an interactive page. Page 01's interactive HTML was removed; its Mermaid diagram covers it. Interactive pages are kept for flows where stepping through is the lesson, with the owner's OK.
 - 2026-11-22: **Concepts drive, not the auth code.** Each topic is a backend design decision that compares the options (features, pros and cons, when to use each, real numbers), written after reading each option's official docs. The existing auth_service has gaps, so it does not pick topics; its bad practices go in a separate gaps doc. Code is Python; explanations go in Markdown, not long comments.
+- 2026-11-23: **Communication styles: a hub plus one page per group** (request-response, server push, messaging), API styles first. The owner chose this over one long page. Design: [2026-11-23-communication-styles-design.md](2026-11-23-communication-styles-design.md).
 
 ## 9. Milestones
 
@@ -162,8 +163,8 @@ The user compares them and picks the default. Later topics can still pick anothe
   - Add README, `llms.txt`, `CONTEXT.md` and the vendored skills.
   - Add a link-check script.
 - **M1, foundations page 1 (done):** "How a request travels", from the client to the server's front door. Includes the visual spike. Sources: RFC 1034/1035 (DNS), RFC 9293 (TCP), RFC 8446 (TLS 1.3), RFC 9110 (HTTP semantics), plus registry docs (ICANN) for domain registration.
-- **M2, design-decision pages (in progress; API styles research done):** one page per decision, in the order you design a backend. Proposed order:
-  - API styles: REST vs gRPC vs GraphQL, with payload size (JSON vs Protobuf) measured in `examples/api/`;
+- **M2, design-decision pages (in progress; API styles and hub research done):** one page per decision, in the order you design a backend. Proposed order:
+  - communication styles: a hub page, then API styles (REST vs gRPC vs GraphQL, with payload size measured in `examples/communication/`), then server push, then messaging;
   - password hashing: bcrypt vs scrypt vs Argon2id;
   - sessions vs tokens (JWT);
   - token signing: HS256 vs RS256;
