@@ -1,8 +1,9 @@
 fastapi[all]
 uvicorn[standard]
 sqlalchemy
-psycopg2-binary
+psycopg[binary]
 passlib[bcrypt]
+bcrypt<5
 python-jose[cryptography]
 pydantic-settings
 alembic # For database migrations

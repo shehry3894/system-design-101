@@ -10,8 +10,9 @@ dependencies = [
     "fastapi[all]",
     "uvicorn[standard]",
     "sqlalchemy",
-    "psycopg2-binary",
+    "psycopg[binary]",  # SQLAlchemy 2.1+ uses psycopg 3 for postgresql:// URLs
     "passlib[bcrypt]",
+    "bcrypt<5",  # passlib 1.7.4 crashes on bcrypt 5; drop when we move to pwdlib
     "python-jose[cryptography]",
     "pydantic-settings"
 ]
