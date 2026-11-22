@@ -9,7 +9,9 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 ## Where we are
 
 - M0 (setup) and M1 (foundations page 01 with its Mermaid diagram) are built.
-- M2 is being re-planned around design decisions (see Next). **Waiting on the owner:** approval of the API styles plan. Don't start research or writing until the owner says so.
+- M2 (design-decision pages) has started with **API styles**. The owner approved the plan on 2026-11-22.
+- The research note is done: [docs/research/api-styles.md](research/api-styles.md). It is long on purpose, for the writer.
+- **Waiting on the owner:** OK on the concept brief, and whether pages say "REST" or "HTTP API". Don't write the page until then.
 
 ## Decisions the owner made
 
@@ -39,14 +41,15 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - M1 Tasks 6–7: research note approved; foundations page 01 written ([01-how-a-request-travels.md](00-foundations/01-how-a-request-travels.md)).
 - M1 Task 8: visual spike done. Plain SVG won over `visual-explainer`, then the owner chose **Mermaid only** for simple diagrams, so page 01 has no HTML. See the spec, section 8.
 - Docs audit: all Markdown brought in line with the decisions above (spec, plan status, `CLAUDE.md`, glossary, Foodpanda and auth_service READMEs).
+- M2 API styles: research note written ([api-styles.md](research/api-styles.md)) and spot-checked.
 - History: `git log --oneline`.
 
 ## Next
 
-1. **Owner approves (or changes) the API styles plan.** Proposed, not started:
-   1. Survey the API styles in official sources. Cover REST, gRPC and GraphQL in depth; give others (e.g. SOAP, JSON-RPC, WebSocket, webhooks) one line each.
-   2. Research note `docs/research/api-styles.md`, every claim cited. Sources: Fielding's dissertation chapter 5 (REST), RFC 9110 (HTTP), grpc.io and protobuf.dev, the GraphQL spec and graphql.org, FastAPI docs.
-   3. Concept brief to the owner, then wait.
+1. **API styles page** (plan approved 2026-11-22):
+   1. ~~Survey the API styles in official sources.~~ Done.
+   2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
+   3. Concept brief sent to the owner. **Waiting on the OK.**
    4. Page `docs/concepts/api/api-styles.md`: comparison table, pros and cons, when to use each, one Mermaid diagram, sources.
    5. Code `examples/api/`: the same order encoded as JSON and as Protobuf, printing the byte counts, with a test.
    6. Update `CONTEXT.md`, `README.md`, `llms.txt` and this file.
@@ -58,4 +61,5 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - **In the repo** (`.claude/skills/`): `markdown-mermaid-writing`, `ponytail`, `caveman`. `visual-explainer` is also there but is not the default.
 - **Install in Claude Code if missing:**
   - superpowers: `brainstorming`, `writing-plans`, `executing-plans`, `test-driven-development`.
-  - mattpocock skills: `research`, `domain-modeling`, `grilling`, and the grounding rules in `writing-beats`.
+  - mattpocock skills ([github.com/mattpocock/skills](https://github.com/mattpocock/skills)): `research`, `domain-modeling`, `grilling`, and the grounding rules in `writing-beats`. `grill-with-docs` is `grilling` + `domain-modeling`; it, `grill-me` and `teach` can only be started by the owner.
+- **Owner rule:** search for the best skill for each task and use it unasked. Research notes may be long; what the owner reads stays brief.

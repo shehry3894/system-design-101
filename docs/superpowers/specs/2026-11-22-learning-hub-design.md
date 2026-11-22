@@ -1,7 +1,7 @@
 # System Design 101: Learning Hub Design
 
 Date: 2026-11-22
-Status: approved. M0 and M1 done (2026-11-22). M2 being re-planned around design decisions; waiting on the owner. Current state: `docs/HANDOFF.md`.
+Status: approved. M0 and M1 done (2026-11-22). M2 (design-decision pages) started 2026-11-22 with API styles. Current state: `docs/HANDOFF.md`.
 
 ## 1. Intent
 
@@ -162,7 +162,7 @@ The user compares them and picks the default. Later topics can still pick anothe
   - Add README, `llms.txt`, `CONTEXT.md` and the vendored skills.
   - Add a link-check script.
 - **M1, foundations page 1 (done):** "How a request travels", from the client to the server's front door. Includes the visual spike. Sources: RFC 1034/1035 (DNS), RFC 9293 (TCP), RFC 8446 (TLS 1.3), RFC 9110 (HTTP semantics), plus registry docs (ICANN) for domain registration.
-- **M2, design-decision pages (re-planning; waiting on the owner's OK):** one page per decision, in the order you design a backend. Proposed order:
+- **M2, design-decision pages (in progress; API styles research done):** one page per decision, in the order you design a backend. Proposed order:
   - API styles: REST vs gRPC vs GraphQL, with payload size (JSON vs Protobuf) measured in `examples/api/`;
   - password hashing: bcrypt vs scrypt vs Argon2id;
   - sessions vs tokens (JWT);
