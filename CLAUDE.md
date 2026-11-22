@@ -18,6 +18,8 @@ Goal: low cognitive load. Short pages, one idea at a time, real code behind ever
   6. Update `llms.txt`, `README.md`, `CONTEXT.md` and `docs/HANDOFF.md`.
 - **Pages:** plain English, one idea per sentence. Spell out every abbreviation at its first use on a page, e.g. "NAT (Network Address Translation)", and in `CONTEXT.md`. Every term is explained before a later page relies on it (`prerequisites` / `grounds` front matter).
 - **Diagrams:** Mermaid inside the `.md` page by default. No PNGs and no static HTML. Build an interactive HTML page in `html/` only when stepping through a flow is the lesson, and only with the owner's OK. It is one self-contained file: inline SVG, CSS and a small JS stepper, with no kit and no CDN, built from the page's animation script.
-- **Chat** with the owner: short (`caveman`). Pages and code comments stay in normal prose.
+- **Topics:** each topic is a backend design decision (e.g. REST vs gRPC vs GraphQL, bcrypt vs Argon2id). Read each option's official docs first, then compare them: features, pros and cons, when to use each, and real numbers. Use the technical terms developers use (e.g. access pattern, query pattern). The existing auth_service code does not pick topics; its bad practices go in a separate gaps doc.
+- **Code:** Python (FastAPI and its usual libraries). Keep comments short; explanations go in the Markdown page.
+- **Chat** with the owner: always use the `caveman` skill for every reply: brief, to the point, structured. Questions to the owner stay in full sentences. Pages and code comments stay in normal prose.
 - **Checks before commit:** `python3 -m pytest examples scripts` and `python3 scripts/check_links.py`.
 - **Secrets:** never commit `.env` files. Only `*.example`.

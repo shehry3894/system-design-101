@@ -1,7 +1,7 @@
 # System Design 101: Learning Hub Design
 
 Date: 2026-11-22
-Status: approved. M0 and M1 done (2026-11-22). M2 on hold until the owner says so. Current state: `docs/HANDOFF.md`.
+Status: approved. M0 and M1 done (2026-11-22). M2 being re-planned around design decisions; waiting on the owner. Current state: `docs/HANDOFF.md`.
 
 ## 1. Intent
 
@@ -14,7 +14,7 @@ Content is written as Markdown first (readable on GitHub, friendly to LLMs). Dia
 
 **Goals**
 - A foundations prelude: "what happens when you open google.com" (client, IP, DNS, domain registration, TCP, TLS, HTTP, the request reaching the gateway).
-- Then a project-first path: build a Foodpanda-style system service by service, starting with the existing `auth_service`. Each build step pulls in the concepts it needs (JWT, REST vs gRPC, singleton, KISS, mutex, and so on).
+- Then design-decision pages in the order you design a backend, each comparing the options (REST vs gRPC vs GraphQL, bcrypt vs Argon2id, and so on). A Foodpanda-style system, built service by service from the existing `auth_service`, is the worked example.
 - Each concept page is reusable: later steps link to it instead of explaining it again.
 - Every claim comes from official or authoritative sources, cited on the page.
 - Every concept links to the exact code that shows it.
@@ -152,6 +152,7 @@ The user compares them and picks the default. Later topics can still pick anothe
 
 - 2026-11-22: **Plain SVG chosen as the default.** It is 10 KB instead of 57 KB and needs no build step. Its current step stands out more, and its arrow keys work anywhere on the page. `visual-explainer` stays vendored for concepts that need it.
 - 2026-11-22: **Mermaid only for simple diagrams.** The owner chose this over PNG, static HTML or an interactive page. Page 01's interactive HTML was removed; its Mermaid diagram covers it. Interactive pages are kept for flows where stepping through is the lesson, with the owner's OK.
+- 2026-11-22: **Concepts drive, not the auth code.** Each topic is a backend design decision that compares the options (features, pros and cons, when to use each, real numbers), written after reading each option's official docs. The existing auth_service has gaps, so it does not pick topics; its bad practices go in a separate gaps doc. Code is Python; explanations go in Markdown, not long comments.
 
 ## 9. Milestones
 
@@ -161,15 +162,15 @@ The user compares them and picks the default. Later topics can still pick anothe
   - Add README, `llms.txt`, `CONTEXT.md` and the vendored skills.
   - Add a link-check script.
 - **M1, foundations page 1 (done):** "How a request travels", from the client to the server's front door. Includes the visual spike. Sources: RFC 1034/1035 (DNS), RFC 9293 (TCP), RFC 8446 (TLS 1.3), RFC 9110 (HTTP semantics), plus registry docs (ICANN) for domain registration.
-- **M2, project step 1, auth service (on hold until the owner says so):** read the existing code, then write the concept pages it already uses:
-  - JWT;
-  - HS256 vs RS256 (the `.env` comment already raises this);
-  - password hashing;
-  - REST;
-  - dependency injection via FastAPI `Depends`.
+- **M2, design-decision pages (re-planning; waiting on the owner's OK):** one page per decision, in the order you design a backend. Proposed order:
+  - API styles: REST vs gRPC vs GraphQL, with payload size (JSON vs Protobuf) measured in `examples/api/`;
+  - password hashing: bcrypt vs scrypt vs Argon2id;
+  - sessions vs tokens (JWT);
+  - token signing: HS256 vs RS256;
+  - database decisions.
 
-  Link each page to the code.
-- **Later:** API gateway with nginx (rate limiting, authentication), REST vs gRPC, data formats, Docker, Kubernetes, Temporal. Each comes in when the project needs it.
+  The auth_service is the worked example. Its gaps go in a separate `GAPS.md`, fixed after the page each fix depends on.
+- **Later:** API gateway with nginx (rate limiting, authentication), Docker, Kubernetes, Temporal. Each comes in when the project needs it.
 
 ## 10. Left to the builder
 
