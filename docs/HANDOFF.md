@@ -17,6 +17,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Markdown first (plus `llms.txt`). Hosting is decided later.
 - Diagrams: Mermaid in the page by default. No PNGs, no static HTML. An interactive plain-SVG page only when stepping through a flow is the lesson, and only with the owner's OK.
 - Spell out every abbreviation at its first use.
+- Every doc stays current: each turn that changes anything also updates HANDOFF and any README, `llms.txt`, `CONTEXT.md`, spec or build log it touches.
 - Order: a foundations prelude ("how a request travels"), then project-first (auth_service is step 1).
 - Sources: official or authoritative docs only. The owner's Google Doc "System Design" is a **topic list only**, never a source.
 - No HTML visual for non-visual ideas (e.g. KISS). Use a short code example instead.
@@ -34,6 +35,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - auth_service tests verified: 6 pass against Postgres. Fixed two dependency breaks (psycopg 3 driver, `bcrypt<5`). `uv.lock` committed.
 - M1 Tasks 6–7: research note approved; foundations page 01 written ([01-how-a-request-travels.md](00-foundations/01-how-a-request-travels.md)).
 - M1 Task 8: visual spike done. Plain SVG won over `visual-explainer`, then the owner chose **Mermaid only** for simple diagrams, so page 01 has no HTML. See the spec, section 8.
+- Docs audit: all Markdown brought in line with the decisions above (spec, plan status, `CLAUDE.md`, glossary, Foodpanda and auth_service READMEs).
 - History: `git log --oneline`.
 
 ## Next

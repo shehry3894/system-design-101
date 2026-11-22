@@ -1,14 +1,14 @@
 # System Design 101: Learning Hub Design
 
 Date: 2026-11-22
-Status: draft, waiting for approval
+Status: approved. M0 and M1 done (2026-11-22). M2 on hold until the owner says so. Current state: `docs/HANDOFF.md`.
 
 ## 1. Intent
 
 Build a from-scratch learning hub for system design. Anyone can clone one repo and go page by page.
 The main goal is **low cognitive load**: short pages, one idea at a time, a picture when the idea is visual, and real code behind every concept.
 
-Content is written as Markdown first (readable on GitHub, friendly to LLMs). HTML visuals are generated from the Markdown later. Hosting is decided later.
+Content is written as Markdown first (readable on GitHub, friendly to LLMs). Diagrams are Mermaid inside the Markdown. An interactive HTML page is added only when stepping through a flow is the lesson (section 8). Hosting is decided later.
 
 ## 2. Goals, non-goals, anti-goals
 
@@ -46,7 +46,7 @@ Content is written as Markdown first (readable on GitHub, friendly to LLMs). HTM
 | B | Two repos: content + `foodpanda` monorepo | Cleaner project; cross-repo links break on renames; two clones | Rejected for now. The project can be split out later with `git subtree split`, keeping history |
 | C | One repo per service under a GitHub org | Too much setup for no learning gain yet | Rejected. "Polyrepo vs monorepo" can become a lesson page |
 
-Visual tooling is decided per concept, by a spike on the first page (section 8).
+Visual tooling was decided by a spike on the first page (section 8): Mermaid by default.
 
 ## 5. Repo layout
 
@@ -63,12 +63,15 @@ system-design-101/
 │   │   ├── networking/  api/  security/  data/
 │   │   ├── patterns/  principles/  concurrency/  infra/
 │   ├── research/              cited research notes, one per topic
-│   └── superpowers/specs/     design docs like this one
-├── html/                      generated visuals, same path as their .md
+│   ├── superpowers/specs/     design docs like this one
+│   ├── superpowers/plans/     milestone plans
+│   ├── HANDOFF.md             current state and next steps
+│   └── _template.md           page template
+├── html/                      interactive visuals, only when approved (empty for now)
 ├── examples/                  standalone snippets (moved from the root)
-│   ├── concurrency/locks/
-│   ├── patterns/creational/
-│   └── principles/solid/
+│   ├── concurrency/           lock_, limit_, wait_ files
+│   ├── patterns/              creational_ files
+│   └── principles/solid/      s_, o_, l_, i_, d_ files
 └── project/foodpanda/
     ├── README.md              build log: each step and the concepts it uses
     └── services/auth_service/ (moved from the root)
@@ -152,13 +155,13 @@ The user compares them and picks the default. Later topics can still pick anothe
 
 ## 9. Milestones
 
-- **M0, setup:**
+- **M0, setup (done):**
   - Move folders into the new layout.
   - Replace the committed `.env` files with `.env.example`.
   - Add README, `llms.txt`, `CONTEXT.md` and the vendored skills.
   - Add a link-check script.
-- **M1, foundations page 1:** "How a request travels", from the client to the server's front door. Includes the visual spike. Sources: RFC 1034/1035 (DNS), RFC 9293 (TCP), RFC 8446 (TLS 1.3), RFC 9110 (HTTP semantics), plus registry docs (ICANN) for domain registration.
-- **M2, project step 1, auth service:** read the existing code, then write the concept pages it already uses:
+- **M1, foundations page 1 (done):** "How a request travels", from the client to the server's front door. Includes the visual spike. Sources: RFC 1034/1035 (DNS), RFC 9293 (TCP), RFC 8446 (TLS 1.3), RFC 9110 (HTTP semantics), plus registry docs (ICANN) for domain registration.
+- **M2, project step 1, auth service (on hold until the owner says so):** read the existing code, then write the concept pages it already uses:
   - JWT;
   - HS256 vs RS256 (the `.env` comment already raises this);
   - password hashing;
@@ -173,4 +176,4 @@ The user compares them and picks the default. Later topics can still pick anothe
 - The exact Mermaid diagram type per page.
 - File names inside `concepts/<area>/`.
 - The link-check script's implementation.
-- Styling details inside the visual-explainer kit.
+- Styling details of an interactive page, when one is approved.

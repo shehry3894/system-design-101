@@ -1,5 +1,7 @@
 # Learning Hub M0 + M1 Implementation Plan
 
+> **Status: done (2026-11-22). Kept as a record.** Later owner decisions override it: commit and push straight to `main` (no branch, no PR, so Task 9 step 3 does not apply), and diagrams are Mermaid only (Task 8 ended with no HTML for page 01). Current state: [docs/HANDOFF.md](../../HANDOFF.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Restructure the repo into the learning-hub layout (M0). Then ship the first foundations page, "How a request travels", with its research note, Markdown page and chosen HTML visual (M1).

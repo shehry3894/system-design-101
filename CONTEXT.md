@@ -18,7 +18,7 @@ _Avoid_: Recursive lock
 
 **Barrier**: A meeting point where N threads wait until all have arrived. [Example](examples/concurrency/wait_barrier.py)
 
-**GIL**: The CPython lock that lets only one thread run Python code at a time. [Example](examples/concurrency/gil.py)
+**GIL** (Global Interpreter Lock): The CPython lock that lets only one thread run Python code at a time. [Example](examples/concurrency/gil.py)
 
 ## Design patterns
 
@@ -48,7 +48,7 @@ Taught in [How a request travels](docs/00-foundations/01-how-a-request-travels.m
 **Private address**: An address from 10/8, 172.16/12 or 192.168/16. It is only unique inside one network.
 
 **NAT** (Network Address Translation): The router maps private addresses to its own public one.
-_Avoid_: NAPT (when the difference doesn't matter)
+_Avoid_: NAPT, Network Address Port Translation (when the difference doesn't matter)
 
 **DNS** (Domain Name System): The system that turns a domain name into an IP address.
 
@@ -64,7 +64,7 @@ _Avoid_: NAPT (when the difference doesn't matter)
 
 **TCP** (Transmission Control Protocol): Gives a reliable, in-order byte stream over IP.
 
-**Port**: A number that picks the application on a host, e.g. 443 for HTTPS.
+**Port**: A number that picks the application on a host, e.g. 443 for HTTPS (HTTP over TLS).
 
 **TLS** (Transport Layer Security): Encrypts and authenticates the connection.
 

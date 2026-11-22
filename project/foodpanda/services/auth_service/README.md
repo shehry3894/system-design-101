@@ -67,7 +67,7 @@ auth_service/
 
 ## ⚙️ Requirements
 
-- Python 3.10+
+- Python 3.12+
 - [uv](https://github.com/astral-sh/uv) (fast dependency manager)
 - PostgreSQL (local or via Docker)
 
@@ -81,7 +81,7 @@ Create your env files (they are git-ignored; set your own `SECRET_KEY` and DB pa
 cp .env.example .env && cp local.env.example local.env && cp test.env.example test.env
 ```
 
-Then install dependencies:
+Then install dependencies (drop `--no-dev` if you will run the tests):
 
 ```bash
 uv sync --frozen --no-dev
@@ -101,18 +101,21 @@ App available at: [http://localhost:8000](http://localhost:8000)
 
 ### Docker
 
+The API image does not work yet: see the known gaps in the [build log](../../README.md). The database container works:
+
 ```bash
-docker-compose up --build
+docker compose up -d identity-db
 ```
 
 ---
 
 ## 🧪 Running Tests
 
-Uses an isolated test database defined in `test.env`.
+Uses an isolated test database defined in `test.env` (`pytest.ini` loads it). Start the database first.
 
 ```bash
-ENV_FILE=test.env pytest
+docker compose up -d identity-db
+uv run pytest
 ```
 
 ---
