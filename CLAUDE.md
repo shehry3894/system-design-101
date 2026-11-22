@@ -2,6 +2,8 @@
 
 Goal: low cognitive load. Short pages, one idea at a time, real code behind every concept.
 
+**Start of a session:** read `docs/HANDOFF.md` (current state and next steps).
+
 - **Sources:** only primary or authoritative ones, in this order: RFCs/specs → official docs → canonical author sites → vendor explainers (cross-check only). Never write from memory. The owner's Google Doc is a topic list, not a source.
 - **Per topic:**
   1. Research into `docs/research/<topic>.md`, every claim cited.
