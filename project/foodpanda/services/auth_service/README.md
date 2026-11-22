@@ -52,9 +52,9 @@ auth_service/
 ├── tests/                # Test suite (pytest)
 │   ├── test_auth_api.py
 │   └── __init__.py
-├── .env                  # Docker environment
-├── local.env             # Local development env
-├── test.env              # Test environment
+├── .env.example          # Docker environment (copy to .env)
+├── local.env.example     # Local development env (copy to local.env)
+├── test.env.example      # Test environment (copy to test.env)
 ├── docker-compose.yml
 ├── Dockerfile
 ├── pyproject.toml        # Dependencies
@@ -75,10 +75,16 @@ auth_service/
 
 ## 📦 Installation
 
-Clone the repository and install dependencies:
+Create your env files (they are git-ignored; set your own `SECRET_KEY` and DB password):
 
 ```bash
-uv sync --freeze --no-dev
+cp .env.example .env && cp local.env.example local.env && cp test.env.example test.env
+```
+
+Then install dependencies:
+
+```bash
+uv sync --frozen --no-dev
 ```
 
 ---
