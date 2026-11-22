@@ -32,5 +32,6 @@ class UserReport:  # changes when the report format changes
 
 
 u = User("a@b.com")
-assert UserRepository().save(u) == UserBad("a@b.com").save()
+print(UserRepository().save(u))
 print(UserReport().render(u))
+assert UserRepository().save(u) == UserBad("a@b.com").save()  # same behaviour, now split by reason to change

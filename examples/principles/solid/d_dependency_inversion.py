@@ -1,6 +1,6 @@
-# D: Dependency Inversion. Business logic depends on an interface, not on a concrete DB or API.
+# D: Dependency Inversion. High-level code (business rules) and low-level code (a DB) both depend on an interface.
 # Use when: you want to swap Postgres for something else, or use a fake in tests.
-# Source: https://en.wikipedia.org/wiki/Dependency_inversion_principle
+# Source: http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod (Robert C. Martin)
 from abc import ABC, abstractmethod
 
 

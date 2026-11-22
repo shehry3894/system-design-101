@@ -26,7 +26,7 @@ def timed(func, worker_cls, workers=4):
     return time.perf_counter() - start
 
 
-if __name__ == "__main__":  # required for multiprocessing on macOS/Windows
+if __name__ == "__main__":  # required: multiprocessing child processes re-import this file
     print(f"CPU, 4 threads:   {timed(cpu_task, threading.Thread):.2f}s  (take turns)")
     print(f"CPU, 4 processes: {timed(cpu_task, multiprocessing.Process):.2f}s  (run in parallel)")
     io_threads = timed(io_task, threading.Thread)

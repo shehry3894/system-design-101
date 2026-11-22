@@ -1,6 +1,6 @@
+"""API tests against a real Postgres test DB (see test.env.example). Tests run in order and share one user."""
 import pytest
-from httpx import (AsyncClient,
-                   ASGITransport)  # allows testing directly against FastAPI apps (without starting a real server).
+from httpx import ASGITransport, AsyncClient  # ASGITransport: call the app in-process, no real server
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -9,11 +9,7 @@ from app.db.session import get_db
 from app.models.user import Base, UserRole
 from app.core.config import settings
 
-# --- Test Database Setup ---
-# Use a separate database for testing
-TEST_DATABASE_URL = f"{settings.DATABASE_URL}"
-
-engine = create_engine(TEST_DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)  # test.env points this at identity_db_test
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -74,7 +70,6 @@ async def test_register_user_success(client: AsyncClient):
 
     # Act
     response = await client.post("/api/v1/register", json=user_data)
-    print('response', response)
 
     # Assert
     assert response.status_code == 200

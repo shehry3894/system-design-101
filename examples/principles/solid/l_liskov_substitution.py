@@ -1,6 +1,6 @@
 # L: Liskov Substitution. A subclass must work anywhere its parent class works.
 # Use when: checking if inheritance is right. "Is-a" in real life is not enough.
-# Source: https://en.wikipedia.org/wiki/Liskov_substitution_principle
+# Source: http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod (Robert C. Martin)
 
 
 class Rectangle:

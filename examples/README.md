@@ -1,33 +1,45 @@
 # Examples
 
-Small, runnable snippets. Each file starts with **what it is**, **when to use it**, and a **source**. Each ends with an `assert` that proves the point.
+Small, runnable snippets. Each file starts with **what it is**, **when to use it** and a **source**. Each ends with an `assert` that proves the point.
 
-Run one: `python3 examples/concurrency/locks/01_mutex.py`. Run all: `python3 -m pytest examples`.
+Run one: `python3 examples/concurrency/lock_mutex.py`. Run all: `python3 -m pytest examples`.
 
-## Concurrency: locks (Python `threading`)
+## Concurrency (Python `threading`)
+
+The file prefix tells you the question the tool answers.
+
+| Prefix | Question |
+|---|---|
+| `lock_` | Only **one** thread at a time? |
+| `limit_` | At most **N** threads at a time? |
+| `wait_` | Wait for **another thread** first? |
 
 | File | One line |
 |---|---|
-| [01_mutex.py](concurrency/locks/01_mutex.py) | One thread at a time |
-| [02_rlock.py](concurrency/locks/02_rlock.py) | The same thread may lock again |
-| [03_semaphore.py](concurrency/locks/03_semaphore.py) | At most N threads at a time |
-| [04_bounded_semaphore.py](concurrency/locks/04_bounded_semaphore.py) | A semaphore that catches extra releases |
-| [05_event.py](concurrency/locks/05_event.py) | Wait for one signal |
-| [06_condition.py](concurrency/locks/06_condition.py) | Wait until data is ready (producer/consumer) |
-| [07_barrier.py](concurrency/locks/07_barrier.py) | Everyone waits until all arrive |
-| [08_gil.py](concurrency/locks/08_gil.py) | Why threads don't speed up CPU work in Python |
+| [lock_mutex.py](concurrency/lock_mutex.py) | One thread at a time |
+| [lock_rlock.py](concurrency/lock_rlock.py) | The same thread may lock again |
+| [limit_semaphore.py](concurrency/limit_semaphore.py) | At most N threads at a time |
+| [limit_bounded_semaphore.py](concurrency/limit_bounded_semaphore.py) | Same, but an extra release raises an error |
+| [wait_event.py](concurrency/wait_event.py) | Wait for one signal |
+| [wait_condition.py](concurrency/wait_condition.py) | Wait until data is ready (producer/consumer) |
+| [wait_barrier.py](concurrency/wait_barrier.py) | Everyone waits until all arrive |
+| [gil.py](concurrency/gil.py) | Why threads don't speed up CPU work in Python |
 
-## Design patterns: creational
+## Design patterns
+
+The prefix is the GoF group: `creational_` (how objects are created). `structural_` and `behavioral_` come later.
 
 | File | One line |
 |---|---|
-| [01_singleton.py](patterns/creational/01_singleton.py) | Exactly one instance |
-| [02_factory_method.py](patterns/creational/02_factory_method.py) | Subclasses pick which object to create |
-| [03_abstract_factory.py](patterns/creational/03_abstract_factory.py) | Create a matching family of objects |
-| [04_builder.py](patterns/creational/04_builder.py) | Build a complex object step by step |
-| [05_prototype.py](patterns/creational/05_prototype.py) | Copy a ready-made object |
+| [creational_singleton.py](patterns/creational_singleton.py) | Exactly one instance |
+| [creational_factory_method.py](patterns/creational_factory_method.py) | Subclasses pick which object to create |
+| [creational_abstract_factory.py](patterns/creational_abstract_factory.py) | Create a matching family of objects |
+| [creational_builder.py](patterns/creational_builder.py) | Build a complex object step by step |
+| [creational_prototype.py](patterns/creational_prototype.py) | Copy a ready-made object |
 
 ## Principles: SOLID
+
+The prefix is the SOLID letter.
 
 | File | One line |
 |---|---|

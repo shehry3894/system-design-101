@@ -4,34 +4,34 @@ One short definition per term. Each term links to the page or example that teach
 
 ## Concurrency
 
-**Mutex**: A lock only one thread can hold at a time. [Example](examples/concurrency/locks/01_mutex.py)
+**Mutex**: A lock only one thread can hold at a time. [Example](examples/concurrency/lock_mutex.py)
 _Avoid_: Lock (when you mean this specific kind)
 
-**RLock**: A mutex the holding thread may acquire again without blocking itself. [Example](examples/concurrency/locks/02_rlock.py)
+**RLock**: A mutex the holding thread may acquire again without blocking itself. [Example](examples/concurrency/lock_rlock.py)
 _Avoid_: Recursive lock
 
-**Semaphore**: A counter of free slots, so at most N threads can enter. [Example](examples/concurrency/locks/03_semaphore.py)
+**Semaphore**: A counter of free slots, so at most N threads can enter. [Example](examples/concurrency/limit_semaphore.py)
 
-**Event**: A flag that threads wait on until another thread sets it. [Example](examples/concurrency/locks/05_event.py)
+**Event**: A flag that threads wait on until another thread sets it. [Example](examples/concurrency/wait_event.py)
 
-**Condition**: A lock plus "wait until something is true", woken by notify. [Example](examples/concurrency/locks/06_condition.py)
+**Condition**: A lock plus "wait until something is true", woken by notify. [Example](examples/concurrency/wait_condition.py)
 
-**Barrier**: A meeting point where N threads wait until all have arrived. [Example](examples/concurrency/locks/07_barrier.py)
+**Barrier**: A meeting point where N threads wait until all have arrived. [Example](examples/concurrency/wait_barrier.py)
 
-**GIL**: The CPython lock that lets only one thread run Python code at a time. [Example](examples/concurrency/locks/08_gil.py)
+**GIL**: The CPython lock that lets only one thread run Python code at a time. [Example](examples/concurrency/gil.py)
 
 ## Design patterns
 
-**Singleton**: A class with exactly one instance. [Example](examples/patterns/creational/01_singleton.py)
+**Singleton**: A class with exactly one instance. [Example](examples/patterns/creational_singleton.py)
 
-**Factory Method**: A method that subclasses override to choose which object to create. [Example](examples/patterns/creational/02_factory_method.py)
+**Factory Method**: A method that subclasses override to choose which object to create. [Example](examples/patterns/creational_factory_method.py)
 _Avoid_: Factory (too vague; a "simple factory" is a different thing)
 
-**Abstract Factory**: An object that creates a matching family of objects. [Example](examples/patterns/creational/03_abstract_factory.py)
+**Abstract Factory**: An object that creates a matching family of objects. [Example](examples/patterns/creational_abstract_factory.py)
 
-**Builder**: An object that assembles a complex object step by step. [Example](examples/patterns/creational/04_builder.py)
+**Builder**: An object that assembles a complex object step by step. [Example](examples/patterns/creational_builder.py)
 
-**Prototype**: An object you copy to make new similar objects. [Example](examples/patterns/creational/05_prototype.py)
+**Prototype**: An object you copy to make new similar objects. [Example](examples/patterns/creational_prototype.py)
 
 ## Principles
 

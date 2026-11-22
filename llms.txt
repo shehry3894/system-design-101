@@ -20,8 +20,8 @@
 ## Examples
 
 - [Examples index](examples/README.md): every snippet with a one-line summary
-- [Locks](examples/concurrency/locks/): mutex, RLock, semaphore, bounded semaphore, event, condition, barrier, GIL
-- [Creational patterns](examples/patterns/creational/): singleton, factory method, abstract factory, builder, prototype
+- [Concurrency](examples/concurrency/): mutex, RLock, semaphore, bounded semaphore, event, condition, barrier, GIL
+- [Design patterns](examples/patterns/): singleton, factory method, abstract factory, builder, prototype
 - [SOLID](examples/principles/solid/): the five principles, each with a bad and a good version
 
 ## Optional

@@ -20,7 +20,7 @@ Learn system design step by step, from scratch. Every page explains one idea, wi
 ## Run the examples
 
 ```bash
-python3 examples/concurrency/locks/01_mutex.py   # any single example
+python3 examples/concurrency/lock_mutex.py   # any single example
 python3 -m pytest examples scripts                # all examples + checks
 ```
 

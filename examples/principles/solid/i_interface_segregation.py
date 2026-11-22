@@ -1,6 +1,6 @@
 # I: Interface Segregation. Don't force a class to depend on methods it does not use.
 # Use when: classes implement methods only to raise NotImplementedError.
-# Source: https://en.wikipedia.org/wiki/Interface_segregation_principle
+# Source: http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod (Robert C. Martin)
 from abc import ABC, abstractmethod
 
 

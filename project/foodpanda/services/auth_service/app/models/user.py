@@ -1,13 +1,10 @@
-# app/models/user.py
-# DB representation (SQLAlchemy)
-# Represents the database table structure
-# Defines columns, constraints, and relationships
-# CRUD operations with DB
+"""Database tables (SQLAlchemy models). Schemas in app/schemas define the API shape instead."""
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Enum
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()  # returns a base class that ORM models will inherit from
+from sqlalchemy import Boolean, Column, Enum, Integer, String
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()  # every model inherits from this; create_all() makes their tables
 
 
 class UserRole(str, enum.Enum):
@@ -17,24 +14,11 @@ class UserRole(str, enum.Enum):
     DRIVER = "driver"
 
 
-class User(Base):  # now SQLAlchemy knows it’s a table
-    __tablename__ = "users"  # table name in DB
+class User(Base):
+    __tablename__ = "users"
 
-    id = Column(Integer,
-                primary_key=True,
-                index=True  # BP: For primary keys, this is redundant because DBs automatically index primary keys
-                # same as `CREATE UNIQUE INDEX users_pkey ON users(id);`
-                )
-    email = Column(String,
-                   unique=True,
-                   index=True,  # BP: unique=True already creates a unique index behind the scenes.
-                   # same as `CREATE UNIQUE INDEX users_email_key ON users(email);`
-                   nullable=False)
-    # 2 indexes total (one for id, one for email).
-
-    hashed_password = Column(String, nullable=False)
-    role = Column(
-        Enum(UserRole),  # Tells SQLAlchemy to store values from a Python Enum class, DB col will only accept those val
-        nullable=False,
-        default=UserRole.CUSTOMER)
-    is_active = Column(Boolean(), default=True)
+    id = Column(Integer, primary_key=True)  # a primary key is indexed automatically
+    email = Column(String, unique=True, nullable=False)  # unique also creates an index: fast lookup by email
+    hashed_password = Column(String, nullable=False)  # never the plain password
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.CUSTOMER)  # DB accepts only these values
+    is_active = Column(Boolean, default=True)

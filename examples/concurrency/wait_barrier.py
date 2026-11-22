@@ -4,7 +4,7 @@
 from threading import Barrier, Thread
 
 N = 3
-barrier = Barrier(N)  # needs exactly N threads; with fewer, wait() blocks forever
+barrier = Barrier(N)  # needs N threads; with fewer, wait() blocks forever (no timeout here)
 log = []
 
 

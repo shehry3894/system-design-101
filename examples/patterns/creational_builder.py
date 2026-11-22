@@ -1,8 +1,8 @@
 # Builder: build a complex object step by step, instead of one constructor with many arguments.
 # Use when: an object has many optional parts and a 10-argument constructor gets unreadable.
 # Source: https://www.gofpattern.com/creational/patterns/builder-pattern.php
-# The full GoF version adds a Director that runs the same steps on different builders.
-# This chained ("fluent") form is the one you meet most in real code.
+# This chained form is Joshua Bloch's Builder (Effective Java, Item 2), the one you meet most in real code.
+# The GoF version adds a Director that runs the same steps on different builders to get different results.
 from dataclasses import dataclass, field
 
 

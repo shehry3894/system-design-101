@@ -10,8 +10,7 @@ condition = Condition()
 
 def consumer():
     with condition:
-        while not items:  # loop: re-check after waking up
-            condition.wait()  # releases the lock while sleeping
+        condition.wait_for(lambda: items)  # sleeps (lock released) until items is non-empty
         consumed.append(items.pop())
 
 
