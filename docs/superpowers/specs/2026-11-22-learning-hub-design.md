@@ -104,7 +104,7 @@ Writing style: plain, simple English. Answer first, one idea per sentence, mostl
 | Glossary of terms | `mattpocock-skills:domain-modeling` (`CONTEXT.md`) | user's account |
 | Stress-test a plan or concept | `mattpocock-skills:grilling` | user's account |
 | Markdown + Mermaid diagrams | `markdown-mermaid-writing` (K-Dense, Apache-2.0) | vendored in `.claude/skills/` |
-| HTML visuals: SVG, steppers, flow dots | `visual-explainer` (nicobailon, MIT) | vendored in `.claude/skills/` |
+| HTML visuals: SVG, steppers, flow dots | `visual-explainer` (nicobailon, MIT) | vendored in `.claude/skills/`; not the default (section 8) |
 | Minimal example code | `ponytail` | user's account + vendored |
 | Terse chat replies (not pages) | `caveman` | user's account |
 | Charts, when a page has numbers | `dataviz` | built in |
@@ -133,7 +133,7 @@ For each topic, in order:
 4. **Concept brief, for the user to check.** A 5–10 line summary, the grounding list and the sources. The user says go or corrects it.
 5. **Write the page** using the template (section 6), with Mermaid via `markdown-mermaid-writing`.
 6. **Write the code** (`ponytail`): the smallest example that shows the idea, with one assert or test if it has logic. It goes in `examples/` or the project service.
-7. **Make the visual** (only for visual topics): `visual-explainer` turns the animation script into `html/<path>.html`.
+7. **Make the visual** (only for visual topics): turn the animation script into a self-contained plain-SVG page at `html/<path>.html`.
 8. **Update the indexes**: `llms.txt`, the README table of contents, `CONTEXT.md`, and the project build log.
 9. **Check**:
    - Every link resolves (a small script).
@@ -146,6 +146,8 @@ For each topic, in order:
 - as a plain self-contained SVG/CSS page with no kit.
 
 The user compares them and picks the default. Later topics can still pick another tool when the concept needs it.
+
+- 2026-11-22: **Plain SVG chosen as the default.** It is 10 KB instead of 57 KB and needs no build step. Its current step stands out more, and its arrow keys work anywhere on the page. `visual-explainer` stays vendored for concepts that need it.
 
 ## 9. Milestones
 

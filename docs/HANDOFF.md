@@ -26,16 +26,16 @@ A from-scratch system design learning hub, built for **low cognitive load**. The
 - Ponytail pass and comment review on all Python, including auth_service.
 - auth_service tests verified: 6 pass against Postgres. Fixed two dependency breaks (psycopg 3 driver, `bcrypt<5`). `uv.lock` committed.
 - M1 Tasks 6–7: research note approved; foundations page 01 written ([01-how-a-request-travels.md](00-foundations/01-how-a-request-travels.md)).
+- M1 Task 8: the owner chose **plain SVG** as the default visual tool. See [the page 01 visual](../html/00-foundations/01-how-a-request-travels.html) and the spec, section 8.
 - History: `git log --oneline`.
 
 ## Next
 
-1. **M1 Task 8**: visual spike for page 01, `visual-explainer` vs plain SVG, from its animation script. **The owner picks.** See the plan [docs/superpowers/plans/2026-11-22-learning-hub-m0-m1.md](superpowers/plans/2026-11-22-learning-hub-m0-m1.md).
-2. Auth service step 1: fix the known gaps listed in [project/foodpanda/README.md](../project/foodpanda/README.md), and write its concept pages (M2).
+1. Auth service step 1: fix the known gaps listed in [project/foodpanda/README.md](../project/foodpanda/README.md), and write its concept pages (M2).
 
 ## Suggested skills
 
-- **In the repo** (`.claude/skills/`): `visual-explainer`, `markdown-mermaid-writing`, `ponytail`, `caveman`.
+- **In the repo** (`.claude/skills/`): `markdown-mermaid-writing`, `ponytail`, `caveman`. `visual-explainer` is also there but is not the default.
 - **Install in Claude Code if missing:**
   - superpowers: `brainstorming`, `writing-plans`, `executing-plans`, `test-driven-development`.
   - mattpocock skills: `research`, `domain-modeling`, `grilling`, and the grounding rules in `writing-beats`.

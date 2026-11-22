@@ -12,6 +12,8 @@ Your browser has to find the server, connect to it securely, and ask for the pag
 
 ## The picture
 
+Step through it: [interactive version](../../html/00-foundations/01-how-a-request-travels.html).
+
 ```mermaid
 sequenceDiagram
     accTitle: How a request for google.com travels

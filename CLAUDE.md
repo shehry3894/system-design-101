@@ -13,7 +13,7 @@ Goal: low cognitive load. Short pages, one idea at a time, real code behind ever
   5. Make the HTML visual only if the concept is visual.
   6. Update `llms.txt`, `README.md` and `CONTEXT.md`.
 - **Pages:** plain English, one idea per sentence. Every term is explained before a later page relies on it (`prerequisites` / `grounds` front matter).
-- **HTML** in `html/` is generated from a page's animation script with `visual-explainer`. Never hand-edit it.
+- **HTML** in `html/` is one self-contained file per visual page: inline SVG, CSS and a small JS stepper, with no kit and no CDN. Build it from the page's animation script, starting from a copy of [01-how-a-request-travels.html](html/00-foundations/01-how-a-request-travels.html). Keep the steps and captions in sync with the script.
 - **Chat** with the owner: short (`caveman`). Pages and code comments stay in normal prose.
 - **Checks before commit:** `python3 -m pytest examples scripts` and `python3 scripts/check_links.py`.
 - **Secrets:** never commit `.env` files. Only `*.example`.
