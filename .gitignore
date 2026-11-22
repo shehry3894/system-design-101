@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+.pytest_cache/
+
+# Skill tooling installs
+.claude/skills/visual-explainer/node_modules/
+
+# Agent scratch space
+.superpowers/
