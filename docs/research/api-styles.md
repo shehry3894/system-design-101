@@ -1,7 +1,7 @@
 # Research: API styles
 
 Scope: which API styles exist; how REST, gRPC and GraphQL compare (features, strengths and weaknesses, when to use each for browser/public APIs vs service-to-service, payload format and size: JSON vs Protocol Buffers); the Python libraries we will use for each.
-Out of scope: authentication and authorization, API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers (our own script in `examples/api/` will measure sizes later).
+Out of scope: authentication and authorization, API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers (our own script, `examples/communication/request_payload_size.py`, measures sizes).
 
 Every claim is followed by its source in brackets. Sources read on 2026-11-22. RFCs were read as plain text from rfc-editor.org. Editions and versions are listed under Sources.
 
@@ -524,7 +524,7 @@ Worked byte counts, using the encodings the protobuf.dev Encoding page gives and
 Unsupported common claims:
 
 - No primary source read gives a general ratio such as "Protobuf is N× smaller" or "gRPC is 7× faster than REST". protobuf.dev says only "smaller and faster", without numbers. [protobuf.dev Overview] grpc.io's benchmarking page measures gRPC against itself across languages, not against REST. [grpc.io Benchmarking guide]
-- Real numbers for our own messages will come from the script planned for `examples/api/`.
+- Real numbers for our own messages come from `examples/communication/request_payload_size.py`: one order is 143 bytes as JSON and 40 bytes as Protobuf.
 
 ## 7. When to use each (as the official sources frame it)
 
@@ -594,7 +594,7 @@ GraphQL: Strawberry
 
 ## Open questions
 
-- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/api/` script will measure size for our own messages.
+- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
 - **"REST" in our pages.** Fielding's strict definition requires hypertext-driven APIs [Fielding 2008]; most FastAPI-style JSON APIs with fixed paths do not meet it (derived). The owner should decide whether pages say "REST" or "HTTP/JSON API (REST-style)".
 - **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Not researched further.
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.

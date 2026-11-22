@@ -17,10 +17,18 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - The owner approved the design on 2026-11-23 and asked where MCP was. MCP now gets its own short section on the API styles page; it stays out of the comparison table (it connects AI apps to tools).
 - Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP).
 - Plan written: [2026-11-23-communication-styles-hub.md](superpowers/plans/2026-11-23-communication-styles-hub.md) (4 tasks: example, API styles page + template, hub, indexes).
-- The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green.
+- The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green. A fresh reviewer then checked the whole change; its fixes are in (wording of the `-2` surprise, a `.proto` con, abbreviations, WebRTC marked peer-to-peer, stale paths), and everything is pushed.
   - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
   - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
 - **Waiting on the owner:** review the two pages. Then say go for the next page, "Server push" (`02-server-push.md`), which needs its own deep research note first.
+- Review notes left for the owner to decide (not fixed):
+  1. The hub says sources name "request-response"; microservices.io calls it Remote Procedure Invocation (RPI).
+  2. Rows inside each hub group, and page 01's Remember bullets, are not alphabetical. Some "own words" cells paraphrase.
+  3. A few sentences are framing, not traced to a note: the hub's "Three questions…", "keep-alive", the "API style" definition (our term, not flagged), "Most APIs called REST", and MCP's POST replies (JSON or an SSE stream).
+  4. Page 01's table says REST's contract is "OpenAPI, if you write one"; its Pros say FastAPI generates it.
+  5. The hub's Surprises skip 5 failing video claims (research note §6: #3, #11, #15, #20, #21).
+  6. The example doesn't skip proto3 default values, JSON escapes non-ASCII, and "bytes on the wire" leaves out gRPC's 5-byte prefix and HTTP headers.
+  7. Neutrality: 3 of page 01's 5 Surprises are about gRPC, none about REST.
 
 ## Decisions the owner made
 

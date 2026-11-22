@@ -36,13 +36,14 @@ flowchart TD
 ## The three groups
 
 ### Request-response
-- The client sends a request and waits for the reply. Examples: REST (Representational State Transfer), gRPC. [microservices.io, RPI]
+- The client sends a request and waits for the reply. Examples: REST (Representational State Transfer), gRPC ("gRPC Remote Procedure Calls"). [microservices.io, RPI; grpc.io FAQ]
 - Cost: both sides must be up for the whole call. [microservices.io, RPI]
 - Page: [API styles: GraphQL, gRPC, REST](01-api-styles.md). API means Application Programming Interface.
 
 ### Server push
 - The server sends a message to a client the moment something happens, without a new request.
 - Examples: webhooks, SSE (Server-Sent Events), WebSocket, WebRTC (Web Real-Time Communication).
+- WebRTC is peer-to-peer: a server helps set up the call, then the two ends connect to each other. [W3C WebRTC §4.1; RFC 9429 §1.1]
 - This group name is ours. The sources name request-response and messaging, but not this one.
 - Page: "Server push" (coming).
 
@@ -66,7 +67,7 @@ flowchart TD
 | Webhooks | HTTP (Hypertext Transfer Protocol) callbacks from one service to another | Server push |
 | SSE | A browser interface plus the `text/event-stream` format | Server push |
 | WebSocket | A two-way protocol over TCP (Transmission Control Protocol) | Server push |
-| WebRTC | Browser APIs plus protocols for peer-to-peer media and data | Server push |
+| WebRTC | Browser APIs plus protocols for peer-to-peer media and data | Server push (peer-to-peer) |
 | Event-driven architecture | An architecture style: producers, consumers and channels | Messaging |
 | MQTT (Message Queuing Telemetry Transport) | A publish/subscribe messaging transport protocol | Messaging |
 | AMQP (Advanced Message Queuing Protocol) | A binary wire-level protocol for business messaging | Messaging |
@@ -76,8 +77,8 @@ flowchart TD
 Every row is cited in the [research note, §7](../../research/communication-styles.md#7-classification-of-the-15-derived-from-15).
 
 ## Surprises
-- Core SOAP has no reliable delivery. SOAP 1.2 leaves it out on purpose; WS-ReliableMessaging is a separate spec. [SOAP 1.2 Part 1 §1; WS-ReliableMessaging 1.2]
-- WebRTC is peer-to-peer, but it still needs your server. The app must carry the setup messages (signaling) itself, and a TURN (Traversal Using Relays around NAT, Network Address Translation) server relays traffic when a direct path fails. [RFC 9429 §1.1; RFC 8656]
+- Core SOAP has no reliable delivery. SOAP 1.2 leaves it out on purpose; WS-ReliableMessaging (Web Services Reliable Messaging) is a separate spec. [SOAP 1.2 Part 1 §1; WS-ReliableMessaging 1.2]
+- WebRTC is peer-to-peer, but it still needs your server. The app must carry the setup messages (signaling) itself, and a TURN server (Traversal Using Relays around NAT; NAT is Network Address Translation) relays traffic when a direct path fails. [RFC 9429 §1.1; RFC 8656]
 - SSE can break behind old proxies that drop idle connections. The spec advises sending a comment line about every 15 seconds. [HTML Living Standard §9.2.7]
 - The smallest MQTT packet is 2 bytes: the `PINGREQ` keep-alive. [MQTT 5.0 §3.12]
 - RabbitMQ was built for AMQP 0-9-1. AMQP 1.0, the standard, is "a very different protocol", "sharing nothing at the wire level". [RabbitMQ, Protocols]

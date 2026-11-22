@@ -1,6 +1,6 @@
 # Communication Styles Hub + API Styles Page Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Ship the communication styles hub page, the API styles decision page (with its own MCP section), a decision-page template, and a runnable JSON-vs-Protobuf payload-size example.
 
@@ -56,7 +56,7 @@
   - printed output with the lines `JSON: 143 bytes` and `Protobuf: 40 bytes`
 - Task 2 quotes the file path, the schema comment and both numbers.
 
-- [ ] **Step 1: Write the file with the order, the schema comment and the asserts. Leave out the function bodies.**
+- [x] **Step 1: Write the file with the order, the schema comment and the asserts. Leave out the function bodies.**
 
 The order and schema are fixed by this plan:
 
@@ -80,12 +80,12 @@ assert len(json.dumps({"a": -2}, separators=(",", ":"))) == 8
 assert len(json_bytes) == 143 and len(proto_bytes) == 40
 ```
 
-- [ ] **Step 2: Run it and check it fails**
+- [x] **Step 2: Run it and check it fails**
 
 Run: `python3 examples/communication/request_payload_size.py`
 Expected: `NameError` (the functions are not defined yet).
 
-- [ ] **Step 3: Implement the four functions**
+- [x] **Step 3: Implement the four functions**
 
 - `varint`: 7-bit groups, lowest first, with the top bit set on every byte except the last. Negative numbers become 64-bit two's complement first: `n &= (1 << 64) - 1`.
 - The tag is `number << 3 | wire_type`. The wire type is 0 for a varint and 2 for length-delimited data.
@@ -93,12 +93,12 @@ Expected: `NameError` (the functions are not defined yet).
 - JSON uses `json.dumps(ORDER, separators=(",", ":")).encode()`.
 - The file prints `JSON: 143 bytes` and `Protobuf: 40 bytes`.
 
-- [ ] **Step 4: Run it and check it passes**
+- [x] **Step 4: Run it and check it passes**
 
 Run: `python3 examples/communication/request_payload_size.py`
 Expected: exit code 0, and the output contains `JSON: 143 bytes` and `Protobuf: 40 bytes`.
 
-- [ ] **Step 5: Add the README row, run the checks, commit**
+- [x] **Step 5: Add the README row, run the checks, commit**
 
 Add a "Communication" section to `examples/README.md` with a prefix table (`request_`, `push_`, `messaging_`) and one row for this file.
 
@@ -119,7 +119,7 @@ git commit -m "feat(examples): JSON vs Protobuf payload size for one order"
 - Consumes: Task 1's file path, schema comment, and the numbers 143 and 40.
 - Produces: the template that Task 3 and the later pages follow, and the page that Task 3 links to.
 
-- [ ] **Step 1: Write `docs/_template-decision.md`**
+- [x] **Step 1: Write `docs/_template-decision.md`**
 
 Use the same placeholder style as `docs/_template.md`.
 
@@ -134,7 +134,7 @@ Use the same placeholder style as `docs/_template.md`.
   7. Remember: 3 bullets.
   8. Sources.
 
-- [ ] **Step 2: Write the page from the template, using AS for every fact and CS §2 for MCP**
+- [x] **Step 2: Write the page from the template, using AS for every fact and CS §2 for MCP**
 
 - **Front matter:**
   - `title: "API styles: GraphQL, gRPC, REST"`
@@ -168,7 +168,7 @@ Use the same placeholder style as `docs/_template.md`.
 - **Remember:** 3 bullets.
 - **Sources:** the URLs from AS and CS that the page uses.
 
-- [ ] **Step 3: Self-check the page**
+- [x] **Step 3: Self-check the page**
 
 Pass means all of these hold:
 - Every fact traces to an AS or CS line.
@@ -176,12 +176,12 @@ Pass means all of these hold:
 - No "best" or "fastest" appears outside a quote.
 - Every abbreviation is spelled out at first use. Check gRPC, RPC, HTTP, JSON, MCP, SOAP, SSE and IDL.
 
-- [ ] **Step 4: Render-check the Mermaid diagram**
+- [x] **Step 4: Render-check the Mermaid diagram**
 
 Paste the diagram into a scratch HTML page that loads Mermaid from `https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js`. Open it in the built-in browser.
 Expected: an SVG renders and the console shows no "Syntax error".
 
-- [ ] **Step 5: Run the checks and commit**
+- [x] **Step 5: Run the checks and commit**
 
 Run: `python3 scripts/check_links.py`. Expected: exit code 0.
 
@@ -198,7 +198,7 @@ git commit -m "docs(concepts): API styles decision page and decision template"
 **Interfaces:**
 - Consumes: Task 2's page path `01-api-styles.md`.
 
-- [ ] **Step 1: Write the page**
+- [x] **Step 1: Write the page**
 
 - **Front matter:**
   - `title: "Communication styles: request-response, server push, messaging"`
@@ -214,11 +214,11 @@ git commit -m "docs(concepts): API styles decision page and decision template"
 - **Surprises:** CS §6 claims #1, #2, #5, #7 and #8, one line each, with the source.
 - **Remember:** 3 bullets. **Sources:** the URLs used.
 
-- [ ] **Step 2: Self-check and render-check**
+- [x] **Step 2: Self-check and render-check**
 
 Run the same checks as Task 2, steps 3 and 4, on this page.
 
-- [ ] **Step 3: Run the checks and commit**
+- [x] **Step 3: Run the checks and commit**
 
 Run: `python3 scripts/check_links.py`. Expected: exit code 0.
 
@@ -236,19 +236,19 @@ git commit -m "docs(concepts): communication styles hub page"
 - Modify: `docs/HANDOFF.md`
 - Modify: `docs/superpowers/specs/2026-11-22-learning-hub-design.md` (status line)
 
-- [ ] **Step 1: Glossary**
+- [x] **Step 1: Glossary**
 
 - In `CONTEXT.md`, replace "Taught in the communication styles pages (being written)" with links to `00-overview.md` and `01-api-styles.md`.
 - Add these terms from the page's `grounds`, one line each, with their full names: gRPC, Protobuf (Protocol Buffers), GraphQL, JSON-RPC, SOAP.
 
 Run: `grep -n "being written" CONTEXT.md`. Expected: no output.
 
-- [ ] **Step 2: README and `llms.txt`**
+- [x] **Step 2: README and `llms.txt`**
 
 - README: in the Concepts row, link both pages.
 - `llms.txt`: add a "Concepts" section with the hub, the API styles page and the example, one line each.
 
-- [ ] **Step 3: HANDOFF and spec**
+- [x] **Step 3: HANDOFF and spec**
 
 - HANDOFF:
   - Mark Next 1.5–1.7 done.
@@ -256,7 +256,7 @@ Run: `grep -n "being written" CONTEXT.md`. Expected: no output.
   - Set "Waiting on the owner" to: review the pages, then say go for server push.
 - Spec: change the status line to say the hub and API styles pages are done.
 
-- [ ] **Step 4: Run all checks, commit, push**
+- [x] **Step 4: Run all checks, commit, push**
 
 Run: `python3 -m pytest examples scripts`, then `python3 scripts/check_links.py`. Expected: all pass.
 

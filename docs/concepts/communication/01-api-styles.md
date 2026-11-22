@@ -12,7 +12,7 @@ An API (Application Programming Interface) style is the shape of those calls: ho
 
 Two terms first:
 - **HTTP API**: any API whose messages travel over HTTP (Hypertext Transfer Protocol). All three styles below can run over HTTP, so this is the umbrella, not an option. [OpenAPI §2]
-- **REST, strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Most APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
+- **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Most APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
 
 ## The options
 
@@ -25,18 +25,18 @@ Two terms first:
 ### gRPC
 - **What it is:** an RPC (Remote Procedure Call) framework. The client calls a server method "as if it were a local object", over HTTP/2, with Protobuf (Protocol Buffers) messages by default. The name stands for "gRPC Remote Procedure Calls". [grpc.io Introduction; grpc.io FAQ]
 - **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines and cancellation are built in. [grpc.io Python Basics; grpc.io Core concepts]
-- **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be read without its `.proto` file. No deadline unless you set one. [grpc-web README; protobuf.dev Overview; grpc.io Deadlines]
+- **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be fully read without its `.proto` file: the bytes hold field numbers, not names. No deadline unless you set one. [grpc-web README; protobuf.dev Overview; protobuf.dev Encoding; grpc.io Deadlines]
 - **Use when:** services in many languages talk to each other, or mobile clients talk to cloud servers. [grpc.io About; grpc.io FAQ]
 
 ### REST
-- **What it is:** REST (Representational State Transfer) is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it. [Fielding 2000 ch. 5; RFC 9110 §9.1]
+- **What it is:** REST is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it. [Fielding 2000 ch. 5; RFC 9110 §9.1]
 - **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests are safe to retry. FastAPI generates an OpenAPI contract at `/openapi.json`. [RFC 9111 §2; RFC 9110 §9.2.2; FastAPI First Steps]
 - **Cons:** the standard form "degrades efficiency". The server decides the shape of each response. It is pull-only, so watching for changes costs more. [Fielding 2000 §5.1.5, §5.4; GraphQL spec §1]
 - **Use when:** many independent clients, browsers or public users call you, and caching helps. [Fielding 2000 §5.5, §6.5.2]
 
 ### Also in this group
 - **JSON-RPC 2.0**: a small RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport. [JSON-RPC 2.0 §1]
-- **SOAP** (no longer an acronym): a protocol for structured messages in XML (Extensible Markup Language), over many transports. Reliable delivery is a separate spec, WS-ReliableMessaging. [SOAP 1.2 Part 1, Abstract, §1; WS-RM 1.2]
+- **SOAP** (no longer an acronym): a protocol for structured messages in XML (Extensible Markup Language), over many transports. Reliable delivery is a separate spec, WS-ReliableMessaging (Web Services Reliable Messaging). [SOAP 1.2 Part 1, Abstract, §1; WS-RM 1.2]
 
 ### MCP (Model Context Protocol)
 - **What it is:** "an open protocol that enables seamless integration between LLM applications and external data sources and tools". An LLM is a large language model. [MCP spec, Overview]
@@ -65,7 +65,7 @@ Every cell is cited in the [research note, §5](../../research/api-styles.md#5-s
 
 ## Surprises
 - gRPC answers HTTP 200 even when a call fails. The real status travels in trailers. [gRPC HTTP/2 protocol, "Responses"]
-- Protobuf is not always smaller: `-2` as an `int32` takes 11 bytes, `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
+- Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
 - GraphQL can be cached: send queries with GET and use persisted documents (a stored query, sent as a hash). [graphql.org, Performance]
 - "gRPC is 7× faster than REST" has no primary source. grpc.io's benchmarks compare gRPC only with itself. [grpc.io Benchmarking]
 - GitHub offers both a REST API and a GraphQL API. [GitHub REST docs; GitHub GraphQL docs]
