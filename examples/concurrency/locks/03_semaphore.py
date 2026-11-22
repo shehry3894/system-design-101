@@ -1,19 +1,29 @@
-# Controls access to a pool of resources (not just 1 like a Mutex).
-# Initialized with a counter → decremented on acquire(), incremented on release().
+# Semaphore: a counter of free slots. acquire() takes a slot, release() gives one back.
+# Use when: at most N threads may use a resource at once (e.g. N DB connections).
+# Docs: https://docs.python.org/3/library/threading.html#semaphore-objects
+import time
+from threading import Lock, Semaphore, Thread
 
-from threading import Semaphore, Thread
-import time, random
+slots = Semaphore(3)  # 3 threads at once
+inside = 0
+max_inside = 0
+count_lock = Lock()
 
-sem = Semaphore(3)  # allow up to 3 threads at once
 
-def worker(n):
-    with sem:
-        print(f"Thread {n+1} got access")
-        time.sleep(random.random())
-        print(f"\nThread {n+1} released")
+def worker():
+    global inside, max_inside
+    with slots:  # waits here while all 3 slots are taken
+        with count_lock:
+            inside += 1
+            max_inside = max(max_inside, inside)
+        time.sleep(0.1)
+        with count_lock:
+            inside -= 1
 
-    sem.release() # doesn't
 
-threads = [Thread(target=worker, args=(i,)) for i in range(6)]
+threads = [Thread(target=worker) for _ in range(6)]
 [t.start() for t in threads]
 [t.join() for t in threads]
+
+print("most threads inside at once:", max_inside)
+assert max_inside <= 3

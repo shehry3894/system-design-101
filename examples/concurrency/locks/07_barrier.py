@@ -1,11 +1,22 @@
-# Synchronizes a fixed number of threads → all must reach the barrier before continuing.
+# Barrier: N threads wait at a point. All continue only when all N have arrived.
+# Use when: work runs in phases and phase 2 needs every thread done with phase 1.
+# Docs: https://docs.python.org/3/library/threading.html#barrier-objects
 from threading import Barrier, Thread
 
-barrier = Barrier(3)
+N = 3
+barrier = Barrier(N)  # needs exactly N threads; with fewer, wait() blocks forever
+log = []
+
 
 def worker(n):
-    print(f"Thread {n} waiting at barrier")
+    log.append(f"phase1-{n}")
     barrier.wait()
-    print(f"Thread {n} passed barrier")
+    log.append(f"phase2-{n}")
 
-[Thread(target=worker, args=(i,)).start() for i in range(2)]
+
+threads = [Thread(target=worker, args=(i,)) for i in range(N)]
+[t.start() for t in threads]
+[t.join() for t in threads]
+
+print(log)
+assert all(entry.startswith("phase1") for entry in log[:N])  # every phase 1 before any phase 2

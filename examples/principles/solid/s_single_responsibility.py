@@ -1,29 +1,36 @@
-#
-# Definition: A class should have only one reason to change → it should do one thing and do it well.
-# Why: Reduces coupling, improves readability, and makes testing easier.
+# S: Single Responsibility. A class should have one reason to change.
+# Use when: one class mixes jobs that change for different reasons (data, storage, reports).
+# Source: https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html
 
-# ❌ Bad: Class does too many things (handles data + report generation)
-class User:
-    def __init__(self, name, email):
-        self.name = name
+
+# Bad: a DB change and a report change both edit this one class.
+class UserBad:
+    def __init__(self, email):
         self.email = email
 
-    def save_to_db(self):
-        print("Saving user to DB")
+    def save(self):
+        return f"INSERT {self.email}"
 
-    def generate_report(self):
-        print("Generating user report")
+    def report(self):
+        return f"User report: {self.email}"
 
-# ✅ Good: Split responsibilities
+
+# Good: one class per reason to change.
 class User:
-    def __init__(self, name, email):
-        self.name = name
+    def __init__(self, email):
         self.email = email
 
-class UserRepository:
+
+class UserRepository:  # changes when storage changes
     def save(self, user: User):
-        print("Saving user to DB")
+        return f"INSERT {user.email}"
 
-class UserReport:
-    def generate(self, user: User):
-        print("Generating user report")
+
+class UserReport:  # changes when the report format changes
+    def render(self, user: User):
+        return f"User report: {user.email}"
+
+
+u = User("a@b.com")
+assert UserRepository().save(u) == UserBad("a@b.com").save()
+print(UserReport().render(u))

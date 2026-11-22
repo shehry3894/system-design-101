@@ -1,25 +1,17 @@
-from threading import BoundedSemaphore, Thread
-import time
+# BoundedSemaphore: a Semaphore that raises an error if you release more than you acquired.
+# Use when: you want a bug (an extra release) to fail loudly instead of adding a slot.
+# Docs: https://docs.python.org/3/library/threading.html#threading.BoundedSemaphore
+from threading import BoundedSemaphore, Semaphore
 
-# Allow max 2 threads at the same time
-bounded_sem = BoundedSemaphore(2)
+plain = Semaphore(2)
+plain.release()  # bug: no matching acquire, but no error. Now 3 slots exist.
 
+bounded = BoundedSemaphore(2)
+try:
+    bounded.release()  # same bug
+    raised = False
+except ValueError:
+    raised = True
 
-def worker(n):
-    print(f"{n + 1} is trying to acquire...")
-    bounded_sem.acquire()
-    print(f"{n + 1} acquired semaphore")
-
-    time.sleep(1)
-
-    bounded_sem.release()
-    print(f"{n + 1} released semaphore")
-    try:
-        bounded_sem.release() # ❌ Raises ValueError
-    except ValueError:
-        print('ERROR: releasing a released lock!') # catching this error will cause more errors for other threads
-
-
-threads = [Thread(target=worker, args=(i,)) for i in range(5)]
-[t.start() for t in threads]
-[t.join() for t in threads]
+print("BoundedSemaphore caught the extra release:", raised)
+assert raised

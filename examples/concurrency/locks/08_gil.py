@@ -1,52 +1,34 @@
-# The Global Interpreter Lock (GIL) is a mutex (mutual exclusion lock) used in CPython (the most common Python impl).
-# CPython’s memory management is not thread-safe by default.
-# It ensures that only one thread executes Python bytecode at a time, even on multi-core processors.
-# Only one thread can access Python objects at a time, avoiding complex race conditions.
-
-import time
-import threading
+# GIL (Global Interpreter Lock): in standard CPython, one thread runs Python bytecode at a time.
+# Effect: threads help with waiting (I/O). For CPU work, use processes for true parallelism.
+# Docs: https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+# Note: Python 3.13+ has an optional free-threaded build without the GIL:
+#       https://docs.python.org/3/howto/free-threading-python.html
 import multiprocessing
+import threading
+import time
 
 
-# --- CPU-bound task: Increment loop ---
-def cpu_task(n=10 ** 7):
+def cpu_task(n=2_000_000):  # pure computation: needs the GIL the whole time
     x = 0
     for _ in range(n):
         x += 1
-    return x
 
 
-# --- I/O-bound task: Sleep (simulates waiting for network/file I/O) ---
-def io_task(seconds=2):
-    time.sleep(seconds)
-    return f"Slept {seconds}s"
+def io_task():  # waiting: sleep releases the GIL
+    time.sleep(0.5)
 
 
-# --- Benchmark helper ---
-def benchmark(func, executor, num_workers, label):
-    start = time.time()
-
-    if executor == "threading":
-        threads = [threading.Thread(target=func) for _ in range(num_workers)]
-        for t in threads: t.start()
-        for t in threads: t.join()
-
-    elif executor == "multiprocessing":
-        processes = [multiprocessing.Process(target=func) for _ in range(num_workers)]
-        for p in processes: p.start()
-        for p in processes: p.join()
-
-    end = time.time()
-    print(f"{label} with {executor}: {end - start:.2f}s")
+def timed(func, worker_cls, workers=4):
+    start = time.perf_counter()
+    jobs = [worker_cls(target=func) for _ in range(workers)]
+    [j.start() for j in jobs]
+    [j.join() for j in jobs]
+    return time.perf_counter() - start
 
 
-if __name__ == "__main__":
-    workers = 4
-
-    print("\n=== CPU-bound test ===")
-    benchmark(cpu_task, "threading", workers, "CPU task")  # 0.6s, one thread executes at a time
-    benchmark(cpu_task, "multiprocessing", workers, "CPU task")  # 0.3s, true parallel execution.
-
-    print("\n=== I/O-bound test ===")
-    benchmark(io_task, "threading", workers, "IO task")  # 2s, threads overlap while sleeping (releases GIL).
-    benchmark(io_task, "multiprocessing", workers, "IO task")  # 2s, all processes can do parallel sleeping
+if __name__ == "__main__":  # required for multiprocessing on macOS/Windows
+    print(f"CPU, 4 threads:   {timed(cpu_task, threading.Thread):.2f}s  (take turns)")
+    print(f"CPU, 4 processes: {timed(cpu_task, multiprocessing.Process):.2f}s  (run in parallel)")
+    io_threads = timed(io_task, threading.Thread)
+    print(f"I/O, 4 threads:   {io_threads:.2f}s  (all wait at the same time)")
+    assert io_threads < 1.0  # 4 x 0.5s waits overlap instead of adding up to 2s

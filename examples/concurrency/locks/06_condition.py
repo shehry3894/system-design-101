@@ -1,21 +1,32 @@
-# Same as Semaphore, but prevents release() from increasing counter beyond its initial value.
-# Good safety check against buggy code.
+# Condition: a lock + "wait until something is true". wait() sleeps, notify() wakes a waiter.
+# Use when: a consumer must wait until a producer adds data (producer/consumer queue).
+# Docs: https://docs.python.org/3/library/threading.html#condition-objects
 from threading import Condition, Thread
 
 items = []
+consumed = []
 condition = Condition()
 
-def producer():
-    with condition:
-        items.append("🍎")
-        print("Produced")
-        condition.notify()  # wake up one waiting consumer
 
 def consumer():
     with condition:
-        while not items:
-            condition.wait()  # wait until notified
-        print("Consumed:", items.pop())
+        while not items:  # loop: re-check after waking up
+            condition.wait()  # releases the lock while sleeping
+        consumed.append(items.pop())
 
-Thread(target=consumer).start()
-Thread(target=producer).start()
+
+def producer():
+    with condition:
+        items.append("order-1")
+        condition.notify()  # wake one waiting consumer
+
+
+c = Thread(target=consumer)
+p = Thread(target=producer)
+c.start()
+p.start()
+c.join()
+p.join()
+
+print("consumed:", consumed)
+assert consumed == ["order-1"]

@@ -1,42 +1,45 @@
-# Definition: No client should be forced to depend on methods it does not use.
-# Why: Prefer many small, specific interfaces over one large, bloated one
-
+# I: Interface Segregation. Don't force a class to depend on methods it does not use.
+# Use when: classes implement methods only to raise NotImplementedError.
+# Source: https://en.wikipedia.org/wiki/Interface_segregation_principle
 from abc import ABC, abstractmethod
 
-# ❌ Bad: Fat interface
-class Machine(ABC):
-    @abstractmethod
-    def print(self): pass
 
+# Bad: one big interface. A simple printer must still "implement" scan and fax.
+class MachineBad(ABC):
     @abstractmethod
-    def scan(self): pass
+    def print(self, doc): ...
 
     @abstractmethod
-    def fax(self): pass
+    def scan(self): ...
 
-class OldPrinter(Machine):
-    def print(self):
-        print("Printing...")
+    @abstractmethod
+    def fax(self, number): ...
 
-    def scan(self):  # Not supported
-        raise NotImplementedError("No scanner available")
 
-    def fax(self):  # Not supported
-        raise NotImplementedError("No fax available")
-
-# ✅ Good: Segregated interfaces
+# Good: small interfaces. Each class picks only what it really does.
 class Printer(ABC):
     @abstractmethod
-    def print(self): pass
+    def print(self, doc): ...
+
 
 class Scanner(ABC):
     @abstractmethod
-    def scan(self): pass
+    def scan(self): ...
 
-class Fax(ABC):
-    @abstractmethod
-    def fax(self): pass
 
 class SimplePrinter(Printer):
-    def print(self):
-        print("Printing only")
+    def print(self, doc):
+        return f"printed {doc}"
+
+
+class OfficeMachine(Printer, Scanner):
+    def print(self, doc):
+        return f"printed {doc}"
+
+    def scan(self):
+        return "scanned"
+
+
+assert SimplePrinter().print("invoice") == "printed invoice"
+assert not hasattr(SimplePrinter(), "scan")  # no fake method to call by mistake
+print(OfficeMachine().scan())

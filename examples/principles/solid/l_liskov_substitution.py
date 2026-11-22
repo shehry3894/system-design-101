@@ -1,44 +1,32 @@
-# Definition: Subtypes must be substitutable for their base types without breaking behavior.
-# Why: Inheritance should not violate expectations of the base class.
+# L: Liskov Substitution. A subclass must work anywhere its parent class works.
+# Use when: checking if inheritance is right. "Is-a" in real life is not enough.
+# Source: https://en.wikipedia.org/wiki/Liskov_substitution_principle
 
-# ❌ Bad: Square violates Rectangle's contract
+
 class Rectangle:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
+    def __init__(self, w, h):
+        self.w, self.h = w, h
 
     def set_width(self, w):
-        self.width = w
-
-    def set_height(self, h):
-        self.height = h
+        self.w = w
 
     def area(self):
-        return self.width * self.height
+        return self.w * self.h
 
-class Square(Rectangle):
+
+class SquareBad(Rectangle):  # a square "is a" rectangle... but behaves differently
     def set_width(self, w):
-        self.width = self.height = w  # Changes both → breaks behavior
+        self.w = self.h = w
 
-    def set_height(self, h):
-        self.width = self.height = h
 
-# ✅ Good: Avoid Square extending Rectangle; model separately
-class Shape:
-    def area(self):
-        pass
+def stretch(rect: Rectangle):  # written for Rectangle: width changes, height stays
+    rect.set_width(10)
+    return rect.area()
 
-class Rectangle(Shape):
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
 
-    def area(self):
-        return self.width * self.height
+print("rectangle 2x5 ->", stretch(Rectangle(2, 5)))  # 50, as expected
+print("square    5x5 ->", stretch(SquareBad(5, 5)))  # 100, not 50: the caller's assumption broke
+assert stretch(Rectangle(2, 5)) == 50
+assert stretch(SquareBad(5, 5)) != 50  # this is the violation
 
-class Square(Shape):
-    def __init__(self, side):
-        self.side = side
-
-    def area(self):
-        return self.side * self.side
+# Fix: don't make Square a subclass of Rectangle. Give both a common Shape with area() only.

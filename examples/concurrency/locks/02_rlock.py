@@ -1,17 +1,20 @@
-# Like Lock, but a thread can acquire it multiple times without deadlocking itself.
-# Useful when the same thread calls multiple functions that all need the same lock.
-
+# RLock (re-entrant lock): the thread that holds it can take it again.
+# Use when: a locked function calls another function that takes the same lock.
+# Docs: https://docs.python.org/3/library/threading.html#rlock-objects
 from threading import RLock
 
-lock = RLock()
+lock = RLock()  # with a plain Lock(), inner() would wait forever on its own thread: deadlock
+
 
 def outer():
     with lock:
-        print("Outer acquired lock")
-        inner()
+        return inner()
+
 
 def inner():
-    with lock:  # ✅ works fine (same thread can re-acquire), NOTE: without RLock, it will be a deadlock!
-        print("Inner acquired lock")
+    with lock:  # same thread, second acquire: allowed
+        return "inner ran"
 
-outer()
+
+print(outer())
+assert outer() == "inner ran"

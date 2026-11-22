@@ -1,40 +1,49 @@
-# Definition: High-level modules ("what" of system) should not depend on low-level modules ("how" of system).
-# Both should depend on abstractions.
-# Why: Reduces coupling, increases flexibility and testability.
+# D: Dependency Inversion. Business logic depends on an interface, not on a concrete DB or API.
+# Use when: you want to swap Postgres for something else, or use a fake in tests.
+# Source: https://en.wikipedia.org/wiki/Dependency_inversion_principle
 from abc import ABC, abstractmethod
 
-# ❌ Bad: High-level directly depends on low-level
-class MySQLDatabase:
+
+# Bad: UserServiceBad creates Postgres itself. You can't swap it or test without it.
+class PostgresDB:
     def save(self, data):
-        print(f"Saving {data} to MySQL")
+        return f"postgres saved {data}"
 
-class UserService:
+
+class UserServiceBad:
     def __init__(self):
-        self.db = MySQLDatabase()  # tightly coupled, creates and directly uses MySQLDatabase (low-level).
+        self.db = PostgresDB()
 
-    def save_user(self, user):
-        self.db.save(user)
 
-# ✅ Good: Depend on abstraction
+# Good: depend on an abstraction and receive it from outside ("dependency injection").
 class Database(ABC):
     @abstractmethod
-    def save(self, data): pass
+    def save(self, data) -> str: ...
 
-class MySQLDatabase(Database):
-    def save(self, data):
-        print(f"Saving {data} to MySQL")
 
-class PostgreSQLDatabase(Database):
+class Postgres(Database):
     def save(self, data):
-        print(f"Saving {data} to PostgreSQL")
+        return f"postgres saved {data}"
+
+
+class InMemory(Database):  # a fake for tests
+    def __init__(self):
+        self.rows = []
+
+    def save(self, data):
+        self.rows.append(data)
+        return "saved in memory"
+
 
 class UserService:
     def __init__(self, db: Database):
-        self.db = db  # inject dependency
+        self.db = db
 
-    def save_user(self, user):
-        self.db.save(user)
+    def register(self, email):
+        return self.db.save(email)
 
-# Usage
-service = UserService(PostgreSQLDatabase())
-service.save_user("Alice")
+
+fake = InMemory()
+UserService(fake).register("a@b.com")
+assert fake.rows == ["a@b.com"]
+print(UserService(Postgres()).register("a@b.com"))

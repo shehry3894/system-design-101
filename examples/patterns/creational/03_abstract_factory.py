@@ -1,95 +1,68 @@
-# abstract_factory.py
-# Intent: Create families of related objects without specifying their concrete classes.
-# Focus: Consistency across families (products work together).
-# Granularity: Multiple products that belong to the same family.
+# Abstract Factory: one factory creates a whole family of objects that belong together.
+# Use when: objects must match each other (all Mac widgets, or all Windows widgets, never mixed).
+# Source: https://www.gofpattern.com/creational/patterns/abstract-factory-pattern.php
+# Factory Method makes one product. Abstract Factory makes a matching set.
 from abc import ABC, abstractmethod
 
-# --- Abstract Products ---
+
 class Button(ABC):
     @abstractmethod
-    def render(self) -> None:
-        pass
+    def render(self) -> str: ...
+
 
 class Checkbox(ABC):
     @abstractmethod
-    def render(self) -> None:
-        pass
+    def render(self) -> str: ...
 
-# --- Concrete Products (Windows family) ---
+
 class WindowsButton(Button):
     def render(self):
-        print("Rendering a Windows-style Button")
+        return "Windows button"
+
 
 class WindowsCheckbox(Checkbox):
     def render(self):
-        print("Rendering a Windows-style Checkbox")
+        return "Windows checkbox"
 
-# --- Concrete Products (Mac family) ---
+
 class MacButton(Button):
     def render(self):
-        print("Rendering a Mac-style Button")
+        return "Mac button"
+
 
 class MacCheckbox(Checkbox):
     def render(self):
-        print("Rendering a Mac-style Checkbox")
+        return "Mac checkbox"
 
-# --- Abstract Factory ---
-class GUIFactory(ABC):
+
+class UIFactory(ABC):
     @abstractmethod
-    def create_button(self) -> Button: pass
+    def button(self) -> Button: ...
 
     @abstractmethod
-    def create_checkbox(self) -> Checkbox: pass
+    def checkbox(self) -> Checkbox: ...
 
-# --- Concrete Factories ---
-class WindowsFactory(GUIFactory):
-    def create_button(self) -> Button:
+
+class WindowsFactory(UIFactory):
+    def button(self):
         return WindowsButton()
 
-    def create_checkbox(self) -> Checkbox:
+    def checkbox(self):
         return WindowsCheckbox()
 
-class MacFactory(GUIFactory):
-    def create_button(self) -> Button:
+
+class MacFactory(UIFactory):
+    def button(self):
         return MacButton()
 
-    def create_checkbox(self) -> Checkbox:
+    def checkbox(self):
         return MacCheckbox()
 
-# --- Client Code ---
-def client_app(factory: GUIFactory):
-    button = factory.create_button()
-    checkbox = factory.create_checkbox()
-    button.render()
-    checkbox.render()
 
-if __name__ == "__main__":
-    print("Using Windows Factory:")
-    client_app(WindowsFactory())
-
-    print("\nUsing Mac Factory:")
-    client_app(MacFactory())
+def build_form(factory: UIFactory) -> list[str]:  # client knows only the abstract types
+    return [factory.button().render(), factory.checkbox().render()]
 
 
-# --------------------------------------------------------
-# Key Benefits Shown in This Example
-# --------------------------------------------------------
-# 1. Consistency Across Families:
-#    A factory guarantees that the client always gets a same family of products.
-#    (e.g., WindowsButton pairs with WindowsCheckbox, not with a MacCheckbox).
-#
-# 2. Decoupling:
-#    The client code depends only on abstract interfaces (Button, Checkbox, GUIFactory).
-#    It has no direct knowledge of WindowsButton, MacButton, etc.
-#
-# 3. Extensibility:
-#    Adding a new product family (e.g., LinuxFactory with LinuxButton + LinuxCheckbox)
-#    requires no changes in the client code — only the new factory and product classes.
-#
-# 4. Single Responsibility:
-#    The client focuses on using the UI elements,
-#    while each factory focuses on creating the right family of products.
-#
-# 5. Maintainability:
-#    Families of related products are created in one place (the factory),
-#    ensuring easier maintenance and fewer bugs from mismatched combinations.
+print(build_form(WindowsFactory()))
+print(build_form(MacFactory()))
+assert build_form(MacFactory()) == ["Mac button", "Mac checkbox"]

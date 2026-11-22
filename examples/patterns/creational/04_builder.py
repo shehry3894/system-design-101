@@ -1,117 +1,45 @@
-# builder.py
-# Intent: Construct a complex object step by step.
-# Focus: How to assemble the product.
-# Granularity: Incremental construction (can skip steps, choose order).
-from abc import ABC, abstractmethod
-
-# --- Product ---
-class GUIForm:
-    """The complex object being built step by step."""
-    def __init__(self):
-        self.components = []
-
-    def add_component(self, component: str):
-        self.components.append(component)
-
-    def show(self):
-        print("Form components:")
-        for comp in self.components:
-            print(f" - {comp}")
+# Builder: build a complex object step by step, instead of one constructor with many arguments.
+# Use when: an object has many optional parts and a 10-argument constructor gets unreadable.
+# Source: https://www.gofpattern.com/creational/patterns/builder-pattern.php
+# The full GoF version adds a Director that runs the same steps on different builders.
+# This chained ("fluent") form is the one you meet most in real code.
+from dataclasses import dataclass, field
 
 
-# --- Abstract Builder ---
-class GUIFormBuilder(ABC):
-    @abstractmethod
-    def add_button(self): pass
-
-    @abstractmethod
-    def add_checkbox(self): pass
-
-    @abstractmethod
-    def get_result(self) -> GUIForm: pass
+@dataclass
+class HttpRequest:
+    method: str = "GET"
+    url: str = ""
+    headers: dict = field(default_factory=dict)
+    body: str | None = None
 
 
-# --- Concrete Builders ---
-class WindowsFormBuilder(GUIFormBuilder):
-    def __init__(self):
-        self.form = GUIForm()
+class HttpRequestBuilder:
+    def __init__(self, url: str):
+        self._request = HttpRequest(url=url)
 
-    def add_button(self):
-        self.form.add_component("Windows-style Button")
+    def method(self, method: str):
+        self._request.method = method
+        return self  # returning self allows chaining
 
-    def add_checkbox(self):
-        self.form.add_component("Windows-style Checkbox")
+    def header(self, key: str, value: str):
+        self._request.headers[key] = value
+        return self
 
-    def get_result(self) -> GUIForm:
-        return self.form
+    def json(self, body: str):
+        self._request.body = body
+        return self.header("Content-Type", "application/json")
 
-
-class MacFormBuilder(GUIFormBuilder):
-    def __init__(self):
-        self.form = GUIForm()
-
-    def add_button(self):
-        self.form.add_component("Mac-style Button")
-
-    def add_checkbox(self):
-        self.form.add_component("Mac-style Checkbox")
-
-    def get_result(self) -> GUIForm:
-        return self.form
+    def build(self) -> HttpRequest:
+        return self._request
 
 
-# --- Director ---
-class FormDirector:
-    """Controls the building process order."""
-    def __init__(self, builder: GUIFormBuilder):
-        self._builder = builder
-
-    def construct_minimal_form(self):
-        self._builder.add_button()
-
-    def construct_full_form(self):
-        self._builder.add_button()
-        self._builder.add_checkbox()
-
-
-# --- Client Code ---
-if __name__ == "__main__":
-    # Build a Windows Form
-    win_builder = WindowsFormBuilder()
-    director = FormDirector(win_builder)
-    director.construct_full_form()
-    form = win_builder.get_result()
-    print("Windows Form:")
-    form.show()
-
-    print()
-
-    # Build a Mac Form
-    mac_builder = MacFormBuilder()
-    director = FormDirector(mac_builder)
-    director.construct_minimal_form()
-    form = mac_builder.get_result()
-    print("Mac Form:")
-    form.show()
-
-
-
-# Key Benefits Shown in This Example
-# ----------------------------------
-# Step-by-step construction: The form is built gradually (buttons, checkboxes, etc.),
-# rather than requiring everything at once in a complex constructor.
-#
-# Encapsulation of construction: The logic of how a form is built (Windows vs. Mac style)
-# is kept inside the builders, not in the client or the director.
-#
-# Decoupling: The client only depends on the Director and Builder interfaces.
-# It doesn’t need to know the details of how components are added or stored.
-#
-# Flexibility: You can easily define different builders (e.g., WindowsFormBuilder,
-# MacFormBuilder, or MobileFormBuilder) without changing the client code.
-#
-# Reusability: The same construction process (the Director’s algorithm) can be reused
-# to build different representations of a form (Windows-style, Mac-style, etc.).
-#
-# Readability & Maintainability: By splitting product creation into steps,
-# the code is cleaner and avoids overly long constructors or massive setup logic.
+req = (
+    HttpRequestBuilder("https://api.example.com/orders")
+    .method("POST")
+    .header("Authorization", "Bearer <token>")
+    .json('{"item": "pizza"}')
+    .build()
+)
+print(req)
+assert req.method == "POST" and req.headers["Content-Type"] == "application/json"
