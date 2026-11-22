@@ -1,0 +1,29 @@
+# System Design 101
+
+> Learn system design from scratch: short Markdown pages, one idea each, backed by runnable code and primary sources.
+
+## Start here
+
+- [README](README.md): how the repo is organised and where to begin
+- [Glossary](CONTEXT.md): one-line definitions of every term, linked to where it is taught
+- [Page template](docs/_template.md): the fixed section order every page follows
+
+## Foundations
+
+(First page, "How a request travels", is in progress.)
+
+## Project
+
+- [Foodpanda build log](project/foodpanda/README.md): each build step and the concepts it uses
+- [auth_service](project/foodpanda/services/auth_service/README.md): FastAPI + JWT + Postgres authentication service
+
+## Examples
+
+- [Examples index](examples/README.md): every snippet with a one-line summary
+- [Locks](examples/concurrency/locks/): mutex, RLock, semaphore, bounded semaphore, event, condition, barrier, GIL
+- [Creational patterns](examples/patterns/creational/): singleton, factory method, abstract factory, builder, prototype
+- [SOLID](examples/principles/solid/): the five principles, each with a bad and a good version
+
+## Optional
+
+- [Design spec](docs/superpowers/specs/2026-11-22-learning-hub-design.md): why the repo is shaped this way
