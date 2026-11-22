@@ -38,3 +38,35 @@ _Avoid_: Factory (too vague; a "simple factory" is a different thing)
 **SOLID**: Five class-design principles: Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion. [Examples](examples/principles/solid/)
 
 **Dependency injection**: Passing a dependency in from outside instead of creating it inside. [Example](examples/principles/solid/d_dependency_inversion.py)
+
+## How a request travels
+
+Definitions come from [the research note](docs/research/how-a-request-travels.md). They will link to the foundations page once it exists.
+
+**IP address**: A number that says where a host is on the network.
+
+**Private address**: An address from 10/8, 172.16/12 or 192.168/16. It is only unique inside one network.
+
+**NAT**: The router maps private addresses to its own public one.
+_Avoid_: NAPT (when the difference doesn't matter)
+
+**Domain name**: A list of labels, like `google` + `com`.
+
+**Registrar**: The company you buy a domain name from. It sits between you and the registry.
+
+**Registry**: The operator that runs a top-level domain such as `.com`.
+
+**Resolver**: A program that asks DNS servers to turn a name into an address. The *stub* resolver in your OS asks a *recursive* resolver, which does the real work.
+
+**TTL**: How many seconds a DNS answer may be cached.
+
+**TCP**: Gives a reliable, in-order byte stream over IP.
+
+**Port**: A number that picks the application on a host, e.g. 443 for HTTPS.
+
+**TLS**: Encrypts and authenticates the connection.
+
+**HTTP request**: A method (like `GET`) plus a target, headers and an optional body.
+
+**Gateway**: A server in front of the real servers that forwards requests to them. Load balancing is one of its jobs.
+_Avoid_: Reverse proxy (same thing; we say gateway)
