@@ -10,7 +10,7 @@
 
 ## Foundations
 
-(First page, "How a request travels", is in progress.)
+- [How a request travels](docs/00-foundations/01-how-a-request-travels.md): from typing `google.com` to the server's front door: NAT, DNS, TCP, TLS, HTTP, gateway
 
 ## Project
 

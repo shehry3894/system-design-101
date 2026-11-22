@@ -41,7 +41,7 @@ _Avoid_: Factory (too vague; a "simple factory" is a different thing)
 
 ## How a request travels
 
-Definitions come from [the research note](docs/research/how-a-request-travels.md). They will link to the foundations page once it exists.
+Taught in [How a request travels](docs/00-foundations/01-how-a-request-travels.md). Sources: [research note](docs/research/how-a-request-travels.md).
 
 **IP address**: A number that says where a host is on the network.
 
