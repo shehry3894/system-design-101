@@ -25,15 +25,12 @@ A from-scratch system design learning hub, built for **low cognitive load**. The
 - M0: restructure, fixed and simplified examples, `.env` → `*.example`, link checker, vendored skills, README / `llms.txt` / `CONTEXT.md` / template.
 - Ponytail pass and comment review on all Python, including auth_service.
 - auth_service tests verified: 6 pass against Postgres. Fixed two dependency breaks (psycopg 3 driver, `bcrypt<5`). `uv.lock` committed.
+- M1 Tasks 6–7: research note approved; foundations page 01 written ([01-how-a-request-travels.md](00-foundations/01-how-a-request-travels.md)).
 - History: `git log --oneline`.
 
 ## Next
 
-1. **M1**, from the plan [docs/superpowers/plans/2026-11-22-learning-hub-m0-m1.md](superpowers/plans/2026-11-22-learning-hub-m0-m1.md), Tasks 6–8:
-   1. Research "How a request travels" from the RFCs.
-   2. Send the owner a short concept brief and **wait for approval**.
-   3. Write the page.
-   4. Visual spike: `visual-explainer` vs plain SVG. **The owner picks.**
+1. **M1 Task 8**: visual spike for page 01, `visual-explainer` vs plain SVG, from its animation script. **The owner picks.** See the plan [docs/superpowers/plans/2026-11-22-learning-hub-m0-m1.md](superpowers/plans/2026-11-22-learning-hub-m0-m1.md).
 2. Auth service step 1: fix the known gaps listed in [project/foodpanda/README.md](../project/foodpanda/README.md), and write its concept pages (M2).
 
 ## Suggested skills
