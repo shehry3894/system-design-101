@@ -1,6 +1,6 @@
 # Handoff: current state and next steps
 
-Last updated: 2026-11-22. Read this first, together with `CLAUDE.md`.
+Last updated: 2026-11-23. Read this first, together with `CLAUDE.md`.
 
 ## Goal
 
@@ -11,7 +11,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - M0 (setup) and M1 (foundations page 01 with its Mermaid diagram) are built.
 - M2 (design-decision pages) has started with **API styles**. The owner approved the plan on 2026-11-22.
 - The research note is done: [docs/research/api-styles.md](research/api-styles.md). It is long on purpose, for the writer.
-- **Waiting on the owner:** OK on the concept brief, and whether pages say "REST" or "HTTP API". Don't write the page until then.
+- 2026-11-23: the owner shared a video's list of 15 "API styles" (REST, SOAP, gRPC, GraphQL, webhooks, WebSocket, WebRTC, MCP, RPC, SSE, MQTT, AMQP, event-driven, Kafka, AsyncAPI). It is a topic list, not a source. The research note already has SOAP, JSON-RPC, WebSocket, SSE, webhooks and AsyncAPI as one-liners; WebRTC, MCP, MQTT, AMQP, Kafka and event-driven are not researched yet.
+- **Waiting on the owner:** how to fit the wider list. Proposed: a hub page that groups all 15 by kind (request-response, server push, messaging), then one short page per group, API styles first. Also still open: the title and "REST" vs "HTTP API". Don't write pages until then.
 
 ## Decisions the owner made
 
@@ -49,7 +50,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 1. **API styles page** (plan approved 2026-11-22):
    1. ~~Survey the API styles in official sources.~~ Done.
    2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
-   3. Concept brief sent to the owner. **Waiting on the OK.**
+   3. Concept brief sent to the owner. The owner then asked to cover a wider list (see Where we are). **Waiting on the owner's choice of structure.**
    4. Page `docs/concepts/api/api-styles.md`: comparison table, pros and cons, when to use each, one Mermaid diagram, sources.
    5. Code `examples/api/`: the same order encoded as JSON and as Protobuf, printing the byte counts, with a test.
    6. Update `CONTEXT.md`, `README.md`, `llms.txt` and this file.
