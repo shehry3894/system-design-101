@@ -48,3 +48,11 @@ The prefix is the SOLID letter.
 | [l_liskov_substitution.py](principles/solid/l_liskov_substitution.py) | A subclass must work wherever its parent works |
 | [i_interface_segregation.py](principles/solid/i_interface_segregation.py) | Small interfaces, no unused methods |
 | [d_dependency_inversion.py](principles/solid/d_dependency_inversion.py) | Depend on interfaces, inject the concrete thing |
+
+## Communication
+
+The prefix is the communication style: `request_` (the caller waits for the answer). `push_` and `messaging_` come later. See [Communication styles](../CONTEXT.md#communication-styles).
+
+| File | One line |
+|---|---|
+| [request_payload_size.py](communication/request_payload_size.py) | The same order as JSON (143 bytes) and as Protobuf (40 bytes) |
