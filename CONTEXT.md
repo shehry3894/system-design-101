@@ -72,3 +72,30 @@ _Avoid_: NAPT, Network Address Port Translation (when the difference doesn't mat
 
 **Gateway**: A server in front of the real servers that forwards requests to them. Load balancing is one of its jobs.
 _Avoid_: Reverse proxy (same thing; we say gateway)
+
+## Communication styles
+
+Taught in the communication styles pages (being written). Sources: [hub research note](docs/research/communication-styles.md), [API styles research note](docs/research/api-styles.md).
+
+**Communication style**: How two programs exchange messages. This repo uses three groups: request-response, server push and messaging.
+_Avoid_: API style (that is one group only), protocol (HTTP, MQTT and so on are protocols)
+
+**Request-response**: The caller sends a request and waits for the answer.
+_Avoid_: RPI, Remote Procedure Invocation, request/reply (other names for the same group)
+
+**Server push**: The server sends a message to a client the moment something happens, without a new request. This group name is ours; the sources don't name one.
+
+**Messaging**: Programs send messages through a channel, usually a broker, and the sender doesn't wait for the receiver.
+_Avoid_: Async messaging (same thing)
+
+**API style**: One way to shape request-response calls, such as REST, gRPC or GraphQL.
+_Avoid_: API protocol, API architecture
+
+**HTTP API**: Any API whose messages travel over HTTP. It is an umbrella term, not one of the options.
+
+**REST** (Representational State Transfer): An architectural style for APIs over HTTP, built on resources and standard methods. In this repo, "REST" also covers JSON-over-HTTP APIs that skip links in responses, as most do.
+_Avoid_: RESTful (same thing)
+
+**RPC** (Remote Procedure Call): Calling a function in another process as if it were local. The caller waits for the reply. gRPC, JSON-RPC, XML-RPC and MCP are RPC protocols.
+
+**MCP** (Model Context Protocol): An open protocol that connects AI apps to tools and data. Its messages are JSON-RPC 2.0.

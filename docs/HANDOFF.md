@@ -14,7 +14,10 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - 2026-11-23: the owner shared a video's list of 15 "API styles" (REST, SOAP, gRPC, GraphQL, webhooks, WebSocket, WebRTC, MCP, RPC, SSE, MQTT, AMQP, event-driven, Kafka, AsyncAPI). It is a topic list, not a source. The owner chose **a hub page plus one page per group** (request-response, server push, messaging), API styles first.
 - Hub research done from official docs: [docs/research/communication-styles.md](research/communication-styles.md). It classifies all 15 and checks 21 of the video's claims (several fail).
 - Design written: [2026-11-23-communication-styles-design.md](superpowers/specs/2026-11-23-communication-styles-design.md) (umbrella term "communication style", file names, a decision-page template, order).
-- **Waiting on the owner:** approval of that design. Don't write pages until then.
+- The owner approved the design on 2026-11-23 and asked where MCP was. MCP now gets its own short section on the API styles page; it stays out of the comparison table (it connects AI apps to tools).
+- Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP).
+- Plan written: [2026-11-23-communication-styles-hub.md](superpowers/plans/2026-11-23-communication-styles-hub.md) (4 tasks: example, API styles page + template, hub, indexes).
+- **Waiting on the owner:** review the plan and pick how to run it (native or subagent-driven). Don't start Task 1 until then.
 
 ## Decisions the owner made
 
@@ -54,7 +57,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
    1. ~~Survey the API styles in official sources.~~ Done.
    2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
    3. ~~Hub research note `docs/research/communication-styles.md`.~~ Done.
-   4. Design doc sent to the owner. **Waiting on approval.** Then `superpowers:writing-plans`.
+   4. ~~Design doc approved; plan written.~~ Done. **Waiting on the owner's plan review.** Then run the plan task by task.
    5. Template `docs/_template-decision.md`; hub `docs/concepts/communication/00-overview.md`; page `01-api-styles.md`. Each with a Mermaid diagram and sources.
    6. Code `examples/communication/request_payload_size.py`: the same order as JSON and as Protobuf, printing the byte counts, with a test.
    7. Update `CONTEXT.md` (terms: communication style, API style, HTTP API, server push, messaging), `README.md`, `llms.txt`, the spec and this file.

@@ -1,6 +1,6 @@
 # Design: communication styles (hub + group pages)
 
-Date: 2026-11-23. Status: **waiting on the owner's approval.**
+Date: 2026-11-23. Status: **approved by the owner on 2026-11-23.** Plan: [2026-11-23-communication-styles-hub.md](../plans/2026-11-23-communication-styles-hub.md).
 Facts behind it: [communication-styles.md](../../research/communication-styles.md) and [api-styles.md](../../research/api-styles.md).
 
 ## Why
@@ -48,7 +48,8 @@ My calls (the owner can change any of them):
   | `02-server-push.md` | Server push: SSE, webhooks, WebRTC, WebSocket |
   | `03-messaging.md` | Messaging: AMQP, Kafka, MQTT |
 
-  - `01-api-styles.md` also gives SOAP, JSON-RPC and MCP one line each.
+  - `01-api-styles.md` also gives SOAP and JSON-RPC one line each.
+  - `01-api-styles.md` gives **MCP (Model Context Protocol)** a short section of its own (the owner asked for it): what it is, JSON-RPC 2.0 underneath, its two transports, and when to build an MCP server. MCP stays out of the comparison table: it connects AI apps to tools, not any client to any backend.
   - `03-messaging.md` opens with event-driven architecture and ends with AsyncAPI in one line.
 - **Decision-page template:** a new `docs/_template-decision.md` with these sections:
   1. The problem.
@@ -66,6 +67,7 @@ My calls (the owner can change any of them):
 - **The hub's surprises** are 4 or 5 of the video's claims that fail, each cited (research note §6).
 - **Code** goes in `examples/communication/`. The file prefix shows the group: `request_`, `push_`, `messaging_`.
   - First file: `request_payload_size.py`. It encodes the same order as JSON and as Protobuf and prints the byte counts, with a test.
+  - It writes the Protobuf bytes by hand (about 15 lines), checked against the protobuf.dev encoding examples. No install is needed, and the reader sees why the bytes are fewer. The page says that real projects use the `protobuf` library and `.proto` files.
 - **Order:**
   1. Now: the hub, then the API styles page and its code.
   2. Later: server push, then messaging. Each needs the owner's go-ahead and its own deep research note first.
@@ -74,4 +76,3 @@ My calls (the owner can change any of them):
 
 - The Mermaid diagram type on each group page.
 - The exact table columns.
-- How the Protobuf message is defined in the example (a `.proto` file or built in code).
