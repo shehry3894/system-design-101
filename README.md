@@ -13,7 +13,7 @@ Learn system design step by step, from scratch. Every page explains one idea, wi
 | Section | What's inside |
 |---|---|
 | [Foundations](docs/00-foundations/) | [How a request travels](docs/00-foundations/01-how-a-request-travels.md) from your laptop to a server |
-| [Concepts](docs/concepts/) | One page per concept, reused across the project |
+| [Concepts](docs/concepts/) | [Communication styles](docs/concepts/communication/00-overview.md) and [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md) |
 | [Project](project/foodpanda/) | The food-delivery build log and services |
 | [Examples](examples/) | Small runnable snippets: locks, design patterns, SOLID |
 

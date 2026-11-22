@@ -17,7 +17,10 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - The owner approved the design on 2026-11-23 and asked where MCP was. MCP now gets its own short section on the API styles page; it stays out of the comparison table (it connects AI apps to tools).
 - Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP).
 - Plan written: [2026-11-23-communication-styles-hub.md](superpowers/plans/2026-11-23-communication-styles-hub.md) (4 tasks: example, API styles page + template, hub, indexes).
-- **Waiting on the owner:** review the plan and pick how to run it (native or subagent-driven). Don't start Task 1 until then.
+- The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green.
+  - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
+  - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
+- **Waiting on the owner:** review the two pages. Then say go for the next page, "Server push" (`02-server-push.md`), which needs its own deep research note first.
 
 ## Decisions the owner made
 
@@ -49,6 +52,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Docs audit: all Markdown brought in line with the decisions above (spec, plan status, `CLAUDE.md`, glossary, Foodpanda and auth_service READMEs).
 - M2 API styles: research note written ([api-styles.md](research/api-styles.md)) and spot-checked.
 - M2 communication styles hub: research note written from official docs ([communication-styles.md](research/communication-styles.md)); design doc written.
+- M2 pages: [Communication styles](concepts/communication/00-overview.md), [API styles](concepts/communication/01-api-styles.md), [decision template](_template-decision.md), example [request_payload_size.py](../examples/communication/request_payload_size.py).
 - History: `git log --oneline`.
 
 ## Next
@@ -57,11 +61,11 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
    1. ~~Survey the API styles in official sources.~~ Done.
    2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
    3. ~~Hub research note `docs/research/communication-styles.md`.~~ Done.
-   4. ~~Design doc approved; plan written.~~ Done. **Waiting on the owner's plan review.** Then run the plan task by task.
-   5. Template `docs/_template-decision.md`; hub `docs/concepts/communication/00-overview.md`; page `01-api-styles.md`. Each with a Mermaid diagram and sources.
-   6. Code `examples/communication/request_payload_size.py`: the same order as JSON and as Protobuf, printing the byte counts, with a test.
-   7. Update `CONTEXT.md` (terms: communication style, API style, HTTP API, server push, messaging), `README.md`, `llms.txt`, the spec and this file.
-   8. Later, each with the owner's go-ahead: `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
+   4. ~~Design doc approved; plan written.~~ Done.
+   5. ~~Template, hub page, API styles page.~~ Done.
+   6. ~~Code `examples/communication/request_payload_size.py`.~~ Done.
+   7. ~~Update `CONTEXT.md`, `README.md`, `llms.txt`, the spec and this file.~~ Done.
+   8. **Next, after the owner reviews the pages and says go:** `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
 2. Proposed order after that: password hashing (bcrypt vs scrypt vs Argon2id), sessions vs tokens (JWT), token signing (HS256 vs RS256), then database decisions.
 3. Separate task, when the owner says: `project/foodpanda/services/auth_service/GAPS.md` (bad practice, why it is bad, the fix, link to the concept page). The current list is in [project/foodpanda/README.md](../project/foodpanda/README.md).
 

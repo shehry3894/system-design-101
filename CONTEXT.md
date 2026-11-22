@@ -75,7 +75,7 @@ _Avoid_: Reverse proxy (same thing; we say gateway)
 
 ## Communication styles
 
-Taught in the communication styles pages (being written). Sources: [hub research note](docs/research/communication-styles.md), [API styles research note](docs/research/api-styles.md).
+Taught in [Communication styles](docs/concepts/communication/00-overview.md) and [API styles](docs/concepts/communication/01-api-styles.md). Sources: [hub research note](docs/research/communication-styles.md), [API styles research note](docs/research/api-styles.md).
 
 **Communication style**: How two programs exchange messages. This repo uses three groups: request-response, server push and messaging.
 _Avoid_: API style (that is one group only), protocol (HTTP, MQTT and so on are protocols)
@@ -99,3 +99,14 @@ _Avoid_: RESTful (same thing)
 **RPC** (Remote Procedure Call): Calling a function in another process as if it were local. The caller waits for the reply. gRPC, JSON-RPC, XML-RPC and MCP are RPC protocols.
 
 **MCP** (Model Context Protocol): An open protocol that connects AI apps to tools and data. Its messages are JSON-RPC 2.0.
+
+**gRPC**: An RPC framework that runs over HTTP/2 and uses Protobuf by default. The name stands for "gRPC Remote Procedure Calls".
+
+**Protobuf** (Protocol Buffers): A binary format that sends field numbers instead of field names. [Example](examples/communication/request_payload_size.py)
+_Avoid_: Proto (when you mean the format, not the `.proto` file)
+
+**GraphQL**: A query language and execution engine. The client names the fields it wants, at one endpoint.
+
+**JSON-RPC** (JavaScript Object Notation Remote Procedure Call): A small RPC protocol that uses JSON and works over any transport.
+
+**SOAP**: A protocol for structured messages in XML (Extensible Markup Language). The name is no longer an acronym.
