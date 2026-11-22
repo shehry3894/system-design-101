@@ -42,15 +42,15 @@ sequenceDiagram
 ```
 
 ## How it works
-1. **Your address.** Your laptop has a private IP address, like `192.168.1.20`. It only means something inside your home network. [RFC 1918 §3]
-2. **NAT.** Your router swaps that private address and port for its own public address and a new port. It remembers the swap so replies find their way back. [RFC 3022 §2.2, §3.1]
-3. **The name exists.** Someone bought `google.com` from a registrar. The `.com` registry points the name to Google's DNS servers. [ICANN](https://www.icann.org/resources/pages/domain-name-registration-process-2023-11-02-en); [RFC 1034 §4.2]
+1. **Your address.** Your laptop has a private IP (Internet Protocol) address, like `192.168.1.20`. It only means something inside your home network. [RFC 1918 §3]
+2. **NAT (Network Address Translation).** Your router swaps that private address and port for its own public address and a new port. It remembers the swap so replies find their way back. [RFC 3022 §2.2, §3.1]
+3. **The name exists.** Someone bought `google.com` from a registrar. The `.com` registry points the name to Google's DNS (Domain Name System) servers. [ICANN](https://www.icann.org/resources/pages/domain-name-registration-process-2023-11-02-en); [RFC 1034 §4.2]
 4. **Ask a resolver.** Your OS has a small stub resolver. It hands the question to a recursive resolver. [RFC 1034 §5.3.1]
 5. **Walk the tree.** If the answer isn't cached, the resolver asks a root server. The root points to the `.com` servers, and they point to Google's own DNS servers. [RFC 1034 §5.3.3; RFC 9499 §4]
-6. **Cache with a TTL.** Google's server returns the IP address. Every resolver caches it for its TTL, in seconds. [RFC 1035 §3.2.1]
-7. **TCP.** The browser connects to that IP on port 443, the HTTPS port. It takes three packets: SYN, SYN-ACK, ACK. [RFC 9293 §3.5; RFC 9110 §4.2.2]
-8. **TLS.** The browser and server agree on keys, and the server proves who it is with a certificate. In TLS 1.3 this takes one round trip. [RFC 8446 §2]
-9. **HTTP.** The browser sends `GET /` with a `Host: google.com` header. [RFC 9110 §9.3.1, §7.2]
+6. **Cache with a TTL (time to live).** Google's server returns the IP address. Every resolver caches it for its TTL, in seconds. [RFC 1035 §3.2.1]
+7. **TCP (Transmission Control Protocol).** The browser connects to that IP on port 443, the standard port for secure web traffic (HTTPS). It takes three packets: SYN, SYN-ACK, ACK. [RFC 9293 §3.5; RFC 9110 §4.2.2]
+8. **TLS (Transport Layer Security).** The browser and server agree on keys, and the server proves who it is with a certificate. In TLS 1.3 this takes one round trip. [RFC 8446 §2]
+9. **HTTP (Hypertext Transfer Protocol).** The browser sends `GET /` with a `Host: google.com` header. [RFC 9110 §9.3.1, §7.2]
 10. **The front door.** The address usually belongs to a gateway, not the final server. The gateway forwards the request to one of many servers behind it. This is how load balancing works. [RFC 9110 §3.7]
 11. **The way back.** The response returns along the same path. Your router uses its NAT record to hand it to your laptop. [RFC 3022 §3.2]
 
@@ -82,7 +82,7 @@ None yet. The auth service in M2 is where the request lands: [auth_service](../.
 ## Animation script
 1. A laptop with a private IP sits behind a router. NAT swaps it for the router's public IP.
 2. The browser asks the stub resolver for `google.com`.
-3. Cache miss: the recursive resolver asks root, then the `.com` TLD, then Google's DNS server.
+3. Cache miss: the recursive resolver asks root, then the `.com` TLD (top-level domain), then Google's DNS server.
 4. The IP comes back and is cached with its TTL.
 5. TCP three-way handshake to port 443.
 6. TLS 1.3 handshake, one round trip.

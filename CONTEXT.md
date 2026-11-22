@@ -43,12 +43,14 @@ _Avoid_: Factory (too vague; a "simple factory" is a different thing)
 
 Taught in [How a request travels](docs/00-foundations/01-how-a-request-travels.md). Sources: [research note](docs/research/how-a-request-travels.md).
 
-**IP address**: A number that says where a host is on the network.
+**IP address** (Internet Protocol address): A number that says where a host is on the network.
 
 **Private address**: An address from 10/8, 172.16/12 or 192.168/16. It is only unique inside one network.
 
-**NAT**: The router maps private addresses to its own public one.
+**NAT** (Network Address Translation): The router maps private addresses to its own public one.
 _Avoid_: NAPT (when the difference doesn't matter)
+
+**DNS** (Domain Name System): The system that turns a domain name into an IP address.
 
 **Domain name**: A list of labels, like `google` + `com`.
 
@@ -58,15 +60,15 @@ _Avoid_: NAPT (when the difference doesn't matter)
 
 **Resolver**: A program that asks DNS servers to turn a name into an address. The *stub* resolver in your OS asks a *recursive* resolver, which does the real work.
 
-**TTL**: How many seconds a DNS answer may be cached.
+**TTL** (time to live): How many seconds a DNS answer may be cached.
 
-**TCP**: Gives a reliable, in-order byte stream over IP.
+**TCP** (Transmission Control Protocol): Gives a reliable, in-order byte stream over IP.
 
 **Port**: A number that picks the application on a host, e.g. 443 for HTTPS.
 
-**TLS**: Encrypts and authenticates the connection.
+**TLS** (Transport Layer Security): Encrypts and authenticates the connection.
 
-**HTTP request**: A method (like `GET`) plus a target, headers and an optional body.
+**HTTP request** (Hypertext Transfer Protocol): A method (like `GET`) plus a target, headers and an optional body.
 
 **Gateway**: A server in front of the real servers that forwards requests to them. Load balancing is one of its jobs.
 _Avoid_: Reverse proxy (same thing; we say gateway)

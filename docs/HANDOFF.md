@@ -2,14 +2,22 @@
 
 Last updated: 2026-11-22. Read this first, together with `CLAUDE.md`.
 
-## What this repo is
+## Goal
 
-A from-scratch system design learning hub, built for **low cognitive load**. The full design is in [docs/superpowers/specs/2026-11-22-learning-hub-design.md](superpowers/specs/2026-11-22-learning-hub-design.md). Don't repeat it here.
+A from-scratch system design learning hub with **low cognitive load**: short Markdown pages, one idea each, backed by primary sources and runnable code. It is learned by building a Foodpanda-style project, starting with `auth_service`. Full design: [docs/superpowers/specs/2026-11-22-learning-hub-design.md](superpowers/specs/2026-11-22-learning-hub-design.md).
+
+## Where we are
+
+- M0 (setup) and M1 (foundations page 01 plus its visual) are built. The owner is reviewing them.
+- **Waiting on the owner:** the visual format for simple diagrams (interactive stepper vs static PNG vs static HTML vs Mermaid only).
+- **On hold:** M2. Don't start it until the owner says so.
 
 ## Decisions the owner made
 
 - One repo with docs, examples and the Foodpanda project. Commit and push straight to `main`.
-- Markdown first (plus `llms.txt`). HTML visuals come later, generated from each page's animation script. Hosting is decided later.
+- Markdown first (plus `llms.txt`). Hosting is decided later.
+- Visuals: plain SVG is the default tool (chosen 2026-11-22). The format for simple diagrams is still open; see "Where we are".
+- Spell out every abbreviation at its first use.
 - Order: a foundations prelude ("how a request travels"), then project-first (auth_service is step 1).
 - Sources: official or authoritative docs only. The owner's Google Doc "System Design" is a **topic list only**, never a source.
 - No HTML visual for non-visual ideas (e.g. KISS). Use a short code example instead.
@@ -31,7 +39,8 @@ A from-scratch system design learning hub, built for **low cognitive load**. The
 
 ## Next
 
-1. Auth service step 1: fix the known gaps listed in [project/foodpanda/README.md](../project/foodpanda/README.md), and write its concept pages (M2).
+1. Finish M0/M1 review with the owner.
+2. Only when the owner says so, M2 (auth service step 1): fix the known gaps listed in [project/foodpanda/README.md](../project/foodpanda/README.md), and write its concept pages (M2).
 
 ## Suggested skills
 

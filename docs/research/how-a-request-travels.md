@@ -8,6 +8,8 @@ RFCs were read as plain text from rfc-editor.org on 2026-11-22.
 
 ## Terms
 
+Full names: IP = Internet Protocol [RFC 791 title]; NAT = Network Address Translation [RFC 2663 §3]; DNS = Domain Name System [RFC 1034 §1]; TLD = top-level domain [RFC 9499 §2]; TTL = time to live [RFC 1035 §3.2.1]; TCP = Transmission Control Protocol [RFC 9293 title]; TLS = Transport Layer Security [RFC 8446 title]; HTTP = Hypertext Transfer Protocol [RFC 9110 abstract].
+
 - **IP address**: a fixed-length number that says *where* a host is; a name says *what* we seek, a route says *how to get there*. IPv4 addresses are 32 bits. [RFC 791 §2.3, "Addressing"]
 - **Private address**: an address from 10/8, 172.16/12 or 192.168/16, reserved by IANA for private networks and only unique inside one enterprise. [RFC 1918 §3]
 - **NAT (Network Address Translation)**: a method that maps IP addresses from one address realm to another. [RFC 2663 §3]
