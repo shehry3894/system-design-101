@@ -15,19 +15,26 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Hub research done from official docs: [docs/research/communication-styles.md](research/communication-styles.md). It classifies all 15 and checks 21 of the video's claims (several fail).
 - Design written: [2026-11-23-communication-styles-design.md](superpowers/specs/2026-11-23-communication-styles-design.md) (umbrella term "communication style", file names, a decision-page template, order).
 - The owner approved the design on 2026-11-23 and asked where MCP was. MCP now gets its own short section on the API styles page; it stays out of the comparison table (it connects AI apps to tools).
-- Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP).
+- Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP; from the rework: introspection, metadata, deadline, server reflection, health check).
 - Plan written: [2026-11-23-communication-styles-hub.md](superpowers/plans/2026-11-23-communication-styles-hub.md) (4 tasks: example, API styles page + template, hub, indexes).
 - The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green. A fresh reviewer then checked the whole change; its fixes are in (wording of the `-2` surprise, a `.proto` con, abbreviations, WebRTC marked peer-to-peer, stale paths), and everything is pushed.
   - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
   - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
-- The owner reviewed the two pages on 2026-11-23; the feedback is below. After the rework, the next page is "Server push" (`02-server-push.md`). It needs its own deep research note first, and it waits for the owner's go.
-- 2026-11-23: the owner said "fix minors first", and all 7 minor review notes are fixed. Groups are now in alphabetical order, our own terms are flagged as ours, page 01 has a REST surprise, the hub's surprises are now failing video claims (research note §6), and the example skips proto3 default values and sends UTF-8 JSON.
-- Carry over to the messaging page: two facts left the hub. The smallest MQTT packet (`PINGREQ`) is 2 bytes [MQTT 5.0 §3.12]. RabbitMQ was built for AMQP 0-9-1, which shares nothing at the wire level with AMQP 1.0 [RabbitMQ, Protocols].
+- The owner reviewed the two pages on 2026-11-23, and the rework from that review is built (below). The next page is "Server push" (`02-server-push.md`). It needs its own deep research note first, and it waits for the owner's go.
+- 2026-11-23: the owner said "fix minors first", and all 7 minor review notes are fixed. Groups are now in alphabetical order, our own terms are flagged as ours, page 01 has a REST surprise, and the example skips proto3 default values and sends UTF-8 JSON. (The hub's surprises were failing video claims then; the rework replaced them with sourced facts.)
+- Carry over to the messaging page: the smallest MQTT packet (`PINGREQ`) is 2 bytes [MQTT 5.0 §3.12]. The RabbitMQ AMQP 0-9-1 fact is back on the hub as a surprise.
 - Video claims not used on any page: #3 (the GraphQL name), #11 (AMQP "older sibling"), #15 (Kafka per second) and #20 (gRPC at Netflix and Uber). Their verdicts are only "no source" or "not found", too weak for a surprise.
 - 2026-11-23, owner review feedback:
   - The video is not a source, and pages should not lean on its claims. It was shared to show missing topics and its good real-world analogies, such as ordering from a waiter, or asking for "just the salad" (GraphQL).
   - The owner also shared another agent's REST vs gRPC table as a layout idea, not a source. Its rows are questions a developer asks, and its cells give concrete examples. Its rows for auth/metadata, timeouts, changing the API, debugging and health checks are missing from ours.
-  - **Waiting on the owner:** approval of a proposed rework of the hub and API styles page. The proposal adds a running restaurant analogy, splits the compare table into two, shows the same call written three ways, and replaces the hub surprises that rebut the video. New sources it needs: gRPC health checking, server reflection, and grpcurl.
+- The owner approved the rework ("Yes, rework") and confirmed its scope: GraphQL, gRPC and REST stay the table's columns, "REST and gRPC are the main ones", and the goal is low cognitive load with a deep grasp of each. Design: [2026-11-23-api-pages-rework-design.md](superpowers/specs/2026-11-23-api-pages-rework-design.md). Plan: [2026-11-23-api-pages-rework.md](superpowers/plans/2026-11-23-api-pages-rework.md).
+- Rework built on 2026-11-23:
+  - Restaurant analogies ("In real life:") on the hub and page 01. MCP uses its own docs' USB-C line, cited.
+  - Page 01's Compare is now a Design table and a Run table (auth, timeouts, debugging, health checks added).
+  - "Same call, three ways": the sequence diagram, then runnable GraphQL, gRPC and REST code for "get order 42". Each snippet was run once in a scratch virtual environment; none is in `examples/`.
+  - Sourced surprises: RabbitMQ's AMQP 0-9-1 on the hub; Protobuf field numbers on page 01.
+  - New facts are in the research note §9, with a cell-by-cell source map in §9.10.
+  - Page 01 is 211 lines (68 code and diagram, 17 sources). If it feels long, the code could fold into `<details>` blocks; that needs the owner's OK.
 
 ## Decisions the owner made
 
@@ -61,6 +68,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Docs audit: all Markdown brought in line with the decisions above (spec, plan status, `CLAUDE.md`, glossary, Foodpanda and auth_service READMEs).
 - M2 API styles: research note written ([api-styles.md](research/api-styles.md)) and spot-checked.
 - M2 communication styles hub: research note written from official docs ([communication-styles.md](research/communication-styles.md)); design doc written.
+- M2 rework from the owner's review: analogies, Design and Run tables, the same call in code (2026-11-23).
 - M2 pages: [Communication styles](concepts/communication/00-overview.md), [API styles](concepts/communication/01-api-styles.md), [decision template](_template-decision.md), example [request_payload_size.py](../examples/communication/request_payload_size.py).
 - History: `git log --oneline`.
 
@@ -74,7 +82,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
    5. ~~Template, hub page, API styles page.~~ Done.
    6. ~~Code `examples/communication/request_payload_size.py`.~~ Done.
    7. ~~Update `CONTEXT.md`, `README.md`, `llms.txt`, the spec and this file.~~ Done.
-   8. **Next, after the owner reviews the pages and says go:** `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
+   8. ~~Rework from the owner's review (analogies, two tables, same call in code).~~ Done.
+   9. **Next, after the owner reviews the reworked pages and says go:** `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
 2. Proposed order after that: password hashing (bcrypt vs scrypt vs Argon2id), sessions vs tokens (JWT), token signing (HS256 vs RS256), then database decisions.
 3. Separate task, when the owner says: `project/foodpanda/services/auth_service/GAPS.md` (bad practice, why it is bad, the fix, link to the concept page). The current list is in [project/foodpanda/README.md](../project/foodpanda/README.md).
 

@@ -1,6 +1,6 @@
 # Design: rework of the communication hub and API styles page
 
-Date: 2026-11-23. Status: **approved by the owner on 2026-11-23** ("Yes, rework"). It changes pages built from [2026-11-23-communication-styles-design.md](2026-11-23-communication-styles-design.md).
+Date: 2026-11-23. Status: **approved by the owner on 2026-11-23** ("Yes, rework"); **built on 2026-11-23**. It changes pages built from [2026-11-23-communication-styles-design.md](2026-11-23-communication-styles-design.md).
 
 ## Why
 

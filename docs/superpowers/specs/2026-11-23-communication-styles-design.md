@@ -64,7 +64,8 @@ My calls (the owner can change any of them):
   - Does the caller need the answer now? Yes means request-response.
   - Must the server tell a client the moment something changes? Yes means server push.
   - Are there many receivers, receivers that may be offline, or senders that must not wait? Yes means messaging.
-- **The hub's surprises** are 4 or 5 of the video's claims that fail, each cited (research note §6).
+- ~~**The hub's surprises** are 4 or 5 of the video's claims that fail, each cited (research note §6).~~ Superseded on 2026-11-23 by [the rework design](2026-11-23-api-pages-rework-design.md): surprises are facts developers get wrong, from sources, and never replies to the video.
+- **Rework, 2026-11-23** ([design](2026-11-23-api-pages-rework-design.md)): the template now adds an "In real life" analogy bullet to each option, splits Compare into Design and Run tables, and replaces "Picture" with "Same task, each way" (the diagram plus the smallest code for each option).
 - **Code** goes in `examples/communication/`. The file prefix shows the group: `request_`, `push_`, `messaging_`.
   - First file: `request_payload_size.py`. It encodes the same order as JSON and as Protobuf and prints the byte counts, with a test.
   - It writes the Protobuf bytes by hand (about 15 lines), checked against the protobuf.dev encoding examples. No install is needed, and the reader sees why the bytes are fewer. The page says that real projects use the `protobuf` library and `.proto` files.

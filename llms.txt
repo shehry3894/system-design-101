@@ -14,8 +14,8 @@
 
 ## Concepts
 
-- [Communication styles](docs/concepts/communication/00-overview.md): request-response, server push or messaging; all 15 common terms (REST to Kafka) by group
-- [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md): pros, cons, when to use each, a comparison table, and MCP
+- [Communication styles](docs/concepts/communication/00-overview.md): request-response, server push or messaging, each with a real-world analogy; all 15 common terms (REST to Kafka) by group
+- [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md): a real-world analogy for each, pros, cons, when to use each, design and run comparison tables, the same call in code, and MCP
 - [Decision page template](docs/_template-decision.md): the fixed section order for pages that compare options
 
 ## Project

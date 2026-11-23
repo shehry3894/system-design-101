@@ -110,3 +110,13 @@ _Avoid_: Proto (when you mean the format, not the `.proto` file)
 **JSON-RPC** (JavaScript Object Notation Remote Procedure Call): A small RPC protocol that uses JSON and works over any transport.
 
 **SOAP**: A protocol for structured messages in XML (Extensible Markup Language). The name is no longer an acronym.
+
+**Introspection**: A GraphQL query about the schema itself. Tools such as GraphiQL use it to show what an API offers.
+
+**Metadata**: Key-value pairs sent with a gRPC call, like HTTP headers. Auth tokens travel here, e.g. `authorization: Bearer <token>`.
+
+**Deadline**: How long a gRPC client will wait for a call. It is sent to the server. gRPC sets none unless you do.
+
+**Server reflection**: A gRPC service that lists a server's Protobuf APIs, so tools such as `grpcurl` can call it without the `.proto` file.
+
+**Health check**: A request that asks whether a service can serve traffic. gRPC has a standard health service; HTTP has no standard one.
