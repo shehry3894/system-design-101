@@ -24,14 +24,14 @@ Two terms first:
 - **Use when:** front ends need flexible data shapes, or one gateway sits in front of many services. [GraphQL spec §1; graphql.org FAQ]
 
 ### gRPC
-- **In real life:** you and the kitchen share a printed order pad. Its boxes are numbered, not labeled, so orders are quick to write and read, but meaningless without the key (the `.proto` file).
+- **In real life:** you and the kitchen share a printed order pad. Its boxes are numbered, not labeled, so orders are quick to write and read, but hard to read without the key (the `.proto` file).
 - **What it is:** an RPC (Remote Procedure Call) framework. The client calls a server method "as if it were a local object", over HTTP/2, with Protobuf (Protocol Buffers) messages by default. The name stands for "gRPC Remote Procedure Calls". [grpc.io Introduction; grpc.io FAQ]
 - **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines and cancellation are built in. [grpc.io Python Basics; grpc.io Core concepts]
 - **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be fully read without its `.proto` file: the bytes hold field numbers, not names. No deadline unless you set one. [grpc-web README; protobuf.dev Overview; protobuf.dev Encoding; grpc.io Deadlines]
 - **Use when:** services in many languages talk to each other, or mobile clients talk to cloud servers. [grpc.io About; grpc.io FAQ]
 
 ### REST
-- **In real life:** a menu where every dish has its own number. You name the dish and what to do with it (order it, cancel it), and the kitchen decides how to plate it.
+- **In real life:** a menu where every dish has its own number. You name the dish and what to do with it (order it, cancel it). You can pick options the menu lists, like query parameters, but the kitchen decides how to plate it.
 - **What it is:** REST is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it. [Fielding 2000 ch. 5; RFC 9110 §9.1]
 - **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests are safe to retry. FastAPI generates an OpenAPI contract at `/openapi.json`. [RFC 9111 §2; RFC 9110 §9.2.2; FastAPI First Steps]
 - **Cons:** the standard form "degrades efficiency". The server decides the shape of each response. It is pull-only, so watching for changes costs more. [Fielding 2000 §5.1.5, §5.4; GraphQL spec §1]
@@ -68,9 +68,9 @@ Two terms first:
 | From a browser | Plain HTTP | gRPC-Web plus a proxy | Native |
 | Errors | An `errors` list in the body; partial data possible | A code such as `NOT_FOUND` in trailers; HTTP status 200 | An HTTP status such as `404` |
 | Auth | HTTP middleware, before GraphQL runs | Metadata (gRPC's headers): `authorization: Bearer <token>` | A header: `Authorization: Bearer <token>` |
-| Timeouts | Same as REST | A deadline, sent to the server; none by default | Set in the HTTP client: HTTPX defaults to 5 s, Requests to no limit |
+| Timeouts | Same as REST | A deadline, sent to the server; none by default | Set in the HTTP client: HTTPX defaults to 5 s without data, Requests to no limit |
 | HTTP caching | With GET and persisted documents | Not by generic caches (all POST) | GET responses |
-| Debugging | GraphiQL in the browser (Strawberry serves it) | `grpcurl`, with server reflection or the `.proto` file | `curl` or the browser |
+| Debugging | GraphiQL in the browser (Strawberry serves it) | `grpcurl`, which asks the server for its API (server reflection) or reads the `.proto` file | `curl` or the browser |
 | Health checks | Same as REST | A standard service, `grpc.health.v1.Health` | No standard; Kubernetes examples use `/healthz` |
 | Python library | Strawberry | `grpcio`, `grpcio-tools` | FastAPI |
 
@@ -79,7 +79,7 @@ Every cell is cited in the research note, [§5](../../research/api-styles.md#5-s
 ## Surprises
 - GraphQL can be cached: send queries with GET and use persisted documents (a stored query, sent as a hash). [graphql.org, Performance]
 - gRPC answers HTTP 200 even when a call fails. The real status travels in trailers. [gRPC HTTP/2 protocol, "Responses"]
-- In Protobuf, the field number is the contract, not the name. "Changing the field number is equivalent to deleting the field and adding a new field." Names travel only in JSON and text format, so a rename breaks old readers only there. [protobuf.dev proto3 guide; protobuf.dev Proto Best Practices]
+- In Protobuf, the field number is the contract, not the name: the binary bytes carry only numbers. "Changing the field number is equivalent to deleting the field and adding a new field with the same type." Names travel only in JSON and text format, so a rename breaks old readers there, and code that uses the old name must change. [protobuf.dev Encoding; protobuf.dev proto3 guide; protobuf.dev Proto Best Practices]
 - REST does not require JSON. Neither Fielding nor the HTTP spec requires it; a representation can be an HTML page or a JPEG image. [Fielding 2000 §5.2.1; RFC 9110 §3.2]
 - One service can offer more than one style. GitHub runs a REST API and a GraphQL API side by side. [GitHub REST docs; GitHub GraphQL docs]
 
@@ -105,7 +105,7 @@ sequenceDiagram
     S-->>C: 200, JSON order in the shape the server chose
 ```
 
-In the server, each snippet follows its library's official tutorial, and each one was run. Start the FastAPI apps with `fastapi dev <file>` (install `"fastapi[standard]"`), and the gRPC server with `python grpc_server.py`. [FastAPI First Steps; FastAPI Path Parameters; grpc.io Python Basics; Strawberry FastAPI integration]
+In the server, each snippet follows its library's official tutorial, and each one was run. Install `"fastapi[standard]" "strawberry-graphql[fastapi]" grpcio grpcio-tools`. Start the FastAPI apps with `fastapi dev <file>`, and the gRPC server with `python grpc_server.py`. [FastAPI First Steps; FastAPI Path Parameters; grpc.io Python Basics; Strawberry FastAPI integration]
 
 **GraphQL** with Strawberry. Fields use `async def`, because Strawberry runs every field on the event loop. `total_cents` becomes `totalCents` in the schema. [Strawberry FastAPI integration; Strawberry Schema Configurations]
 ```python
@@ -162,7 +162,11 @@ def serve(port=50051):
 if __name__ == "__main__":
     serve().wait_for_termination()
 ```
-Call it from Python, with a 2-second deadline: `shop_pb2_grpc.OrdersStub(channel).GetOrder(shop_pb2.GetOrderRequest(id=42), timeout=2)`
+Call it from Python, with a 2-second deadline:
+```python
+with grpc.insecure_channel("localhost:50051") as channel:
+    print(shop_pb2_grpc.OrdersStub(channel).GetOrder(shop_pb2.GetOrderRequest(id=42), timeout=2))
+```
 
 **REST** with FastAPI:
 ```python

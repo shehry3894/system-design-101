@@ -84,7 +84,7 @@ Every row is cited in the [research note, §7](../../research/communication-styl
 - Core SOAP has no reliable delivery. SOAP 1.2 leaves it out on purpose; WS-ReliableMessaging (Web Services Reliable Messaging) is a separate spec. [SOAP 1.2 Part 1 §1; WS-ReliableMessaging 1.2]
 - WebRTC is peer-to-peer, but it still needs your server. The app must carry the setup messages (signaling) itself, and a TURN server (Traversal Using Relays around NAT; NAT is Network Address Translation) relays traffic when a direct path fails. [RFC 9429 §1.1; RFC 8656]
 - SSE can break behind old proxies that drop idle connections. The spec advises sending a comment line about every 15 seconds. [HTML Living Standard §9.2.7]
-- AMQP 1.0 and AMQP 0-9-1 are different protocols despite the name: they share "nothing at the wire level". RabbitMQ was built for 0-9-1. [RabbitMQ, Protocols]
+- AMQP 1.0 and AMQP 0-9-1 are different protocols despite the name: they share "nothing at the wire level". RabbitMQ was built for 0-9-1, and its team now recommends AMQP 1.0 for new apps. [RabbitMQ, Protocols]
 
 ## Remember
 - Request-response: the caller waits, so both sides must be up.

@@ -1,9 +1,9 @@
 # Research: API styles
 
 Scope: which API styles exist; how REST, gRPC and GraphQL compare (features, strengths and weaknesses, when to use each for browser/public APIs vs service-to-service, payload format and size: JSON vs Protocol Buffers); the Python libraries we will use for each.
-Out of scope: authentication and authorization, API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers (our own script, `examples/communication/request_payload_size.py`, measures sizes).
+Out of scope: auth design beyond which header carries credentials (§9.2), API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers (our own script, `examples/communication/request_payload_size.py`, measures sizes).
 
-Every claim is followed by its source in brackets. Sources read on 2026-11-22. RFCs were read as plain text from rfc-editor.org. Editions and versions are listed under Sources.
+Every claim is followed by its source in brackets. Sources read on 2026-11-22; §9 was read on 2026-11-23. RFCs were read as plain text from rfc-editor.org. Editions and versions are listed under Sources.
 
 Labels used in this note:
 
