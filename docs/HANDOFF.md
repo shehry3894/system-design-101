@@ -36,7 +36,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - New facts are in the research note §9, with a cell-by-cell source map in §9.10.
   - A fresh reviewer checked the whole rework: no critical findings. The fix pass made the REST analogy mention query parameters, explained server reflection, completed the install line and the gRPC client call, sharpened the HTTPX timeout and the Protobuf surprise, and added RabbitMQ's AMQP 1.0 advice to the hub.
   - Small notes left for later: the messaging analogy shows a queue only, not a copy to every station (owner's call); "methods" and "number" mean different things for REST and gRPC; "USB is Universal Serial Bus." dangles, and HTML, JPEG and RFC are not spelled out on page 01; the cell-source link could point at §9.10.
-- **Waiting on the owner:** page 01 is 215 lines, over the 190 planned. 70 of them are code and the diagram, and 17 are sources. Should the code fold into `<details>` blocks, or stay as is?
+- 2026-11-23: the owner chose to fold page 01's code into `<details>` blocks; each option keeps one visible line on what its code shows. The template does the same.
+- 2026-11-23: the owner asked whether all of grpc.io/docs was read. It was not: 9 of 24 guides had been. The other 15 and the Python generated-code page are now in the research note §9.11. From them, page 01 gained gRPC's built-in retries (a pro), the error message beside the status code, and gRPC's own compression. The rest are operations topics (keepalive, load balancing, and so on), outside this page.
 
 ## Decisions the owner made
 
@@ -54,7 +55,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - **Real-world analogies** (2026-11-23): explain concepts with everyday examples, like a restaurant waiter, so they are easy to grasp and remember. We write them in our own words. Analogies need no source; facts still do.
 - Material the owner shares (videos, other agents' answers) guides topics and layout only. It is never a source, and pages are not shaped around its claims.
 - **Keep everything short.** The owner finds long text tiring, so chat replies, pages and comments must all be brief.
-- Example naming: the prefix shows the purpose.
+- On decision pages, code folds into `<details>` blocks (2026-11-23), so the page reads short and the code is a click away.- Example naming: the prefix shows the purpose.
   - `concurrency/`: `lock_`, `limit_`, `wait_`.
   - `patterns/`: `creational_`, then `structural_` and `behavioral_`.
   - SOLID: `s_`, `o_`, `l_`, `i_`, `d_`.

@@ -26,7 +26,7 @@ Two terms first:
 ### gRPC
 - **In real life:** you and the kitchen share a printed order pad. Its boxes are numbered, not labeled, so orders are quick to write and read, but hard to read without the key (the `.proto` file).
 - **What it is:** an RPC (Remote Procedure Call) framework. The client calls a server method "as if it were a local object", over HTTP/2, with Protobuf (Protocol Buffers) messages by default. The name stands for "gRPC Remote Procedure Calls". [grpc.io Introduction; grpc.io FAQ]
-- **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines and cancellation are built in. [grpc.io Python Basics; grpc.io Core concepts]
+- **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines, cancellation and retries are built in; retries need a policy you set. [grpc.io Python Basics; grpc.io Core concepts; grpc.io Retry]
 - **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be fully read without its `.proto` file: the bytes hold field numbers, not names. No deadline unless you set one. [grpc-web README; protobuf.dev Overview; protobuf.dev Encoding; grpc.io Deadlines]
 - **Use when:** services in many languages talk to each other, or mobile clients talk to cloud servers. [grpc.io About; grpc.io FAQ]
 
@@ -66,7 +66,7 @@ Two terms first:
 |---|---|---|---|
 | Transport | Any; HTTP is most common | HTTP/2 | HTTP in practice |
 | From a browser | Plain HTTP | gRPC-Web plus a proxy | Native |
-| Errors | An `errors` list in the body; partial data possible | A code such as `NOT_FOUND` in trailers; HTTP status 200 | An HTTP status such as `404` |
+| Errors | An `errors` list in the body; partial data possible | A code such as `NOT_FOUND` plus a message, in trailers; HTTP status 200 | An HTTP status such as `404` |
 | Auth | HTTP middleware, before GraphQL runs | Metadata (gRPC's headers): `authorization: Bearer <token>` | A header: `Authorization: Bearer <token>` |
 | Timeouts | Same as REST | A deadline, sent to the server; none by default | Set in the HTTP client: HTTPX defaults to 5 s without data, Requests to no limit |
 | HTTP caching | With GET and persisted documents | Not by generic caches (all POST) | GET responses |
@@ -108,6 +108,10 @@ sequenceDiagram
 In the server, each snippet follows its library's official tutorial, and each one was run. Install `"fastapi[standard]" "strawberry-graphql[fastapi]" grpcio grpcio-tools`. Start the FastAPI apps with `fastapi dev <file>`, and the gRPC server with `python grpc_server.py`. [FastAPI First Steps; FastAPI Path Parameters; grpc.io Python Basics; Strawberry FastAPI integration]
 
 **GraphQL** with Strawberry. Fields use `async def`, because Strawberry runs every field on the event loop. `total_cents` becomes `totalCents` in the schema. [Strawberry FastAPI integration; Strawberry Schema Configurations]
+
+<details>
+<summary>Code: <code>graphql_app.py</code> and a <code>curl</code> call</summary>
+
 ```python
 import strawberry
 from fastapi import FastAPI
@@ -127,9 +131,18 @@ class Query:
 app = FastAPI()
 app.include_router(GraphQLRouter(strawberry.Schema(query=Query)), prefix="/graphql")
 ```
+
 Call it: `curl -X POST localhost:8000/graphql -H 'Content-Type: application/json' -d '{"query": "{ order(id: 42) { id totalCents } }"}'`
 
-**gRPC** with `grpcio`. First the contract, `shop.proto`:
+</details>
+
+**gRPC** with `grpcio`: a `.proto` contract, the code generated from it, a server, and a client call with a deadline.
+
+<details>
+<summary>Code: <code>shop.proto</code>, <code>grpc_server.py</code> and a Python call</summary>
+
+First the contract, `shop.proto`:
+
 ```protobuf
 syntax = "proto3";
 package shop;
@@ -141,7 +154,9 @@ service Orders {
 message GetOrderRequest { int32 id = 1; }
 message Order { int32 id = 1; int32 total_cents = 2; }
 ```
+
 `python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. shop.proto` generates `shop_pb2.py` and `shop_pb2_grpc.py`. Then the server:
+
 ```python
 from concurrent import futures
 import grpc
@@ -162,13 +177,21 @@ def serve(port=50051):
 if __name__ == "__main__":
     serve().wait_for_termination()
 ```
+
 Call it from Python, with a 2-second deadline:
+
 ```python
 with grpc.insecure_channel("localhost:50051") as channel:
     print(shop_pb2_grpc.OrdersStub(channel).GetOrder(shop_pb2.GetOrderRequest(id=42), timeout=2))
 ```
 
-**REST** with FastAPI:
+</details>
+
+**REST** with FastAPI: one route.
+
+<details>
+<summary>Code: <code>rest_app.py</code> and a <code>curl</code> call</summary>
+
 ```python
 from fastapi import FastAPI
 
@@ -178,7 +201,10 @@ app = FastAPI()
 async def get_order(order_id: int):
     return {"id": order_id, "total_cents": 1050}
 ```
+
 Call it: `curl localhost:8000/orders/42`
+
+</details>
 
 ## Try it
 ```bash
@@ -188,7 +214,7 @@ It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two
 - This is one order, uncompressed. It is not a benchmark.
 - The counts are message bodies only. gRPC adds a 5-byte prefix to each message, and HTTP adds headers. [gRPC HTTP/2 protocol, "Requests"]
 - Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
-- JSON compresses well with gzip; Protobuf does not compress itself. [graphql.org, Performance; protobuf.dev Overview]
+- JSON compresses well with gzip. Protobuf does not compress itself, but gRPC can compress each call or message. [graphql.org, Performance; protobuf.dev Overview; grpc.io Compression]
 - Real projects use the `protobuf` library and a `.proto` file. The example writes the bytes by hand so you can see them.
 
 ## Remember
@@ -201,7 +227,7 @@ It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two
 - [RFC 9110: HTTP semantics](https://www.rfc-editor.org/rfc/rfc9110), [RFC 9111: HTTP caching](https://www.rfc-editor.org/rfc/rfc9111), [RFC 6750: Bearer tokens](https://www.rfc-editor.org/rfc/rfc6750)
 - [OpenAPI Specification](https://spec.openapis.org/oas/latest.html), [FastAPI: First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/), [Path Parameters](https://fastapi.tiangolo.com/tutorial/path-params/)
 - [grpc.io: Introduction](https://grpc.io/docs/what-is-grpc/introduction/), [Core concepts](https://grpc.io/docs/what-is-grpc/core-concepts/), [About](https://grpc.io/about/), [FAQ](https://grpc.io/docs/what-is-grpc/faq/), [Python Basics](https://grpc.io/docs/languages/python/basics/)
-- grpc.io guides: [Deadlines](https://grpc.io/docs/guides/deadlines/), [Status codes](https://grpc.io/docs/guides/status-codes/), [Metadata](https://grpc.io/docs/guides/metadata/), [Health checking](https://grpc.io/docs/guides/health-checking/), [Reflection](https://grpc.io/docs/guides/reflection/)
+- grpc.io guides: [Deadlines](https://grpc.io/docs/guides/deadlines/), [Retry](https://grpc.io/docs/guides/retry/), [Compression](https://grpc.io/docs/guides/compression/), [Error handling](https://grpc.io/docs/guides/error/), [Status codes](https://grpc.io/docs/guides/status-codes/), [Metadata](https://grpc.io/docs/guides/metadata/), [Health checking](https://grpc.io/docs/guides/health-checking/), [Reflection](https://grpc.io/docs/guides/reflection/)
 - [gRPC over HTTP/2 protocol](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md), [grpc-web README](https://github.com/grpc/grpc-web), [grpcurl README](https://github.com/fullstorydev/grpcurl)
 - [protobuf.dev: Overview](https://protobuf.dev/overview/), [Encoding](https://protobuf.dev/programming-guides/encoding/), [proto3 guide](https://protobuf.dev/programming-guides/proto3/), [Proto Best Practices](https://protobuf.dev/best-practices/dos-donts/)
 - [GraphQL specification, September 2026](https://spec.graphql.org/September2026/)

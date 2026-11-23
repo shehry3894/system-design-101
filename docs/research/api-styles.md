@@ -788,7 +788,7 @@ FastAPI (REST):
 gRPC (`grpcio`):
 
 - The `protoc` command is unchanged from §8. [grpc.io Python Basics, "Generating client and server code"]
-- Generated names follow the service name: `RouteGuideStub`, `RouteGuideServicer`, `add_RouteGuideServicer_to_server`, in `route_guide_pb2_grpc.py`. [grpc.io Python Basics, "Generating client and server code"] For a service `Orders` that would be `OrdersStub`, `OrdersServicer`, `add_OrdersServicer_to_server`. [derived]
+- Generated names follow the service name: `RouteGuideStub`, `RouteGuideServicer`, `add_RouteGuideServicer_to_server`, in `route_guide_pb2_grpc.py`. [grpc.io Python Basics, "Generating client and server code"] For a service `Orders` that would be `OrdersStub`, `OrdersServicer`, `add_OrdersServicer_to_server`. [grpc.io Python Generated-code reference, §9.11]
 - The servicer subclasses the generated class: `class RouteGuideServicer(route_guide_pb2_grpc.RouteGuideServicer):`. A method is `def GetFeature(self, request, context):` and returns a message. `context` is a `grpc.ServicerContext` with information "such as timeout limits". [grpc.io Python Basics, "Implementing RouteGuide"]
 - Server [grpc.io Python Basics, "Starting the server"]:
 
@@ -853,13 +853,43 @@ Design:
 Run:
 
 - **Transport, From a browser, HTTP caching, Python library:** §5, same rows.
-- **Errors:** §5 "Error model". `NOT_FOUND` (§9.1). `404 Not Found` [RFC 9110 §15.5.5].
+- **Errors:** §5 "Error model". `NOT_FOUND` (§9.1), plus an optional message (§9.11). `404 Not Found` [RFC 9110 §15.5.5].
 - **Auth:** middleware before GraphQL [graphql.org/learn/authorization] / metadata `authorization: Bearer <token>` (§9.2) / `Authorization: Bearer <token>` [RFC 6750 §2.1].
 - **Timeouts:** GraphQL "same as REST", because it runs over an HTTP client (derived from §9.3) / deadline sent as `grpc-timeout`, none by default (§3) [gRPC HTTP/2 protocol; grpc.io Deadlines] / HTTPX 5 s, Requests no limit (§9.3).
 - **Debugging:** GraphiQL; Strawberry serves it by default (§9.5) / grpcurl with reflection or `.proto` files (§9.5) / curl [curl man page]; a browser can send GET (derived).
 - **Health checks:** GraphQL "same as REST", because a Strawberry app is a FastAPI app (derived) / `grpc.health.v1.Health` (§9.4) / no standard; Kubernetes examples use `/healthz` (§9.4).
 
 Surprise on the page: "Changing the field number is equivalent to deleting the field and adding a new field" [protobuf.dev proto3 guide, "Binary Wire-unsafe Changes"]; names travel in JSON and text format, so renames break those [protobuf.dev Proto Best Practices] (§9.7).
+
+### 9.11 The rest of the grpc.io guides
+
+The owner asked whether all of grpc.io/docs was read. Until now §1–9 used 9 of its 24 guides (Authentication, Benchmarking, Cancellation, Deadlines, Health Checking, Metadata, Performance, Reflection, Status Codes), plus "What is gRPC?", the Python pages and the Web pages. The other 15 guides and the Python generated-code reference were read on 2026-11-23. Other languages and Android are out of scope (this repo uses Python).
+
+Bearing on the API styles page:
+
+- **Error handling.** On failure, gRPC returns "one of its error status codes instead, with an optional string error message". [grpc.io Error handling guide, "Standard error model"]
+  - A "richer error model", developed by Google, sends error details as Protobuf messages in trailing metadata. Supported in C++, Go, Java, Python and Ruby. [same, "Richer error model"]
+  - Proxies, loggers and other HTTP processors "don't have visibility into the error details". [same]
+  - It lists the code for each failure, e.g. deadline expired → `DEADLINE_EXCEEDED`, method not found → `UNIMPLEMENTED`, server shutting down → `UNAVAILABLE`. [same, "Error status codes"] It gives no HTTP status mapping (see §9.1).
+- **Compression.** Compression "can be enabled or disabled based on call or message level for all languages". A peer may answer with a different compression method, or none. An unsupported algorithm gets `UNIMPLEMENTED`, and the server lists the ones it accepts in `grpc-accept-encoding`. [grpc.io Compression guide]
+  - So Protobuf does not compress itself (§6), but gRPC can compress messages on the wire. [derived from protobuf.dev Overview and the Compression guide]
+- **Retry.** "Retries are enabled by default, but there is no default retry policy." Without a policy, gRPC only retries "transparently", when it is sure the server application has not seen the call. [grpc.io Retry guide, "Retry configuration"]
+  - A policy is set per method in the service config: `maxAttempts`, `initialBackoff`, `maxBackoff`, `backoffMultiplier`, `retryableStatusCodes`. Backoff gets ±20% jitter, and `retryThrottling` limits retry load. [same]
+  - Once response headers arrive, the call is committed and not retried. [same, "How gRPC client retry works"]
+- **Request hedging.** "Hedging is one of two configurable retry policies supported by gRPC": the client sends copies of a request to different backends and uses the first response. [grpc.io Request Hedging guide]
+- **Debugging.** The guide covers `grpcdebug`, which fetches a running app's internal state through admin services (Channelz, Health Checking, CSDS): how many calls were sent or failed per channel, address resolution results, and xDS configuration. It does not mention grpcurl; the Reflection guide does (§9.5). [grpc.io Debugging guide]
+- **Interceptors.** For functionality that is "independent of the method being run" and applies to "all or most RPCs". Example uses: logging, metrics, server-side authentication and authorization. [grpc.io Interceptors guide]
+- **Wait-for-ready.** A stub option that makes calls "wait for the server to become available before sending the request". [grpc.io Wait-for-Ready guide]
+- **Service config.** It "specifies how gRPC clients should behave when interacting with a gRPC server", and service owners provide it. Retry and health-check settings live here. [grpc.io Service Config guide; grpc.io Retry guide; §9.4]
+- **Python generated code.** For each service `Foo`, the generated code has `FooStub` (client), `FooServicer` (server) and `add_FooServicer_to_server` (registration). This confirms the names §9.8 derived. [grpc.io Python Generated-code reference]
+
+Operations topics, outside this page's scope (one line each, from each guide's opening):
+
+- Keepalive: HTTP/2 PING-based keepalives. [grpc.io Keepalive guide]
+- Flow control: keeps a fast sender from overwhelming a receiver; applies to streaming. [grpc.io Flow Control guide]
+- Graceful shutdown: finish in-flight calls within a time limit and accept no new ones. [grpc.io Graceful Shutdown guide]
+- Custom load balancing, custom name resolution, custom backend metrics: spread calls across servers, find a service's addresses, and balance on app-specific load. [grpc.io Custom Load Balancing, Custom Name Resolution, Custom Backend Metrics guides]
+- OpenTelemetry metrics: per-call and per-attempt client metrics, including retries. [grpc.io OpenTelemetry Metrics guide]
 
 ## Open questions
 
@@ -1019,3 +1049,22 @@ GraphQL:
 MCP:
 
 - modelcontextprotocol.io, "What is the Model Context Protocol (MCP)?" (page metadata dateModified 2026-11-09; redirects to the 2026-07-28 docs version): https://modelcontextprotocol.io/docs/getting-started/intro
+
+Added for §9.11, all read on 2026-11-23 (last-modified dates from each page's footer where shown):
+
+- grpc.io, Error handling guide (2025-09-22): https://grpc.io/docs/guides/error/
+- grpc.io, Compression guide (2023-05-30): https://grpc.io/docs/guides/compression/
+- grpc.io, Retry guide (2025-11-26): https://grpc.io/docs/guides/retry/
+- grpc.io, Request Hedging guide: https://grpc.io/docs/guides/request-hedging/
+- grpc.io, Debugging guide (2024-07-04): https://grpc.io/docs/guides/debugging/
+- grpc.io, Interceptors guide (2024-02-29): https://grpc.io/docs/guides/interceptors/
+- grpc.io, Wait-for-Ready guide: https://grpc.io/docs/guides/wait-for-ready/
+- grpc.io, Service Config guide: https://grpc.io/docs/guides/service-config/
+- grpc.io, Keepalive guide: https://grpc.io/docs/guides/keepalive/
+- grpc.io, Flow Control guide: https://grpc.io/docs/guides/flow-control/
+- grpc.io, Graceful Shutdown guide: https://grpc.io/docs/guides/server-graceful-stop/
+- grpc.io, Custom Load Balancing Policies guide: https://grpc.io/docs/guides/custom-load-balancing/
+- grpc.io, Custom Name Resolution guide: https://grpc.io/docs/guides/custom-name-resolution/
+- grpc.io, Custom Backend Metrics guide: https://grpc.io/docs/guides/custom-backend-metrics/
+- grpc.io, OpenTelemetry Metrics guide: https://grpc.io/docs/guides/opentelemetry-metrics/
+- grpc.io, Python Generated-code reference (2021-08-11): https://grpc.io/docs/languages/python/generated-code/

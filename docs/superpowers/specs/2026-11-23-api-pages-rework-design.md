@@ -57,6 +57,11 @@ My calls (the owner can change any of them):
 - The hub's surprises: the MQTT smart-home line goes (a video claim). It is replaced by the RabbitMQ fact: RabbitMQ was built for AMQP 0-9-1, which shares nothing at the wire level with AMQP 1.0, the standard.
 - New facts are researched from primary sources into the existing research note, `docs/research/api-styles.md`.
 
+## After the build (owner, 2026-11-23)
+
+- Page 01's code folds into `<details>` blocks. Each option keeps one visible line on what its code shows. The template does the same.
+- The rest of grpc.io's guides were read (research note §9.11). Page 01 gained gRPC's built-in retries, the error message beside the status code, and gRPC's own compression.
+
 ## Left to the builder
 
 - Exact row wording and cell examples.

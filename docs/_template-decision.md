@@ -36,7 +36,16 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 - <A fact most developers get wrong, with its source. About one per option. Never a reply to a video or other shared material.>
 
 ## Same task, each way
-<One Mermaid diagram of the same task done each way. Then the smallest code for each option, run once before it goes on the page.>
+<One Mermaid diagram of the same task done each way. Then, for each option, one visible line on what the code shows, and the smallest code, run once before it goes on the page, folded in a `<details>` block:>
+
+<details>
+<summary>Code: <code><file name></code> and a call</summary>
+
+```python
+<code>
+```
+
+</details>
 
 ## Try it
 <At most 3 commands, with their output.>
