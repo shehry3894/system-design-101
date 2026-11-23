@@ -1082,7 +1082,7 @@ REST status codes (§9.1 already has 404; §2 has the classes):
 
 - 201 Created: the request created one or more new resources. A `Location` header, or else the target URI, identifies the main one. [RFC 9110 §15.3.2]
 - 204 No Content: the request succeeded and there is no content to send. [RFC 9110 §15.3.5]
-- 304 Not Modified: a conditional GET would have returned 200, but the client "already has a valid representation". [RFC 9110 §15.4.5]
+- 304 Not Modified: a conditional GET would have returned 200, but the client "already has a valid representation", so there is "no need for the server to transfer a representation". [RFC 9110 §15.4.5]
 - 400 Bad Request: the server will not process the request because of "something that is perceived to be a client error", such as malformed syntax. [RFC 9110 §15.5.1]
 - 401 Unauthorized: the request "lacks valid authentication credentials". The server MUST send a `WWW-Authenticate` header. [RFC 9110 §15.5.2]
 - 422 Unprocessable Content: the server understands the content type and the syntax is correct, but it "was unable to process the contained instructions". [RFC 9110 §15.5.21]

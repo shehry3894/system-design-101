@@ -34,7 +34,7 @@ REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-gr
 ### REST
 - **In real life:** a menu where every dish has its own number. You name the dish and what to do with it (order it, cancel it). You can pick options the menu lists, like query parameters, but the kitchen decides how to plate it.
 - **What it is:** REST is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it. [Fielding 2000 ch. 5; RFC 9110 §9.1]
-- **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests are safe to retry. FastAPI generates an OpenAPI contract at `/openapi.json`. [RFC 9111 §2; RFC 9110 §9.2.2; FastAPI First Steps]
+- **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests they can repeat (the idempotent ones). FastAPI generates an OpenAPI contract at `/openapi.json`. [RFC 9111 §2; RFC 9110 §9.2.2; FastAPI First Steps]
 - **Cons:** the standard form "degrades efficiency". The server decides the shape of each response. It is pull-only, so watching for changes costs more. [Fielding 2000 §5.1.5, §5.4; GraphQL spec §1]
 - **Use when:** many independent clients, browsers or public users call you, and caching helps. [Fielding 2000 §5.5, §6.5.2]
 
@@ -42,9 +42,9 @@ REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-gr
 #### JSON-RPC
 - **What it is:** JSON-RPC 2.0, a small, stateless RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport. [JSON-RPC 2.0 §1]
 - **Example:** `{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}` gets back `{"jsonrpc": "2.0", "result": 19, "id": 1}`. [JSON-RPC 2.0 §7]
-- **Pros:** small and readable. Notifications (a call with no `id`, which gets no reply) and batches (an array of calls) are built in. [JSON-RPC 2.0 §4.1, §6]
-- **Cons:** the spec defines no schema or contract file, so both sides must agree on methods some other way. [JSON-RPC 2.0]
-- **Use when:** you want a small RPC protocol over any channel. The Language Server Protocol and MCP both use it. [LSP 3.17, Base Protocol; MCP spec, Overview]
+- **Pros:** light-weight. Notifications (a call with no `id`, which gets no reply) and batches (an array of calls) are built in. [JSON-RPC 2.0 §1, §4.1, §6]
+- **Cons:** the spec defines no schema or contract file, so both sides must agree on methods some other way. This is our reading; the spec has no such part. [JSON-RPC 2.0]
+- **Use when:** you want a small RPC protocol over any channel. The Language Server Protocol and MCP (Model Context Protocol, below) both use it. [Language Server Protocol 3.17, Base Protocol; MCP spec, Overview]
 
 #### SOAP
 - **What it is:** a protocol for structured messages in XML (Extensible Markup Language), over many transports. The name is no longer an acronym. [SOAP 1.2 Part 1, Abstract, §1]

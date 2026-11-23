@@ -49,6 +49,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - Built on 2026-11-23: [REST](concepts/communication/02-rest.md) and [gRPC](concepts/communication/03-grpc.md) concept pages, each with a Mermaid diagram, numbered "How it works" steps, folded code that was run once in a scratch virtual environment, and real Try-it output. Page 01 links to both and gives JSON-RPC and SOAP an example, pros, cons and use-when; MCP gained pros and cons. New facts are in the research note §10; new glossary terms are in `CONTEXT.md`.
   - The REST example sets `Location` on 201 (RFC 9110 §15.3.2). Its Try-it output was captured on port 8001, because Docker holds port 8000 on the owner's machine. grpcurl is not installed, so the gRPC Try-it uses the Python client.
   - Server push and messaging are renumbered to `04-server-push.md` and `05-messaging.md`.
+  - A fresh final review found no critical or important issues. Its minor notes were fixed: page 01 no longer says "safe to retry" (page 02 uses "safe" for read-only), cancellation and status-code wording, `Location` as optional, abbreviation order, the RPC-family citation, JSON-RPC lines kept to the spec, and `protoc` and service config defined.
+  - Small notes left for later: the gRPC page could add that a proxy in the path can still answer 502 or 503; page 01 sits exactly at its 150-line budget.
 
 ## Decisions the owner made
 

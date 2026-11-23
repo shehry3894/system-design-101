@@ -18,14 +18,14 @@ For REST next to GraphQL and gRPC, see [API styles](01-api-styles.md).
 ```mermaid
 sequenceDiagram
     accTitle: The life of one order over REST
-    accDescr: The client creates order 1 with POST and gets 201 Created with the new order's address. It reads the order with GET and gets 200 with an ETag. It asks again with If-None-Match and gets 304 Not Modified, with no body. It deletes the order and gets 204. A last GET gets 404.
+    accDescr: The client creates order 1 with POST and gets 201 Created with the new order's address. It reads the order with GET and gets 200 with an ETag (entity tag). It asks again with If-None-Match and gets 304 Not Modified, with no body. It deletes the order and gets 204. A last GET gets 404.
 
     participant C as Client
     participant S as Server
     C->>S: POST /orders (total 1050 cents)
     S-->>C: 201 Created, Location /orders/1
     C->>S: GET /orders/1
-    S-->>C: 200 OK, ETag "v1", the order
+    S-->>C: 200 OK, ETag (entity tag) "v1", the order
     C->>S: GET /orders/1, If-None-Match "v1"
     S-->>C: 304 Not Modified, no body
     C->>S: DELETE /orders/1
@@ -35,7 +35,7 @@ sequenceDiagram
 ```
 
 ## How it works
-1. **Resources.** Anything that can be named is a resource, such as order 1. A URI (Uniform Resource Identifier) like `/orders/1` identifies it. [Fielding 2000 §5.2.1.1; RFC 9110 §3.1]
+1. **Resources.** Anything that can be named is a resource, such as order 1. A URI (Uniform Resource Identifier) like `http://localhost:8000/orders/1` identifies it; `/orders/1` is its path. [Fielding 2000 §5.2.1.1; RFC 9110 §3.1]
 2. **Representations.** The server sends a representation: bytes that show the resource's state, in a media type such as JSON (JavaScript Object Notation). REST does not require JSON; a web page or an image works too. [Fielding 2000 §5.2.1.2; RFC 9110 §3.2]
 3. **Methods.** The method says what to do with the resource. A safe method only reads. An idempotent method has the same effect sent once or twice, so a client can repeat it after a dropped connection. [RFC 9110 §9.2.1, §9.2.2, §9.3; RFC 5789 §1, §2]
 
@@ -48,7 +48,7 @@ sequenceDiagram
 | DELETE | Remove it | No | Yes |
 
 4. **Status codes.** The first digit gives the class: 2xx success, 3xx redirection, 4xx client error, 5xx server error. A client that meets an unknown code treats it as the class's x00 code. [RFC 9110 §15]
-   - Success: 200 OK, 201 Created (with a `Location` header), 204 No Content. [RFC 9110 §15.3.1, §15.3.2, §15.3.5]
+   - Success: 200 OK, 201 Created (a `Location` header can name the new resource), 204 No Content. [RFC 9110 §15.3.1, §15.3.2, §15.3.5]
    - Caching: 304 Not Modified. [RFC 9110 §15.4.5]
    - Client errors: 400 Bad Request, 401 Unauthorized (with a `WWW-Authenticate` header), 404 Not Found, 422 Unprocessable Content. FastAPI answers 422 when input fails validation. [RFC 9110 §15.5.1, §15.5.2, §15.5.5, §15.5.21; FastAPI Handling Errors]
    - Server error: 500 Internal Server Error. [RFC 9110 §15.6.1]
