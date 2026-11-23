@@ -21,14 +21,9 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
   - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
 - **Waiting on the owner:** review the two pages. Then say go for the next page, "Server push" (`02-server-push.md`), which needs its own deep research note first.
-- Review notes left for the owner to decide (not fixed):
-  1. The hub says sources name "request-response"; microservices.io calls it Remote Procedure Invocation (RPI).
-  2. Rows inside each hub group, and page 01's Remember bullets, are not alphabetical. Some "own words" cells paraphrase.
-  3. A few sentences are framing, not traced to a note: the hub's "Three questions…", "keep-alive", the "API style" definition (our term, not flagged), "Most APIs called REST", and MCP's POST replies (JSON or an SSE stream).
-  4. Page 01's table says REST's contract is "OpenAPI, if you write one"; its Pros say FastAPI generates it.
-  5. The hub's Surprises skip 5 failing video claims (research note §6: #3, #11, #15, #20, #21).
-  6. The example doesn't skip proto3 default values, JSON escapes non-ASCII, and "bytes on the wire" leaves out gRPC's 5-byte prefix and HTTP headers.
-  7. Neutrality: 3 of page 01's 5 Surprises are about gRPC, none about REST.
+- 2026-11-23: the owner said "fix minors first", and all 7 minor review notes are fixed. Groups are now in alphabetical order, our own terms are flagged as ours, page 01 has a REST surprise, the hub's surprises are now failing video claims (research note §6), and the example skips proto3 default values and sends UTF-8 JSON.
+- Carry over to the messaging page: two facts left the hub. The smallest MQTT packet (`PINGREQ`) is 2 bytes [MQTT 5.0 §3.12]. RabbitMQ was built for AMQP 0-9-1, which shares nothing at the wire level with AMQP 1.0 [RabbitMQ, Protocols].
+- Video claims not used on any page: #3 (the GraphQL name), #11 (AMQP "older sibling"), #15 (Kafka per second) and #20 (gRPC at Netflix and Uber). Their verdicts are only "no source" or "not found", too weak for a surprise.
 
 ## Decisions the owner made
 

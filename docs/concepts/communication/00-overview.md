@@ -7,8 +7,8 @@ grounds: [communication style, request-response, server push, messaging]
 # Communication styles: request-response, server push, messaging
 
 ## The problem
-Two programs need to exchange messages. Three questions decide how: who speaks first, whether the sender waits, and how many receivers there are.
-microservices.io calls this choice the **communication style**. [microservices.io, RPI; microservices.io, Messaging]
+Two programs need to exchange messages. microservices.io calls this choice the **communication style**. [microservices.io, RPI; microservices.io, Messaging]
+The picture below picks a group with three questions. The questions are ours, not from a source.
 
 ## The picture
 
@@ -36,15 +36,16 @@ flowchart TD
 ## The three groups
 
 ### Request-response
-- The client sends a request and waits for the reply. Examples: REST (Representational State Transfer), gRPC ("gRPC Remote Procedure Calls"). [microservices.io, RPI; grpc.io FAQ]
+- The client sends a request and waits for the reply. Examples: gRPC ("gRPC Remote Procedure Calls"), REST (Representational State Transfer). [microservices.io, RPI; grpc.io FAQ]
+- microservices.io calls this group Remote Procedure Invocation (RPI). [microservices.io, RPI]
 - Cost: both sides must be up for the whole call. [microservices.io, RPI]
 - Page: [API styles: GraphQL, gRPC, REST](01-api-styles.md). API means Application Programming Interface.
 
 ### Server push
 - The server sends a message to a client the moment something happens, without a new request.
-- Examples: webhooks, SSE (Server-Sent Events), WebSocket, WebRTC (Web Real-Time Communication).
+- Examples: SSE (Server-Sent Events), webhooks, WebRTC (Real-Time Communication in Browsers), WebSocket.
 - WebRTC is peer-to-peer: a server helps set up the call, then the two ends connect to each other. [W3C WebRTC §4.1; RFC 9429 §1.1]
-- This group name is ours. The sources name request-response and messaging, but not this one.
+- This group name is ours; no source names it.
 - Page: "Server push" (coming).
 
 ### Messaging
@@ -56,22 +57,22 @@ flowchart TD
 
 ## All 15, by group
 
-| Item | What it is, in its own source's words | Group |
+| Item | What it is, per its own source | Group |
 |---|---|---|
-| REST | An architectural style | Request-response |
-| gRPC | An RPC (Remote Procedure Call) framework | Request-response |
 | GraphQL | A query language and execution engine | Request-response |
-| SOAP (no longer an acronym) | A protocol for exchanging structured information | Request-response |
-| RPC | The remote procedure call model: a family, not one protocol | Request-response |
+| gRPC | An RPC (Remote Procedure Call) framework | Request-response |
 | MCP (Model Context Protocol) | An open protocol for AI (artificial intelligence) apps, built on JSON-RPC 2.0 (JavaScript Object Notation RPC) | Request-response |
-| Webhooks | HTTP (Hypertext Transfer Protocol) callbacks from one service to another | Server push |
+| REST | An architectural style | Request-response |
+| RPC | The remote procedure call model: a family, not one protocol | Request-response |
+| SOAP (no longer an acronym) | A protocol for exchanging structured information | Request-response |
 | SSE | A browser interface plus the `text/event-stream` format | Server push |
-| WebSocket | A two-way protocol over TCP (Transmission Control Protocol) | Server push |
+| Webhooks | HTTP (Hypertext Transfer Protocol) callbacks from one service to another | Server push |
 | WebRTC | Browser APIs plus protocols for peer-to-peer media and data | Server push (peer-to-peer) |
-| Event-driven architecture | An architecture style: producers, consumers and channels | Messaging |
-| MQTT (Message Queuing Telemetry Transport) | A publish/subscribe messaging transport protocol | Messaging |
+| WebSocket | A two-way protocol over TCP (Transmission Control Protocol) | Server push |
 | AMQP (Advanced Message Queuing Protocol) | A binary wire-level protocol for business messaging | Messaging |
 | Apache Kafka | An event streaming platform | Messaging |
+| Event-driven architecture | An architecture style: producers, consumers and channels | Messaging |
+| MQTT (Message Queuing Telemetry Transport) | A publish/subscribe messaging transport protocol | Messaging |
 | AsyncAPI | A specification that describes message-driven APIs; not a way to send messages | Describes APIs |
 
 Every row is cited in the [research note, §7](../../research/communication-styles.md#7-classification-of-the-15-derived-from-15).
@@ -80,8 +81,7 @@ Every row is cited in the [research note, §7](../../research/communication-styl
 - Core SOAP has no reliable delivery. SOAP 1.2 leaves it out on purpose; WS-ReliableMessaging (Web Services Reliable Messaging) is a separate spec. [SOAP 1.2 Part 1 §1; WS-ReliableMessaging 1.2]
 - WebRTC is peer-to-peer, but it still needs your server. The app must carry the setup messages (signaling) itself, and a TURN server (Traversal Using Relays around NAT; NAT is Network Address Translation) relays traffic when a direct path fails. [RFC 9429 §1.1; RFC 8656]
 - SSE can break behind old proxies that drop idle connections. The spec advises sending a comment line about every 15 seconds. [HTML Living Standard §9.2.7]
-- The smallest MQTT packet is 2 bytes: the `PINGREQ` keep-alive. [MQTT 5.0 §3.12]
-- RabbitMQ was built for AMQP 0-9-1. AMQP 1.0, the standard, is "a very different protocol", "sharing nothing at the wire level". [RabbitMQ, Protocols]
+- "Every smart home device uses MQTT" has no source. mqtt.org names other industries: automotive, manufacturing, telecoms, and oil and gas. [mqtt.org]
 
 ## Remember
 - Request-response: the caller waits, so both sides must be up.
@@ -97,6 +97,6 @@ Every row is cited in the [research note, §7](../../research/communication-styl
 - [Standard Webhooks](https://www.standardwebhooks.com/), [HTML: Server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html), [RFC 6455: WebSocket](https://www.rfc-editor.org/rfc/rfc6455)
 - [W3C WebRTC](https://www.w3.org/TR/webrtc/), [RFC 9429: JSEP](https://www.rfc-editor.org/rfc/rfc9429), [RFC 8656: TURN](https://www.rfc-editor.org/rfc/rfc8656)
 - [Azure: Event-driven architecture style](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven)
-- [MQTT 5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html), [AMQP 1.0](https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html), [RabbitMQ: Protocols](https://www.rabbitmq.com/docs/protocols), [Apache Kafka: Introduction](https://kafka.apache.org/intro)
+- [MQTT 5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html), [mqtt.org](https://mqtt.org/), [AMQP 1.0](https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html), [Apache Kafka: Introduction](https://kafka.apache.org/intro)
 - [AsyncAPI 3.1.0](https://www.asyncapi.com/docs/reference/specification/latest)
 - Full research note: [communication-styles.md](../../research/communication-styles.md)

@@ -8,11 +8,11 @@ grounds: [API style, HTTP API, REST, RPC, gRPC, Protobuf, GraphQL, JSON-RPC, SOA
 
 ## The problem
 A client asks a server for work and waits for the answer. This is [request-response](00-overview.md).
-An API (Application Programming Interface) style is the shape of those calls: how you name the work, and what the answer looks like.
+An API (Application Programming Interface) style is the shape of those calls: how you name the work, and what the answer looks like. The term is ours; the sources don't define it.
 
 Two terms first:
 - **HTTP API**: any API whose messages travel over HTTP (Hypertext Transfer Protocol). All three styles below can run over HTTP, so this is the umbrella, not an option. [OpenAPI §2]
-- **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Most APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
+- **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Many APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
 
 ## The options
 
@@ -41,7 +41,7 @@ Two terms first:
 ### MCP (Model Context Protocol)
 - **What it is:** "an open protocol that enables seamless integration between LLM applications and external data sources and tools". An LLM is a large language model. [MCP spec, Overview]
 - **How it works:** JSON-RPC 2.0 messages between a host (the AI, or artificial intelligence, app), its clients (connectors) and servers (which offer tools and data). [MCP spec, Overview]
-- **Transports:** stdio (standard input and output), where the app starts the server as a local process, and Streamable HTTP, where each message is an HTTP POST to one endpoint. [MCP Transports]
+- **Transports:** stdio (standard input and output), where the app starts the server as a local process, and Streamable HTTP, where each message is an HTTP POST to one endpoint, and replies come back as JSON or an SSE (Server-Sent Events) stream. [MCP Transports]
 - **Build an MCP server when:** you want AI apps to use your service's tools or data. [MCP spec, Overview]
 - **Why it's not in the table:** MCP connects AI apps to tools. It is not a general way for any client to call any backend.
 
@@ -53,9 +53,9 @@ Two terms first:
 | Transport | Any; HTTP is most common | HTTP/2 | HTTP in practice |
 | How you name the work | One endpoint, usually `/graphql` | `POST /Service/Method` | A URI per resource, plus a method |
 | Payload | JSON is most common | Protobuf by default | Any; FastAPI uses JSON |
-| Contract | Schema, queryable by the client | `.proto` file | OpenAPI, if you write one |
+| Contract | Schema, queryable by the client | `.proto` file | None built in; OpenAPI (FastAPI generates it) |
 | Response shape | The client picks fields | Fixed by the message | The server decides |
-| Streaming | Subscriptions | Server, client, bidirectional | None; add SSE (Server-Sent Events) |
+| Streaming | Subscriptions | Server, client, bidirectional | None; add SSE |
 | From a browser | Plain HTTP | gRPC-Web plus a proxy | Native |
 | HTTP caching | With GET and persisted documents | Not by generic caches (all POST) | GET responses |
 | Errors | `errors` list; partial data possible | 17 codes in trailers; HTTP 200 | HTTP status codes |
@@ -64,9 +64,9 @@ Two terms first:
 Every cell is cited in the [research note, §5](../../research/api-styles.md#5-side-by-side).
 
 ## Surprises
-- gRPC answers HTTP 200 even when a call fails. The real status travels in trailers. [gRPC HTTP/2 protocol, "Responses"]
-- Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
 - GraphQL can be cached: send queries with GET and use persisted documents (a stored query, sent as a hash). [graphql.org, Performance]
+- gRPC answers HTTP 200 even when a call fails. The real status travels in trailers. [gRPC HTTP/2 protocol, "Responses"]
+- REST does not require JSON. Neither Fielding nor the HTTP spec requires it; a representation can be an HTML page or a JPEG image. [Fielding 2000 §5.2.1; RFC 9110 §3.2]
 - "gRPC is 7× faster than REST" has no primary source. grpc.io's benchmarks compare gRPC only with itself. [grpc.io Benchmarking]
 - GitHub offers both a REST API and a GraphQL API. [GitHub REST docs; GitHub GraphQL docs]
 
@@ -97,12 +97,14 @@ python3 examples/communication/request_payload_size.py
 ```
 It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two items. See [request_payload_size.py](../../../examples/communication/request_payload_size.py); the schema is a comment at the top.
 - This is one order, uncompressed. It is not a benchmark.
+- The counts are message bodies only. gRPC adds a 5-byte prefix to each message, and HTTP adds headers. [gRPC HTTP/2 protocol, "Requests"]
+- Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
 - JSON compresses well with gzip; Protobuf does not compress itself. [graphql.org, Performance; protobuf.dev Overview]
 - Real projects use the `protobuf` library and a `.proto` file. The example writes the bytes by hand so you can see them.
 
 ## Remember
-- REST names resources, gRPC names methods, and GraphQL lets the client name fields.
-- Each one has a cost: REST gives up some efficiency, gRPC needs a proxy in browsers, and GraphQL needs limits on queries.
+- GraphQL lets the client name fields, gRPC names methods, and REST names resources.
+- Each one has a cost: GraphQL needs limits on queries, gRPC needs a proxy in browsers, and REST gives up some efficiency.
 - "HTTP API" is the umbrella; all three can run over HTTP.
 
 ## Sources

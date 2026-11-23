@@ -1,5 +1,5 @@
 # Payload size: the same order as JSON and as Protobuf (Protocol Buffers).
-# Use when: choosing an API style and the bytes on the wire matter (mobile, high volume).
+# Use when: choosing an API style and message size matters (mobile, high volume).
 # Docs: https://protobuf.dev/programming-guides/encoding/
 # Real projects use the `protobuf` library and a .proto file. Here the bytes are written
 # by hand, so you can see why they are fewer: field numbers instead of names, varints.
@@ -24,6 +24,8 @@ def varint(n: int) -> bytes:
 
 
 def field_int(number: int, value: int) -> bytes:
+    if value == 0:
+        return b""  # proto3 does not send a field set to its default
     return varint(number << 3 | 0) + varint(value)  # tag (wire type 0) + value
 
 
@@ -31,15 +33,23 @@ def field_bytes(number: int, data: bytes) -> bytes:
     return varint(number << 3 | 2) + varint(len(data)) + data  # tag (wire type 2) + length + data
 
 
+def field_str(number: int, text: str) -> bytes:
+    return field_bytes(number, text.encode()) if text else b""  # "" is the default: not sent
+
+
 def encode_order(order: dict) -> bytes:
     def item(i):
-        return field_bytes(1, i["name"].encode()) + field_int(2, i["qty"]) + field_int(3, i["price_cents"])
-    return (field_int(1, order["id"]) + field_bytes(2, order["customer"].encode())
+        return field_str(1, i["name"]) + field_int(2, i["qty"]) + field_int(3, i["price_cents"])
+    return (field_int(1, order["id"]) + field_str(2, order["customer"])
             + b"".join(field_bytes(3, item(i)) for i in order["items"])
             + field_int(4, order["total_cents"]))
 
 
-json_bytes = json.dumps(ORDER, separators=(",", ":")).encode()
+def to_json(obj) -> bytes:
+    return json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode()  # UTF-8, like most APIs send
+
+
+json_bytes = to_json(ORDER)
 proto_bytes = encode_order(ORDER)
 print(f"JSON: {len(json_bytes)} bytes")
 print(f"Protobuf: {len(proto_bytes)} bytes")
@@ -49,5 +59,8 @@ assert field_int(1, 150) == bytes.fromhex("089601")
 assert field_bytes(2, b"testing") == bytes.fromhex("120774657374696e67")
 assert field_bytes(3, field_int(1, 150)) == bytes.fromhex("1a03089601")
 assert len(field_int(1, -2)) == 11                                 # negative int32: 10-byte varint
-assert len(json.dumps({"a": -2}, separators=(",", ":"))) == 8
+assert len(to_json({"a": -2})) == 8
 assert len(json_bytes) == 143 and len(proto_bytes) == 40
+assert field_int(2, 0) == b""                                      # proto3 does not send default values
+assert field_str(1, "") == b""
+assert len(to_json({"n": "é"})) == 10                              # UTF-8 bytes, not a é escape
