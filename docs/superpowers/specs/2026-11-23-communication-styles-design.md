@@ -1,6 +1,6 @@
 # Design: communication styles (hub + group pages)
 
-Date: 2026-11-23. Status: **approved by the owner on 2026-11-23.** Plan: [2026-11-23-communication-styles-hub.md](../plans/2026-11-23-communication-styles-hub.md).
+Date: 2026-11-23. Status: **approved by the owner on 2026-11-23.** Hub and API styles page built on 2026-11-23; REST and gRPC pages added by a [later design](2026-11-23-rest-grpc-pages-design.md); server push and messaging not built yet. Plan: [2026-11-23-communication-styles-hub.md](../plans/2026-11-23-communication-styles-hub.md).
 Facts behind it: [communication-styles.md](../../research/communication-styles.md) and [api-styles.md](../../research/api-styles.md).
 
 ## Why

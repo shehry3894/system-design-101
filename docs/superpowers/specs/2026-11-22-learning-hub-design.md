@@ -1,7 +1,7 @@
 # System Design 101: Learning Hub Design
 
 Date: 2026-11-22
-Status: approved. M0 and M1 done (2026-11-22). M2 (design-decision pages) started 2026-11-22; the communication styles hub and the API styles page are done (2026-11-23). Current state: `docs/HANDOFF.md`.
+Status: approved. M0 and M1 done (2026-11-22). M2 (design-decision pages) started 2026-11-22; the communication styles hub, the API styles page and the REST and gRPC pages are done (2026-11-23); server push and messaging wait for the owner's go. Current state: `docs/HANDOFF.md`.
 
 ## 1. Intent
 

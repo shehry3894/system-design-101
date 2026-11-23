@@ -51,6 +51,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - Server push and messaging are renumbered to `04-server-push.md` and `05-messaging.md`.
   - A fresh final review found no critical or important issues. Its minor notes were fixed: page 01 no longer says "safe to retry" (page 02 uses "safe" for read-only), cancellation and status-code wording, `Location` as optional, abbreviation order, the RPC-family citation, JSON-RPC lines kept to the spec, and `protoc` and service config defined.
   - Small notes left for later: the gRPC page could add that a proxy in the path can still answer 502 or 503; page 01 sits exactly at its 150-line budget.
+- **2026-11-23: paused for the owner's review.** The owner will read every doc made so far, check the pages are good, and decide whether the same approach suits the next topics. Before the pause, a completeness check passed: 27 tests and the link check are green, `main` matches `origin`, both finished plans are ticked and marked done, and the spec status lines are current. Do nothing new until the owner gives review feedback or says go.
 
 ## Decisions the owner made
 
@@ -88,10 +89,12 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - M2 communication styles hub: research note written from official docs ([communication-styles.md](research/communication-styles.md)); design doc written.
 - M2 rework from the owner's review: analogies, Design and Run tables, the same call in code (2026-11-23).
 - M2 pages: [Communication styles](concepts/communication/00-overview.md), [API styles](concepts/communication/01-api-styles.md), [decision template](_template-decision.md), example [request_payload_size.py](../examples/communication/request_payload_size.py).
+- M2 concept pages: [REST](concepts/communication/02-rest.md) and [gRPC](concepts/communication/03-grpc.md); JSON-RPC, SOAP and MCP few-liners on page 01 (2026-11-23).
 - History: `git log --oneline`.
 
 ## Next
 
+0. **Waiting on the owner: review of all docs so far.** Act on the owner's feedback first. Nothing below starts until the owner says go.
 1. **Communication styles: hub + API styles page** (structure approved 2026-11-23):
    1. ~~Survey the API styles in official sources.~~ Done.
    2. ~~Research note `docs/research/api-styles.md`, every claim cited.~~ Done. Spot-checked: GraphQL spec September 2026, GraphQL-over-HTTP September 2026 (status 294, 422), OpenAPI 3.2.1, WebSub, the Fielding §5.1.5 quotes, grpc.io usage scenarios, gRPC-Web streaming limits, and the graphql.org microservices FAQ.
