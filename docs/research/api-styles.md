@@ -592,11 +592,256 @@ GraphQL: Strawberry
 - Install: `pip install 'strawberry-graphql[fastapi]'`; mount with `strawberry.fastapi.GraphQLRouter`. [strawberry.rocks FastAPI integration]
 - Docs: https://strawberry.rocks/docs and https://fastapi.tiangolo.com/how-to/graphql/
 
+## 9. Rework facts (2026-11-23): more compare rows, snippets, analogies
+
+Sources for this section were read on 2026-11-23. Facts already in §1–8 are not repeated. Short names used here:
+
+- **code.proto** = `google/rpc/code.proto` in the googleapis/googleapis repository (Google's API definitions, not the gRPC docs).
+- **gRPC HTTP mapping doc** = `doc/http-grpc-status-mapping.md` in grpc/grpc.
+- **gRPC health doc** = `doc/health-checking.md` in grpc/grpc.
+- **gRPC Python API** = the gRPC Python API reference at grpc.github.io, v1.85.0.
+- **grpcurl README** = the README of fullstorydev/grpcurl.
+
+### 9.1 gRPC status codes
+
+- The count (17, numbered 0–16) is in §3. The guide adds: "Applications should only use values defined below." [grpc.io Status Codes guide, "Overview"]
+- Names, numbers and meanings [grpc.io Status Codes guide, "The full list of status codes"]:
+  - `OK` (0): "Not an error; returned on success."
+  - `INVALID_ARGUMENT` (3): "The client specified an invalid argument." It means the argument is bad "regardless of the state of the system (e.g., a malformed file name)".
+  - `DEADLINE_EXCEEDED` (4): "The deadline expired before the operation could complete." For operations that change state, it may be returned "even if the operation has completed successfully".
+  - `NOT_FOUND` (5): "Some requested entity (e.g., file or directory) was not found."
+  - `PERMISSION_DENIED` (7): "The caller does not have permission to execute the specified operation." It must not be used when the caller cannot be identified; use `UNAUTHENTICATED` then.
+  - `UNAVAILABLE` (14): "The service is currently unavailable." It is "most likely a transient condition", fixed by retrying with a backoff, but retrying non-idempotent operations is not always safe.
+  - `UNAUTHENTICATED` (16): "The request does not have valid authentication credentials for the operation."
+- An HTTP status for each gRPC code: **Not found** in the grpc.io Status Codes guide or in `doc/statuscodes.md`. [grpc.io Status Codes guide; gRPC status codes doc]
+- code.proto calls its enum "The canonical error codes for gRPC APIs" and adds an "HTTP Mapping" comment to each code. [code.proto, `enum Code`]
+  - `OK` → 200 OK; `INVALID_ARGUMENT` → 400 Bad Request; `DEADLINE_EXCEEDED` → 504 Gateway Timeout; `NOT_FOUND` → 404 Not Found; `PERMISSION_DENIED` → 403 Forbidden; `UNAVAILABLE` → 503 Service Unavailable; `UNAUTHENTICATED` → 401 Unauthorized. [code.proto]
+  - The rest: `CANCELLED` → 499 Client Closed Request; `UNKNOWN`, `INTERNAL`, `DATA_LOSS` → 500; `ALREADY_EXISTS`, `ABORTED` → 409; `RESOURCE_EXHAUSTED` → 429; `FAILED_PRECONDITION`, `OUT_OF_RANGE` → 400; `UNIMPLEMENTED` → 501. [code.proto]
+  - 499 is not defined in RFC 9110. [RFC 9110 §15, §18.3]
+  - This mapping lives in Google's repository, not in the gRPC protocol documents. [derived from code.proto and the gRPC docs above]
+- The gRPC HTTP mapping doc covers the opposite direction only: a client that gets an HTTP response **without** a `grpc-status`, for example from an intermediary such as a proxy. [gRPC HTTP mapping doc]
+  - "This table is to be used _only_ for clients that received a response that did not include grpc-status." If `grpc-status` is present, it "_must_ be used". [gRPC HTTP mapping doc]
+  - "Servers _must not_ use this table to determine an HTTP status code to use; the mappings are neither symmetric nor 1-to-1." [gRPC HTTP mapping doc]
+  - Table: 400 → `INTERNAL`; 401 → `UNAUTHENTICATED`; 403 → `PERMISSION_DENIED`; 404 → `UNIMPLEMENTED`; 429, 502, 503, 504 → `UNAVAILABLE`; all other codes → `UNKNOWN`. A 200 without `grpc-status` is `UNKNOWN`. [gRPC HTTP mapping doc]
+  - So the two tables disagree on purpose: a proxy's 404 becomes `UNIMPLEMENTED`, not `NOT_FOUND`, and a proxy's 400 becomes `INTERNAL`, not `INVALID_ARGUMENT`. [derived from code.proto and the gRPC HTTP mapping doc]
+
+### 9.2 Auth headers
+
+HTTP:
+
+- The `Authorization` header lets a user agent authenticate with an origin server, "usually, but not necessarily, after receiving a 401 (Unauthorized) response". Its value is `credentials`. [RFC 9110 §11.6.2]
+- "A proxy forwarding a request MUST NOT modify any Authorization header fields in that request." [RFC 9110 §11.6.2]
+- RFC 6750 example: `Authorization: Bearer mF_9.B5f-4.1JqM`. Syntax: `credentials = "Bearer" 1*SP b64token`. [RFC 6750 §2.1]
+- Clients SHOULD send a bearer token in the `Authorization` header with the `Bearer` scheme; resource servers MUST support this method. [RFC 6750 §2.1]
+- Anyone holding a bearer token can use it, "without demonstrating possession of a cryptographic key". [RFC 6750 Abstract]
+- "Bearer tokens SHOULD NOT be passed in page URLs (for example, as query string parameters)." [RFC 6750 §5.3]
+- FastAPI's `OAuth2PasswordBearer` looks for an `Authorization` header whose value is `Bearer` plus a token. Without one, it answers 401 directly. [FastAPI Security First Steps]
+
+gRPC:
+
+- Metadata carries "authentication credentials"; schemes such as OAuth2 or JWT can use "the standard HTTP Authorization header". [grpc.io Metadata guide, "Overview"]
+- "Some of the headers, such as authorization, are generated by gRPC for you." [grpc.io Metadata guide, "Headers"]
+- Servers may limit request header size, "with a default of 8 KiB suggested". [grpc.io Metadata guide, "Be Aware"]
+- An OAuth token "is always part of per-call credentials". It is sent "normally as part of HTTP Authorization header", and the server usually checks it in an interceptor. [grpc.io Authentication guide, "Using OAuth token-based authentication"]
+- Python: `grpc.access_token_call_credentials(access_token)` puts the token in the authorization header, for example `authorization: Bearer <access_token>`. [gRPC Python API, `access_token_call_credentials`]
+- The `credentials` argument of a call is "Only valid for secure Channel". The `metadata` argument sends extra key-value pairs. [gRPC Python API, `UnaryUnaryMultiCallable.__call__`]
+- The official metadata example passes pairs such as `("accesstoken", "...")` with `metadata=` over `grpc.insecure_channel`. [grpc/grpc `examples/python/metadata/metadata_client.py`]
+- The official token example server expects the metadata pair `("authorization", "Bearer example_oauth2_token")` and otherwise aborts with `UNAUTHENTICATED`. [grpc/grpc `examples/python/auth/token_based_auth_server.py`]
+- So a gRPC bearer token uses the same key and value shape as HTTP: key `authorization`, value `Bearer <token>`. [derived from the gRPC Python API and the token example]
+
+GraphQL:
+
+- "GraphQL execution should begin after authentication middleware confirms the user's identity and passes that information to the GraphQL layer." [graphql.org/learn/authorization]
+- "Authorization logic should be delegated to the business logic layer, not the GraphQL layer." [graphql.org/learn/authorization, "Recap"]
+- It recommends passing "a fully-hydrated user object instead of an opaque token or API key" to the business logic layer. [graphql.org/learn/authorization]
+- GraphQL should sit after all authentication middleware, so it has the same session and user information as other HTTP handlers. [graphql.org/learn/serving-over-http]
+- Which header carries credentials: **Not found** in graphql.org's Authorization or Serving over HTTP pages.
+- GoH says only that a server MAY refuse requests "to require authentication or payment", with a relevant 4xx or 5xx code. [GoH §2] It leaves authentication to standard HTTP practice. [GoH §6.2.1]
+- GoH: "The server should not make authorization decisions based on any part of the GraphQL request". [GoH §2, Note]
+- Strawberry's own auth example reads `request.headers.get("Authorization", None)` in a custom context. [Strawberry Authentication guide]
+
+### 9.3 Client timeouts over HTTP
+
+- A request field by which the client tells the server how long it will wait: **Not found** in RFC 9110. The word "timeout" appears only in the 408 and 504 status codes and in an inactivity timeout for reusing credentials. [RFC 9110 §11.5, §15.5.9, §15.6.5]
+  - 408 means the server "did not receive a complete request message within the time that it was prepared to wait". This is the server's own timer. [RFC 9110 §15.5.9]
+  - 504 means a gateway or proxy "did not receive a timely response from an upstream server". [RFC 9110 §15.6.5]
+- Servers usually close idle connections after a timeout; persistent connections set "no requirements on the length (or existence) of this timeout". [RFC 9112 §9.5]
+- The closest standard is RFC 7240's `Prefer: wait=N`: an upper bound, in seconds, on how long the client expects processing to take. The server may then answer asynchronously (for example 202), and the preference "could be ignored". [RFC 7240 §4.3]
+- So, unlike gRPC's `grpc-timeout` header (§3), an HTTP timeout is a client-library setting, not something the server is told. [derived from RFC 9110 and RFC 7240 §4.3]
+- HTTPX: "HTTPX is careful to enforce timeouts everywhere by default." The default raises `TimeoutException` "after 5 seconds of network inactivity". [HTTPX Timeouts]
+  - Per request: `httpx.get(url, timeout=10.0)`; `timeout=None` disables it. Per client: `httpx.Client(timeout=10.0)`. [HTTPX Timeouts]
+  - There are four kinds: connect, read, write and pool. [HTTPX Timeouts, "Fine tuning the configuration"]
+- Requests: "By default, requests do not time out unless a timeout value is set explicitly." [Requests docs, Advanced Usage, "Timeouts"]
+  - "Nearly all production code should use this parameter in nearly all requests." [Requests docs, Quickstart, "Timeouts"]
+  - The timeout is not a limit on the whole download; it fires when no bytes arrive for that many seconds. [Requests docs, Quickstart, "Timeouts"]
+- FastAPI's `TestClient` "is based on HTTPX". It needs `httpx` installed, and it comes from Starlette (`starlette.testclient`). [FastAPI Testing]
+- curl: `-m, --max-time <seconds>` sets the maximum time allowed for each transfer. [curl man page]
+- gRPC Python: a call takes a `timeout` keyword, "An optional duration of time in seconds to allow for the RPC." [gRPC Python API, `UnaryUnaryMultiCallable.__call__`]
+  - The official example calls `stub.SayHello(helloworld_pb2.HelloRequest(name=message), timeout=3)`, catches `grpc.RpcError`, and reads `rpc_error.code()`. A slow call "Should fail with DEADLINE_EXCEEDED". [grpc/grpc `examples/python/timeout/greeter_client.py`]
+- Defaults side by side: gRPC sets no deadline (§3), HTTPX gives up after 5 seconds of inactivity, and Requests has no timeout at all. [derived from grpc.io Deadlines guide, HTTPX Timeouts, Requests docs]
+
+### 9.4 Health checks
+
+gRPC:
+
+- "gRPC specifies a standard service API (health/v1)". An implementation is provided, but you must update the health status of your services yourself. [grpc.io Health Checking guide, "Overview"]
+- The proto: package `grpc.health.v1`, service `Health`, with `rpc Check(HealthCheckRequest) returns (HealthCheckResponse);` and `rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);`. [gRPC health doc, "Service Definition"]
+- `ServingStatus` values: `UNKNOWN = 0`, `SERVING = 1`, `NOT_SERVING = 2`, `SERVICE_UNKNOWN = 3` (used only by `Watch`). [gRPC health doc, "Service Definition"]
+- The request has one field, `service`. An empty string means the whole server. An unregistered service name gets a `NOT_FOUND` gRPC status. [gRPC health doc]
+- A client calling `Check` should set a deadline. [gRPC health doc]
+- `Check` suits central monitoring or load balancers but "does not scale" to a fleet of clients checking constantly. `Watch` streams status changes and is used by client-side health checking. [grpc.io Health Checking guide, "The Server Side Health Service"]
+- A client turns on health checking in the channel's service config, for example `{"healthCheckConfig": {"serviceName": "foo"}}`. Requests wait until the service reports healthy. [grpc.io Health Checking guide, "Enabling Client Health Checking"]
+- Python: the official example imports `health`, `health_pb2` and `health_pb2_grpc` from `grpc_health.v1`, creates `health.HealthServicer(...)`, registers it with `health_pb2_grpc.add_HealthServicer_to_server`, and sets status with `health_servicer.set(service, status)`. [grpc/grpc `examples/python/health_checking/greeter_server.py`]
+- The pip package name: **Not found** in the grpc.io guide or the gRPC Python API page. PyPI lists `grpcio-health-checking` (1.85.3, "Standard Health Checking Service for gRPC"), whose documentation link is the gRPC Python API. [PyPI grpcio-health-checking]
+
+REST / HTTP:
+
+- A standard health endpoint: **Not found** in RFC 9110. The only IETF document found, "Health Check Response Format for HTTP APIs" (`draft-inadarei-api-health-check-06`), is an expired Internet-Draft, not an RFC. [IETF Datatracker]
+- The Kubernetes probe example uses `httpGet` with `path: /healthz` and `port: 8080`. [kubernetes.io Probes, "Define a liveness HTTP request"]
+- "Any code greater than or equal to 200 and less than 400 indicates success. Any other code indicates failure." [kubernetes.io Probes, "Define a liveness HTTP request"]
+- `/healthz` is a Kubernetes convention, not a standard. Kubernetes' own API server `healthz` endpoint "is deprecated (since Kubernetes v1.16)"; use `livez` and `readyz` instead. [kubernetes.io API health endpoints]
+- Kubernetes can probe gRPC directly (`livenessProbe: grpc: port: 2379`) for apps that implement the gRPC Health Checking Protocol. "Stable since Kubernetes v1.27". [kubernetes.io Probes, "Define a gRPC liveness probe"]
+  - The feature gate was alpha in 1.23, beta (on by default) in 1.24–1.26, and stable in 1.27. [kubernetes.io Feature Gates (removed)]
+  - An optional `service` field names "the service to place in the gRPC HealthCheckRequest". [kubernetes.io Pod v1 API, GRPCAction]
+  - gRPC probes do not support named ports and connect over plaintext by default; TLS mode is alpha since v1.37. [kubernetes.io Probes]
+  - `timeoutSeconds` defaults to 1s. [kubernetes.io Probes, "Define a gRPC liveness probe"]
+
+### 9.5 Debugging tools
+
+gRPC:
+
+- Reflection is "a protocol that gRPC servers can use to declare the protobuf-defined APIs they export over a standardized RPC service". [grpc.io Reflection guide, "Overview"]
+- "Reflection is used heavily by debugging tools such as `grpcurl` and Postman." [grpc.io Reflection guide, "Overview"]
+- grpc.io compares it to serving an OpenAPI document for a REST API. [grpc.io Reflection guide, "Overview"]
+- "Reflection is not automatically enabled on a gRPC server." [grpc.io Reflection guide, "Enabling Reflection on a gRPC Server"]
+- For public APIs, you may not want to expose reflection, "as you may consider this a security issue". [grpc.io Reflection guide, "Tips"]
+- Python: install the `grpcio-reflection` package, `from grpc_reflection.v1alpha import reflection`, then call `reflection.enable_server_reflection(SERVICE_NAMES, server)`. `SERVICE_NAMES` lists the service's full name and `reflection.SERVICE_NAME`. [grpc/grpc `doc/python/server_reflection.md`; `examples/python/helloworld/greeter_server_with_reflection.py`]
+- grpcurl is "basically `curl` for gRPC servers". Plain curl can't do it because gRPC sends binary Protobuf. [grpcurl README]
+- Without reflection, grpcurl needs "the proto source files that define the service" or protoset files. [grpcurl README]
+- Syntax from the README [grpcurl README, "Invoking RPCs", "Adding Headers/Metadata to Request", "Listing Services"]:
+  - `grpcurl -plaintext grpc.server.com:80 my.custom.server.Service/Method` (no TLS, empty body).
+  - `grpcurl -d '{"id": 1234, "tags": ["foo","bar"]}' grpc.server.com:443 my.custom.server.Service/Method`. The body is JSON and is sent as binary Protobuf.
+  - "all arguments must come *before* the server address and method name".
+  - Headers: `-H name:value`. Listing: `grpcurl localhost:8787 list`; without reflection: `grpcurl -import-path ../protos -proto my-stuff.proto list`.
+- So the page's call would be `grpcurl -plaintext -d '{"id": 42}' localhost:50051 shop.Orders/GetOrder`. [derived from grpcurl README; not run]
+
+GraphQL:
+
+- Introspection queries "help power GraphQL development tools", such as "documentation browsers or rich IDE experiences". [graphql.org/learn/introspection]
+- Schema descriptions are "available in introspection queries and visible in developer tools such as GraphiQL". [graphql.org/learn/schema]
+- GraphiQL is "An interactive in-browser GraphQL IDE." [graphql.org Tools and Libraries] With it you can explore what data an API exposes. [graphql.org FAQ, "How can I document my GraphQL API?"]
+- GraphiQL is a project of the GraphQL Foundation. [graphql.org FAQ]
+- For first-party APIs, introspection is "typically not needed in production", and disabling it is common. [graphql.org/learn/introspection, "Introspection in production"]
+- Strawberry's `GraphQLRouter` serves GraphiQL by default (option `graphql_ide`, §9.8). [Strawberry FastAPI integration, "Options"]
+
+REST:
+
+- curl is "a tool for transferring data from or to a server using URLs". `-H, --header` adds a request header. [curl man page]
+
+### 9.6 REST versioning
+
+- Google AIP-185: "All Google API interfaces must provide a major version number, which is encoded at the end of the protobuf package, and included as the first part of the URI path for REST APIs." [AIP-185, "Guidance"]
+- Only the major version is exposed: "Google APIs use `v1`, not `v1.0`, `v1.1`, or `v1.4.2`". [AIP-185, "Guidance"]
+- Alpha and beta add a suffix (`v1alpha`, `v1beta`); the stable channel must not. [AIP-185, "Channel-based versioning"]
+- Its scope is "the versioning strategies used by Google APIs". It is Google's rule, not an IETF standard. [AIP-185] (State: Approved; created and updated 2024-10-22.)
+- AIP-180: "Renaming a component is semantically equivalent to "remove and add"", and removing a component in the same major version is not allowed. [AIP-180, "Removing or renaming components"]
+- Microsoft's Azure guidelines take the opposite rule: "**DO** use a required query parameter named `api-version` on every operation", with `YYYY-MM-DD` values. [Azure REST API Guidelines, "API Versioning"]
+  - "**DO NOT** include a version number segment in any operation path." [Azure REST API Guidelines, "API Versioning"]
+- Microsoft Graph puts the version in the path: `{scheme}://{host}/{version}/{category}/...`, where "`version` can be v1.0 or beta". [Microsoft Graph REST API Guidelines, "Uniform Resource Locators (URLs)"]
+- The older, now deprecated, Microsoft REST API Guidelines allowed both: a path segment (`/v1.0/`) or `?api-version=1.0`. "Services that cannot ensure URL path stability across future versions MUST embed the version in the URL path." [Microsoft REST API Guidelines (deprecated), §12.1]
+- So there is no single authoritative REST rule; two large providers' guidelines disagree (path vs query parameter). [derived from AIP-185 and the Azure guidelines]
+
+### 9.7 Protobuf field renames
+
+- Binary wire: only numbers travel (§3). The proto3 guide does not list "rename a field" under "Binary Wire-safe Changes"; it mentions renaming only as an option for a removed field, e.g. with the prefix `OBSOLETE_`. [protobuf.dev proto3 guide, "Binary Wire-safe Changes"]
+- An explicit "renaming is wire-safe" sentence: **Not found** in the proto3 guide. It follows from the Encoding page, where names are known only from the `.proto` file. [derived from protobuf.dev Encoding, "Message Structure"]
+- "Reusing an old field name later is generally safe, except when using TextProto or JSON encodings where the field name is serialized." [protobuf.dev proto3 guide, "Reserved Field Names"]
+- Text format and JSON store names as strings, so old code "will fail when a field or enum value is renamed". [protobuf.dev Proto Best Practices, "Don't use Text Format Messages for Interchange"]
+- "If you use protos converted to JSON in your API or for storing data, you may not be able to safely rename fields or enums at all." [protobuf.dev Proto Best Practices, same section]
+- ProtoJSON "puts field and enum value names into encoded messages which makes it much harder to change those names later". [protobuf.dev ProtoJSON Format, "Does not have as good schema-evolution guarantees as binary wire format"]
+- The `json_name` option sets the JSON key; parsers accept that key and the original proto field name. [protobuf.dev ProtoJSON Format, "Field names as JSON keys"] Using `json_name` to keep an old JSON key after a rename is not stated there. [derived]
+- In ProtoJSON, "Changing a field number is safe (as the field numbers are not used in the ProtoJSON format), but still strongly discouraged". [protobuf.dev ProtoJSON Format, "JSON Wire-safe Changes"]
+- "Never re-use a tag number. It messes up deserialization." [protobuf.dev Proto Best Practices, "Don't Re-use a Tag Number"]
+- When deleting a field, "you must reserve the deleted field number". "You should also reserve the field name to allow JSON and TextFormat encodings of your message to continue to parse." [protobuf.dev proto3 guide, "Deleting Fields"]
+- Syntax: `reserved 2, 15, 9 to 11;` and `reserved "foo", "bar";`. Names and numbers cannot be mixed in one statement. [protobuf.dev proto3 guide, "Reserved Field Numbers", "Reserved Field Names"]
+- Reserved names only affect `protoc`: "Runtime JSON parsing is not affected by reserved names." [protobuf.dev proto3 guide, "Reserved Field Names"]
+- "Changing the field number is equivalent to deleting the field and adding a new field with the same type." [protobuf.dev proto3 guide, "Binary Wire-unsafe Changes"]
+- Wire-safe changes "may be a breaking change to application code in a given language". [protobuf.dev proto3 guide, "Binary Wire-safe Changes"]
+
+### 9.8 Snippet details
+
+FastAPI (REST):
+
+- Typed path parameter [FastAPI Path Parameters, "Path parameters with types"]:
+
+  ```python
+  @app.get("/items/{item_id}")
+  async def read_item(item_id: int):
+      return {"item_id": item_id}
+  ```
+
+- `/items/3` returns `{"item_id":3}`, a Python `int`. [FastAPI Path Parameters, "Data conversion"]
+- `/items/foo` returns a `detail` list with `"type": "int_parsing"`, `"loc": ["path", "item_id"]` and `"msg": "Input should be a valid integer, unable to parse string as an integer"`. `/items/4.2` fails the same way. [FastAPI Path Parameters, "Data validation"]
+- The status code for that error: **Not found** on the Path Parameters page. FastAPI's default handler for `RequestValidationError` returns `status_code=422`. [fastapi/fastapi `fastapi/exception_handlers.py`] The generated OpenAPI lists `"422"` with description "Validation Error". [FastAPI Additional Responses in OpenAPI]
+- Run: `uv run fastapi dev`, which finds the app from `[tool.fastapi] entrypoint = "main:app"` in `pyproject.toml`; or `uv run fastapi dev main.py`. It serves at `http://127.0.0.1:8000`. `fastapi run` is the production command. [FastAPI First Steps]
+
+gRPC (`grpcio`):
+
+- The `protoc` command is unchanged from §8. [grpc.io Python Basics, "Generating client and server code"]
+- Generated names follow the service name: `RouteGuideStub`, `RouteGuideServicer`, `add_RouteGuideServicer_to_server`, in `route_guide_pb2_grpc.py`. [grpc.io Python Basics, "Generating client and server code"] For a service `Orders` that would be `OrdersStub`, `OrdersServicer`, `add_OrdersServicer_to_server`. [derived]
+- The servicer subclasses the generated class: `class RouteGuideServicer(route_guide_pb2_grpc.RouteGuideServicer):`. A method is `def GetFeature(self, request, context):` and returns a message. `context` is a `grpc.ServicerContext` with information "such as timeout limits". [grpc.io Python Basics, "Implementing RouteGuide"]
+- Server [grpc.io Python Basics, "Starting the server"]:
+
+  ```python
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+  route_guide_pb2_grpc.add_RouteGuideServicer_to_server(RouteGuideServicer(), server)
+  server.add_insecure_port("[::]:50051")
+  server.start()
+  server.wait_for_termination()
+  ```
+
+- "The server `start()` method is non-blocking." `wait_for_termination()` blocks until the server stops. [grpc.io Python Basics, "Starting the server"]
+- Client: `channel = grpc.insecure_channel('localhost:50051')`, `stub = route_guide_pb2_grpc.RouteGuideStub(channel)`, `feature = stub.GetFeature(point)`. The call returns a response or raises an exception. [grpc.io Python Basics, "Creating the client"] The Quick start opens the channel with `with grpc.insecure_channel('localhost:50051') as channel:`. [grpc.io Python Quick start]
+- Timeout: the `timeout=` keyword (§9.3).
+- Errors: on the server, `context.abort(code, details)` "Raises an exception to terminate the RPC with a non-OK status"; `code` must not be `StatusCode.OK`. On the client, `grpc.RpcError` is "Raised by the gRPC library to indicate non-OK-status RPC termination". [gRPC Python API, `ServicerContext.abort`, `RpcError`] Example: `context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid signature")`. [grpc/grpc `examples/python/auth/token_based_auth_server.py`]
+
+Strawberry (GraphQL):
+
+- Package: `pip install 'strawberry-graphql[cli]'` for the dev server, or `pip install 'strawberry-graphql[fastapi]'` for FastAPI. [Strawberry Getting started; Strawberry FastAPI integration]
+- The Getting started tutorial assumes "a recent version of Python (3.11+)". [Strawberry Getting started]
+- Getting started: `@strawberry.type` classes `Book` and `Query`; `books: typing.List[Book] = strawberry.field(resolver=get_books)`; `schema = strawberry.Schema(query=Query)`; run `strawberry dev schema`, served at `http://0.0.0.0:8000/graphql`. [Strawberry Getting started]
+- FastAPI integration [Strawberry FastAPI integration]:
+
+  ```python
+  @strawberry.type
+  class Query:
+      @strawberry.field
+      def hello(self) -> str:
+          return "Hello World"
+
+  schema = strawberry.Schema(Query)
+  graphql_app = GraphQLRouter(schema)
+  app = FastAPI()
+  app.include_router(graphql_app, prefix="/graphql")
+  ```
+
+- The import is `from strawberry.fastapi import GraphQLRouter`. [Strawberry FastAPI integration]
+- Strawberry runs sync and async fields on the event loop, so "using a sync `def` will block the entire worker"; it recommends `async def` for all fields. [Strawberry FastAPI integration, Note]
+- `GraphQLRouter` options: `graphql_ide` defaults to `"graphiql"` (or `apollo-sandbox`, `pathfinder`, or `None` to turn it off); `allow_queries_via_get` defaults to `True`. [Strawberry FastAPI integration, "Options"]
+- camelCase: by default Strawberry converts field names to camel case, so `example_field` becomes `exampleField`. Turn it off with `config=StrawberryConfig(auto_camel_case=False)` (`from strawberry.schema.config import StrawberryConfig`). [Strawberry Schema Configurations, "auto_camel_case"]
+
+### 9.9 MCP analogy
+
+- "Think of MCP like a USB-C port for AI applications." The next sentence says MCP gives AI applications a standard way to connect to external systems, as USB-C does for electronic devices. [MCP docs, "What is the Model Context Protocol (MCP)?"]
+- The same page opens: MCP "is an open-source standard for connecting AI applications to external systems". [MCP docs, "What is the Model Context Protocol (MCP)?"]
+- URL: https://modelcontextprotocol.io/docs/getting-started/intro , which redirects to the versioned https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro .
+- This wording differs from the spec Overview wording our page quotes ("an open protocol…"). Both are MCP's own pages. [MCP docs intro; MCP spec, Overview]
+
 ## Open questions
 
 - **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
 - **"REST" in our pages.** Fielding's strict definition requires hypertext-driven APIs [Fielding 2008]; most FastAPI-style JSON APIs with fixed paths do not meet it (derived). The owner should decide whether pages say "REST" or "HTTP/JSON API (REST-style)".
-- **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Not researched further.
+- **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Provider guidelines were read on 2026-11-23 (§9.6): Google puts the major version in the path, Azure forbids that and uses an `api-version` query parameter. No standards-body rule was found.
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.
 - **GraphQL status 294.** Not IANA-registered; how real proxies and caches handle it is unknown. [GoH §6.1]
 - **Persisted documents.** graphql.org says standardizing them in GraphQL-over-HTTP is underway [graphql.org/learn/security]; the September 2026 edition mentions them only in a note. [GoH §5.3]
@@ -687,3 +932,66 @@ Other styles:
 - WebSub, W3C Recommendation 02 June 2026: https://www.w3.org/TR/websub/
 - AsyncAPI Specification 3.1.0: https://www.asyncapi.com/docs/reference/specification/latest
 - tRPC docs, Introduction: https://trpc.io/docs
+
+Added for §9, all read on 2026-11-23:
+
+HTTP, REST and Python HTTP clients:
+
+- RFC 6750, The OAuth 2.0 Authorization Framework: Bearer Token Usage (October 2012): https://www.rfc-editor.org/rfc/rfc6750.txt
+- RFC 9112, HTTP/1.1 (June 2022, STD 99): https://www.rfc-editor.org/rfc/rfc9112.txt
+- RFC 7240, Prefer Header for HTTP (June 2014): https://www.rfc-editor.org/rfc/rfc7240.txt
+- RFC 9110 (already listed above), §11.5, §11.6.2, §15.5.9, §15.6.5 read for §9.
+- HTTPX docs, Timeouts: https://www.python-httpx.org/advanced/timeouts/
+- Requests 2.34.2 docs, Advanced Usage and Quickstart, "Timeouts": https://requests.readthedocs.io/en/latest/user/advanced/ , https://requests.readthedocs.io/en/latest/user/quickstart/
+- curl man page (describes curl 8.23.1): https://curl.se/docs/manpage.html
+- FastAPI docs, Tutorial "Path Parameters": https://fastapi.tiangolo.com/tutorial/path-params/
+- FastAPI docs, Tutorial "Testing": https://fastapi.tiangolo.com/tutorial/testing/
+- FastAPI docs, Tutorial "Security - First Steps": https://fastapi.tiangolo.com/tutorial/security/first-steps/
+- FastAPI docs, Advanced "Additional Responses in OpenAPI": https://fastapi.tiangolo.com/advanced/additional-responses/
+- FastAPI source, `fastapi/exception_handlers.py`, master (last commit 2025-09-16): https://github.com/fastapi/fastapi/blob/master/fastapi/exception_handlers.py
+- Google AIP-185, API Versioning (Approved; created and updated 2024-10-22): https://google.aip.dev/185
+- Google AIP-180, Backwards compatibility (Approved; created and updated 2019-07-23): https://google.aip.dev/180
+- Microsoft REST API Guidelines, repository README: https://github.com/microsoft/api-guidelines
+- Azure REST API Guidelines, vNext (latest changelog entry 2026-Oct-22): https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md
+- Microsoft Graph REST API Guidelines, vNext (last commit 2025-06-05): https://github.com/microsoft/api-guidelines/blob/vNext/graph/GuidelinesGraph.md
+- Microsoft REST API Guidelines, deprecated version (last commit 2023-12-21): https://github.com/microsoft/api-guidelines/blob/vNext/graph/Guidelines-deprecated.md
+- IETF Datatracker, `draft-inadarei-api-health-check-06`, "Health Check Response Format for HTTP APIs" (expired; last revision 2022-04-19): https://datatracker.ietf.org/doc/draft-inadarei-api-health-check/
+- Kubernetes docs, "Configure Liveness, Readiness and Startup Probes" (last modified 2026-06-30): https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+- Kubernetes docs, "Kubernetes API health endpoints" (last modified 2026-07-03): https://kubernetes.io/docs/reference/using-api/health-checks/
+- Kubernetes docs, Pod v1 API reference, `GRPCAction` (last modified 2026-08-26): https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/
+- Kubernetes docs, Feature Gates (removed), `GRPCContainerProbe`: https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates-removed/
+
+gRPC and Protobuf:
+
+- grpc.io, Metadata guide (last modified 2024-11-12): https://grpc.io/docs/guides/metadata/
+- grpc.io, Authentication guide (last modified 2024-01-12): https://grpc.io/docs/guides/auth/
+- grpc.io, Health Checking guide (last modified 2024-05-20): https://grpc.io/docs/guides/health-checking/
+- grpc.io, Reflection guide (last modified 2026-05-11): https://grpc.io/docs/guides/reflection/
+- grpc.io, Status Codes guide (already listed above; re-read for §9.1): https://grpc.io/docs/guides/status-codes/
+- gRPC Python API reference, v1.85.0: https://grpc.github.io/grpc/python/grpc.html
+- gRPC Python API reference, "gRPC Health Checking", v1.85.0: https://grpc.github.io/grpc/python/grpc_health_checking.html
+- HTTP to gRPC status code mapping, `doc/http-grpc-status-mapping.md`, grpc/grpc master (last commit 2016-03-31): https://github.com/grpc/grpc/blob/master/doc/http-grpc-status-mapping.md
+- gRPC Health Checking Protocol, `doc/health-checking.md`, grpc/grpc master (last commit 2023-04-11): https://github.com/grpc/grpc/blob/master/doc/health-checking.md
+- gRPC Python Server Reflection, `doc/python/server_reflection.md`, grpc/grpc master (last commit 2023-12-15): https://github.com/grpc/grpc/blob/master/doc/python/server_reflection.md
+- grpc/grpc Python examples, master: token auth client and server (last commit 2024-01-10), metadata client, timeout client (last commit 2023-06-09), health checking server (last commit 2023-06-09), reflection server (last commit 2023-06-09): https://github.com/grpc/grpc/tree/master/examples/python/auth , https://github.com/grpc/grpc/tree/master/examples/python/metadata , https://github.com/grpc/grpc/tree/master/examples/python/timeout , https://github.com/grpc/grpc/tree/master/examples/python/health_checking , https://github.com/grpc/grpc/blob/master/examples/python/helloworld/greeter_server_with_reflection.py
+- googleapis, `google/rpc/code.proto`, master (last commit 2026-03-31): https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+- grpcurl README, fullstorydev/grpcurl master (last commit 2026-08-31): https://github.com/fullstorydev/grpcurl
+- PyPI, `grpcio-health-checking` project (1.85.3, uploaded 2026-11-18): https://pypi.org/project/grpcio-health-checking/
+- protobuf.dev, Proto Best Practices: https://protobuf.dev/best-practices/dos-donts/
+- protobuf.dev, Language Guide (proto 3), ProtoJSON Format and Encoding (already listed above; re-read for §9.7).
+
+GraphQL:
+
+- graphql.org/learn, Authorization: https://graphql.org/learn/authorization/
+- graphql.org/learn, Introspection: https://graphql.org/learn/introspection/
+- graphql.org/learn, Schemas and Types: https://graphql.org/learn/schema/
+- graphql.org, Tools and Libraries: https://graphql.org/community/tools-and-libraries/
+- graphql.org FAQ, Serving over HTTP and GoH (already listed above; re-read for §9.2 and §9.5).
+- Strawberry docs, Getting started: https://strawberry.rocks/docs
+- Strawberry docs, Schema Configurations: https://strawberry.rocks/docs/types/schema-configurations
+- Strawberry docs, Authentication guide: https://strawberry.rocks/docs/guides/authentication
+- Strawberry docs, FastAPI integration (already listed above; re-read for §9.8): https://strawberry.rocks/docs/integrations/fastapi
+
+MCP:
+
+- modelcontextprotocol.io, "What is the Model Context Protocol (MCP)?" (page metadata dateModified 2026-11-09; redirects to the 2026-07-28 docs version): https://modelcontextprotocol.io/docs/getting-started/intro
