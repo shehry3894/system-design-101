@@ -36,12 +36,14 @@ flowchart TD
 ## The three groups
 
 ### Request-response
+- **In real life:** you give the waiter your order and wait at your table until the dish comes.
 - The client sends a request and waits for the reply. Examples: gRPC ("gRPC Remote Procedure Calls"), REST (Representational State Transfer). [microservices.io, RPI; grpc.io FAQ]
 - microservices.io calls this group Remote Procedure Invocation (RPI). [microservices.io, RPI]
 - Cost: both sides must be up for the whole call. [microservices.io, RPI]
 - Page: [API styles: GraphQL, gRPC, REST](01-api-styles.md). API means Application Programming Interface.
 
 ### Server push
+- **In real life:** the counter hands you a pager, and it buzzes when your food is ready. You don't keep asking.
 - The server sends a message to a client the moment something happens, without a new request.
 - Examples: SSE (Server-Sent Events), webhooks, WebRTC (Real-Time Communication in Browsers), WebSocket.
 - WebRTC is peer-to-peer: a server helps set up the call, then the two ends connect to each other. [W3C WebRTC §4.1; RFC 9429 §1.1]
@@ -49,6 +51,7 @@ flowchart TD
 - Page: "Server push" (coming).
 
 ### Messaging
+- **In real life:** the waiter pins order tickets on the kitchen rail and goes back to the tables. Each cook takes the next ticket when free.
 - Programs send messages through a channel, usually a broker. The sender doesn't wait for the receiver. Examples: Apache Kafka, RabbitMQ. [microservices.io, Messaging]
 - Gain: the broker holds messages until the receiver is ready, so either side can be down for a while. [microservices.io, Messaging]
 - Cost: the broker is one more system, and it must be highly available. [microservices.io, Messaging]
@@ -81,7 +84,7 @@ Every row is cited in the [research note, §7](../../research/communication-styl
 - Core SOAP has no reliable delivery. SOAP 1.2 leaves it out on purpose; WS-ReliableMessaging (Web Services Reliable Messaging) is a separate spec. [SOAP 1.2 Part 1 §1; WS-ReliableMessaging 1.2]
 - WebRTC is peer-to-peer, but it still needs your server. The app must carry the setup messages (signaling) itself, and a TURN server (Traversal Using Relays around NAT; NAT is Network Address Translation) relays traffic when a direct path fails. [RFC 9429 §1.1; RFC 8656]
 - SSE can break behind old proxies that drop idle connections. The spec advises sending a comment line about every 15 seconds. [HTML Living Standard §9.2.7]
-- "Every smart home device uses MQTT" has no source. mqtt.org names other industries: automotive, manufacturing, telecoms, and oil and gas. [mqtt.org]
+- AMQP 1.0 and AMQP 0-9-1 are different protocols despite the name: they share "nothing at the wire level". RabbitMQ was built for 0-9-1. [RabbitMQ, Protocols]
 
 ## Remember
 - Request-response: the caller waits, so both sides must be up.
@@ -97,6 +100,6 @@ Every row is cited in the [research note, §7](../../research/communication-styl
 - [Standard Webhooks](https://www.standardwebhooks.com/), [HTML: Server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html), [RFC 6455: WebSocket](https://www.rfc-editor.org/rfc/rfc6455)
 - [W3C WebRTC](https://www.w3.org/TR/webrtc/), [RFC 9429: JSEP](https://www.rfc-editor.org/rfc/rfc9429), [RFC 8656: TURN](https://www.rfc-editor.org/rfc/rfc8656)
 - [Azure: Event-driven architecture style](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven)
-- [MQTT 5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html), [mqtt.org](https://mqtt.org/), [AMQP 1.0](https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html), [Apache Kafka: Introduction](https://kafka.apache.org/intro)
+- [MQTT 5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html), [AMQP 1.0](https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html), [RabbitMQ: Protocols](https://www.rabbitmq.com/docs/protocols), [Apache Kafka: Introduction](https://kafka.apache.org/intro)
 - [AsyncAPI 3.1.0](https://www.asyncapi.com/docs/reference/specification/latest)
 - Full research note: [communication-styles.md](../../research/communication-styles.md)
