@@ -15,6 +15,7 @@ Two terms first:
 - **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Many APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
 
 ## The options
+REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-grpc.md).
 
 ### GraphQL
 - **In real life:** you tell the waiter "just the salad, no bread", and the plate comes back with exactly that.
@@ -38,16 +39,43 @@ Two terms first:
 - **Use when:** many independent clients, browsers or public users call you, and caching helps. [Fielding 2000 §5.5, §6.5.2]
 
 ### Also in this group
-- **JSON-RPC 2.0**: a small RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport. [JSON-RPC 2.0 §1]
-- **SOAP** (no longer an acronym): a protocol for structured messages in XML (Extensible Markup Language), over many transports. Reliable delivery is a separate spec, WS-ReliableMessaging (Web Services Reliable Messaging). [SOAP 1.2 Part 1, Abstract, §1; WS-RM 1.2]
+#### JSON-RPC
+- **What it is:** JSON-RPC 2.0, a small, stateless RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport. [JSON-RPC 2.0 §1]
+- **Example:** `{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}` gets back `{"jsonrpc": "2.0", "result": 19, "id": 1}`. [JSON-RPC 2.0 §7]
+- **Pros:** small and readable. Notifications (a call with no `id`, which gets no reply) and batches (an array of calls) are built in. [JSON-RPC 2.0 §4.1, §6]
+- **Cons:** the spec defines no schema or contract file, so both sides must agree on methods some other way. [JSON-RPC 2.0]
+- **Use when:** you want a small RPC protocol over any channel. The Language Server Protocol and MCP both use it. [LSP 3.17, Base Protocol; MCP spec, Overview]
+
+#### SOAP
+- **What it is:** a protocol for structured messages in XML (Extensible Markup Language), over many transports. The name is no longer an acronym. [SOAP 1.2 Part 1, Abstract, §1]
+- **Example:** an envelope holding an optional header and a body. [SOAP 1.2 Part 0 §2.1]
+<details>
+<summary>Code: a SOAP request for order 42</summary>
+
+```xml
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+  <env:Body>
+    <o:GetOrder xmlns:o="https://example.com/orders">
+      <o:id>42</o:id>
+    </o:GetOrder>
+  </env:Body>
+</env:Envelope>
+```
+
+</details>
+
+- **Pros:** header blocks are an extension point, and intermediaries on the path can process them. It runs over many transports. [SOAP 1.2 Part 0 §1.1, §3; SOAP 1.2 Part 1, Abstract]
+- **Cons:** core SOAP is silent on routing and reliable delivery. Reliable delivery is a separate spec, WS-ReliableMessaging (Web Services Reliable Messaging). [SOAP 1.2 Part 0 §1.1; WS-RM 1.2]
+- **Use when:** the service you must call already speaks SOAP. This is our reading; no source we read says when to pick SOAP.
 
 ### MCP (Model Context Protocol)
 - **In real life:** MCP's own docs compare it to "a USB-C port for AI applications": one standard plug between AI (artificial intelligence) apps and outside tools. [MCP docs, What is MCP?] USB is Universal Serial Bus.
 - **What it is:** "an open protocol that enables seamless integration between LLM applications and external data sources and tools". An LLM is a large language model. [MCP spec, Overview]
 - **How it works:** JSON-RPC 2.0 messages between a host (the AI app), its clients (connectors) and servers (which offer tools and data). [MCP spec, Overview]
 - **Transports:** stdio (standard input and output), where the app starts the server as a local process, and Streamable HTTP, where each message is an HTTP POST to one endpoint, and replies come back as JSON or an SSE (Server-Sent Events) stream. [MCP Transports]
-- **Build an MCP server when:** you want AI apps to use your service's tools or data. [MCP spec, Overview]
-- **Why it's not in the table:** MCP connects AI apps to tools. It is not a general way for any client to call any backend.
+- **Pros:** "build once and integrate everywhere": many AI assistants and developer tools support it. [MCP docs, What is MCP?]
+- **Cons:** "Tools represent arbitrary code execution", so the host must get the user's consent before it calls one. [MCP spec, Security and Trust & Safety]
+- **Build an MCP server when:** you want AI apps to use your service's tools or data. [MCP spec, Overview] It stays out of the table because it connects AI apps to tools; it is not a general way for any client to call any backend.
 
 ## Compare
 
@@ -235,7 +263,7 @@ It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two
 - [Strawberry: FastAPI integration](https://strawberry.rocks/docs/integrations/fastapi) and [Schema Configurations](https://strawberry.rocks/docs/types/schema-configurations)
 - [HTTPX: Timeouts](https://www.python-httpx.org/advanced/timeouts/), [Requests: Timeouts](https://requests.readthedocs.io/en/latest/user/advanced/), [Kubernetes: Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 - [Google AIP-185: API versioning](https://google.aip.dev/185) and [Azure REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md)
-- [JSON-RPC 2.0](https://www.jsonrpc.org/specification), [SOAP 1.2 Part 1](https://www.w3.org/TR/soap12-part1/), [WS-ReliableMessaging 1.2](http://docs.oasis-open.org/ws-rx/wsrm/200702/wsrm-1.2-spec-os.html)
+- [JSON-RPC 2.0](https://www.jsonrpc.org/specification), [Language Server Protocol 3.17](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/), [SOAP 1.2 Part 0](https://www.w3.org/TR/soap12-part0/), [SOAP 1.2 Part 1](https://www.w3.org/TR/soap12-part1/), [WS-ReliableMessaging 1.2](http://docs.oasis-open.org/ws-rx/wsrm/200702/wsrm-1.2-spec-os.html)
 - [MCP: What is MCP?](https://modelcontextprotocol.io/docs/getting-started/intro), [MCP specification](https://modelcontextprotocol.io/specification/latest), [MCP transports](https://modelcontextprotocol.io/specification/latest/basic/transports)
 - [GitHub REST API docs](https://docs.github.com/en/rest) and [GitHub GraphQL API docs](https://docs.github.com/en/graphql)
 - Full research notes: [api-styles.md](../../research/api-styles.md) and [communication-styles.md](../../research/communication-styles.md)
