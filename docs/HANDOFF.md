@@ -34,7 +34,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - "Same call, three ways": the sequence diagram, then runnable GraphQL, gRPC and REST code for "get order 42". Each snippet was run once in a scratch virtual environment; none is in `examples/`.
   - Sourced surprises: RabbitMQ's AMQP 0-9-1 on the hub; Protobuf field numbers on page 01.
   - New facts are in the research note §9, with a cell-by-cell source map in §9.10.
-  - A fresh reviewer checked the whole rework: no critical findings. The fix pass made the REST analogy mention query parameters, explained server reflection, completed the install line and the gRPC client call, sharpened the HTTPX timeout and the Protobuf surprise, and added RabbitMQ's AMQP 1.0 advice to the hub. Small style notes are left for later (in the final report).
+  - A fresh reviewer checked the whole rework: no critical findings. The fix pass made the REST analogy mention query parameters, explained server reflection, completed the install line and the gRPC client call, sharpened the HTTPX timeout and the Protobuf surprise, and added RabbitMQ's AMQP 1.0 advice to the hub.
+  - Small notes left for later: the messaging analogy shows a queue only, not a copy to every station (owner's call); "methods" and "number" mean different things for REST and gRPC; "USB is Universal Serial Bus." dangles, and HTML, JPEG and RFC are not spelled out on page 01; the cell-source link could point at §9.10.
 - **Waiting on the owner:** page 01 is 215 lines, over the 190 planned. 70 of them are code and the diagram, and 17 are sources. Should the code fold into `<details>` blocks, or stay as is?
 
 ## Decisions the owner made
