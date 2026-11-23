@@ -10,7 +10,7 @@
 
 ## Foundations
 
-- [How a request travels](docs/00-foundations/01-how-a-request-travels.md): from typing `google.com` to the server's front door: NAT, DNS, TCP, TLS, HTTP, gateway
+- [How a request travels](docs/00-foundations/01-how-a-request-travels.md): from typing `google.com` to the server's front door: NAT, DNS, TCP, TLS, HTTP, gateway; how to read `dig`, `curl -v` and `traceroute` output
 
 ## Concepts
 

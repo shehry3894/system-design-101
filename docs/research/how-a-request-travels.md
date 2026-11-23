@@ -219,6 +219,22 @@ Status codes [RFC 9110 §15]:
   - It sends probes with a small IP TTL (starting at 1, then increasing) and listens for ICMP "time exceeded" from each gateway. [traceroute(8)]
   - Each line shows the hop number, the gateway address and the round-trip time of each probe. A `*` means no reply within the timeout. [traceroute(8)]
   - The IP TTL here is a hop limit, not the DNS TTL from stage 3. [RFC 791 §2.3 "time to live"; traceroute(8)]
+  - It sends three probes per hop by default (`-q nqueries`, "default is three probes"), so each hop shows up to three times. [traceroute(8)]
+
+### Reading the output (added 2026-11-23, after the owner ran all three)
+
+- **Why `dig +trace` showed only `Received 17 bytes`.**
+  - A DNS message header is six 16-bit fields, 12 bytes. [RFC 1035 §4.1.1] The question is the name, then a 16-bit type and a 16-bit class. [RFC 1035 §4.1.2] The root name is one zero-length label, 1 byte. [RFC 1035 §3.1] So 12 + 1 + 2 + 2 = 17 bytes is a reply with no records at all.
+  - Observed on 2026-11-23 from the owner's network: a non-recursive query for the root's servers got the same `SERVFAIL` with flags `qr ra ad` from the home router, from 1.1.1.1, from 8.8.8.8 and from a root server's own address (198.41.0.4). The same reply from four different servers means one device on the path answered all UDP DNS queries itself.
+  - The same query over TCP to 198.41.0.4 got a real referral (13 `com.` NS records). `+tcp` makes dig use TCP instead of UDP; `@server` picks the server to ask. [dig(1) `+[no]tcp`, `server`]
+  - `dig +trace +tcp @198.41.0.4 google.com` then completed: root → `com` (`a`–`m.gtld-servers.net`) → `ns1`–`ns4.google.com` → six A records with TTL 300. 198.41.0.4 is `a.root-servers.net`, run by Verisign. [IANA Root Servers]
+- **`(304)` in curl's TLS lines is not HTTP 304.**
+  - curl prints a TLS version name; when it has no name for the version number, it prints the number in hexadecimal: `msnprintf(unknown, sizeof(unknown), "(%x)", ssl_ver)`. [curl 8.7.1 source, `lib/vtls/openssl.c`]
+  - macOS's `/usr/bin/curl` 8.7.1 is built with LibreSSL 3.3.6 and printed `(304)` in a rerun on 2026-11-23.
+  - 0x0304 is the TLS 1.3 version number. [RFC 8446 §4.2.1]
+- **`ALPN: server accepted h2`.** ALPN (Application-Layer Protocol Negotiation) is a TLS extension that lets the two sides agree, inside the TLS handshake, which application protocol to use. [RFC 7301, Abstract] `h2` is the ALPN identifier for HTTP/2 over TLS. [RFC 9113 §3.1]
+- **`:method`, `:scheme`, `:authority`, `:path`.** These are HTTP/2 request pseudo-header fields. `:authority` carries the authority part of the target URI. [RFC 9113 §8.3.1] It replaces `Host` in HTTP/2. [RFC 9110 §7.2]
+- **`HTTP/2 301` with `location: https://www.google.com/`.** 301 means the resource has a new permanent URI. [RFC 9110 §15.4.2] With a `Location` field, a user agent "MAY automatically redirect its request" to that URI. [RFC 9110 §15.4]
 
 ## Open questions
 
@@ -227,7 +243,7 @@ Status codes [RFC 9110 §15]:
 - **Which DNS record types the browser asks for** (A, AAAA, HTTPS/SVCB). Not researched. RFC 9460 would be the source for HTTPS records.
 - **Browser and OS caches before the stub resolver.** RFC 1034 §5.3.3 says check "local information" first, but browser-specific DNS caches are not in any RFC read here.
 - **IPv6.** This note covers IPv4 private addresses and NAT only. IPv6 (RFC 4291, RFC 8200) is not covered.
-- **HTTP/2 and HTTP/3.** curl negotiated HTTP/2 via ALPN. ALPN (RFC 7301) and HTTP/2 (RFC 9113) and QUIC/HTTP/3 (RFC 9000, RFC 9114) were not read. With HTTP/3, stages 4 and 5 merge (QUIC runs over UDP), which is not verified here.
+- **HTTP/2 and HTTP/3.** curl negotiated HTTP/2 via ALPN. On 2026-11-23, RFC 7301's abstract and RFC 9113 §3.1 and §8.3.1 were read (see Try it); the rest of HTTP/2 and QUIC/HTTP/3 (RFC 9000, RFC 9114) were not. With HTTP/3, stages 4 and 5 merge (QUIC runs over UDP), which is not verified here.
 - **SNI.** `server_name` is defined in RFC 6066 §3, which was not read. Only RFC 8446 §4.4.2.2 was read.
 - **Root server count.** IANA lists 13 named authorities backed by "hundreds of servers". The anycast mechanism behind that was not researched.
 - **Cloudflare cross-check.** https://www.cloudflare.com/learning/dns/what-is-dns/ returned HTTP 403 to the fetch tool. No vendor cross-check was done.
@@ -241,9 +257,11 @@ Status codes [RFC 9110 §15]:
 - RFC 2663, NAT Terminology and Considerations: https://www.rfc-editor.org/rfc/rfc2663.txt
 - RFC 3022, Traditional NAT: https://www.rfc-editor.org/rfc/rfc3022.txt
 - RFC 6335, IANA port number procedures: https://www.rfc-editor.org/rfc/rfc6335.txt
+- RFC 7301, TLS Application-Layer Protocol Negotiation (ALPN): https://www.rfc-editor.org/rfc/rfc7301.txt
 - RFC 8446, TLS 1.3: https://www.rfc-editor.org/rfc/rfc8446.txt
 - RFC 9110, HTTP Semantics: https://www.rfc-editor.org/rfc/rfc9110.txt
 - RFC 9112, HTTP/1.1: https://www.rfc-editor.org/rfc/rfc9112.txt
+- RFC 9113, HTTP/2: https://www.rfc-editor.org/rfc/rfc9113.txt
 - RFC 9293, TCP: https://www.rfc-editor.org/rfc/rfc9293.txt
 - RFC 9499, DNS Terminology: https://www.rfc-editor.org/rfc/rfc9499.txt
 - ICANN, Information for Domain Name Registrants: https://www.icann.org/registrants
@@ -252,5 +270,6 @@ Status codes [RFC 9110 §15]:
 - ICANN, What Does ICANN Do?: https://www.icann.org/resources/pages/what-2012-02-25-en
 - IANA, Root Servers: https://www.iana.org/domains/root/servers
 - curl manual: https://curl.se/docs/manpage.html
+- curl 8.7.1 source, `lib/vtls/openssl.c`: https://github.com/curl/curl/blob/curl-8_7_1/lib/vtls/openssl.c
 - Local man pages: dig(1) (BIND 9.10.6), traceroute(8) (macOS)
 - Attempted, failed (403): https://www.cloudflare.com/learning/dns/what-is-dns/

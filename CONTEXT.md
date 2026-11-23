@@ -68,6 +68,8 @@ _Avoid_: NAPT, Network Address Port Translation (when the difference doesn't mat
 
 **TLS** (Transport Layer Security): Encrypts and authenticates the connection.
 
+**ALPN** (Application-Layer Protocol Negotiation): The part of the TLS handshake where both sides agree which protocol, such as HTTP/2, runs on the connection.
+
 **HTTP request** (Hypertext Transfer Protocol): A method (like `GET`) plus a target, headers and an optional body.
 
 **Gateway**: A server in front of the real servers that forwards requests to them. Load balancing is one of its jobs.
