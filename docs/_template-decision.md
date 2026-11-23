@@ -10,24 +10,33 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 <1–2 sentences: what has to be decided, and why it matters.>
 
 ## The options
-<Alphabetical order. Every option gets exactly these four bullets, about the same length. No "best" or "fastest" unless quoted from a source.>
+<Alphabetical order. Every option gets exactly these five bullets, about the same length. No "best" or "fastest" unless quoted from a source.>
 
 ### <Option A>
+- **In real life:** <one everyday analogy, in our own words; one setting (e.g. a restaurant) across the whole page group; no citation>
 - **What it is:** <one sentence, in its own source's words> [source]
 - **Pros:** <2–3 short points> [source]
 - **Cons:** <2–3 short points> [source]
 - **Use when:** <one sentence> [source]
 
 ## Compare
+<Each row is a question a developer asks. Each cell gives a concrete example where one exists, e.g. `GET /orders/42`. Over about 8 rows? Split into the two tables below.>
+
+### Design
 | | <A> | <B> | <C> |
 |---|---|---|---|
-| <property> | <cell> | <cell> | <cell> |
+| <what you build: contract, payload, ...> | <cell> | <cell> | <cell> |
+
+### Run
+| | <A> | <B> | <C> |
+|---|---|---|---|
+| <how it behaves in production: errors, timeouts, ...> | <cell> | <cell> | <cell> |
 
 ## Surprises
-- <A fact most people get wrong, with its source.>
+- <A fact most developers get wrong, with its source. About one per option. Never a reply to a video or other shared material.>
 
-## The picture
-<One Mermaid diagram: the same task done each way.>
+## Same task, each way
+<One Mermaid diagram of the same task done each way. Then the smallest code for each option, run once before it goes on the page.>
 
 ## Try it
 <At most 3 commands, with their output.>

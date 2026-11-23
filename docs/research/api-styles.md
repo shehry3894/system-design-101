@@ -837,6 +837,30 @@ Strawberry (GraphQL):
 - URL: https://modelcontextprotocol.io/docs/getting-started/intro , which redirects to the versioned https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro .
 - This wording differs from the spec Overview wording our page quotes ("an open protocol…"). Both are MCP's own pages. [MCP docs intro; MCP spec, Overview]
 
+### 9.10 Where each page cell comes from
+
+The API styles page has a Design table and a Run table. Rows that repeat a §5 row cite §5. "Derived" means no source says it in those words. Order on each line: GraphQL / gRPC / REST.
+
+Design:
+
+- **What you design:** types and fields [GraphQL spec §3] / services and methods [grpc.io Core concepts] / resources and standard methods [RFC 9110 §3.1, §9.1]. The examples `Order.totalCents`, `Orders.GetOrder` and `GET /orders/42` come from the page's own snippets (§9.8).
+- **Contract:** §5 "Contract / IDL" and "Code generation". `/openapi.json` [FastAPI First Steps].
+- **Payload:** §5 "Payload format".
+- **Response shape:** §5 "Response shape".
+- **Call types:** query, mutation, subscription [GraphQL spec §2.4] / four call kinds [grpc.io Core concepts] / one request, one response; REST is pull-based [Fielding 2000 §5.4]; SSE for push [HTML §9.2.1].
+- **Changing the API:** add fields, `@deprecated`, avoid versions [graphql.org/learn/schema-design; GraphQL spec §3.6.2] / new numbers, never reuse one (§9.7) [protobuf.dev proto3 guide] / Google path vs Azure query parameter (§9.6).
+
+Run:
+
+- **Transport, From a browser, HTTP caching, Python library:** §5, same rows.
+- **Errors:** §5 "Error model". `NOT_FOUND` (§9.1). `404 Not Found` [RFC 9110 §15.5.5].
+- **Auth:** middleware before GraphQL [graphql.org/learn/authorization] / metadata `authorization: Bearer <token>` (§9.2) / `Authorization: Bearer <token>` [RFC 6750 §2.1].
+- **Timeouts:** GraphQL "same as REST", because it runs over an HTTP client (derived from §9.3) / deadline sent as `grpc-timeout`, none by default (§3) [gRPC HTTP/2 protocol; grpc.io Deadlines] / HTTPX 5 s, Requests no limit (§9.3).
+- **Debugging:** GraphiQL; Strawberry serves it by default (§9.5) / grpcurl with reflection or `.proto` files (§9.5) / curl [curl man page]; a browser can send GET (derived).
+- **Health checks:** GraphQL "same as REST", because a Strawberry app is a FastAPI app (derived) / `grpc.health.v1.Health` (§9.4) / no standard; Kubernetes examples use `/healthz` (§9.4).
+
+Surprise on the page: "Changing the field number is equivalent to deleting the field and adding a new field" [protobuf.dev proto3 guide, "Binary Wire-unsafe Changes"]; names travel in JSON and text format, so renames break those [protobuf.dev Proto Best Practices] (§9.7).
+
 ## Open questions
 
 - **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
