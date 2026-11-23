@@ -1064,6 +1064,64 @@ Outside this page's scope (one line each):
 
 Pages read for the facts above: home, features, async (top and `async def` rules), tutorial/first-steps, path-params, query-params, handling-errors, response-status-code, header-params, cors, middleware, metadata, testing, debugging, background-tasks, bigger-applications, server-sent-events, stream-json-lines; tutorial/security (index, first-steps, get-current-user, simple-oauth2, oauth2-jwt); advanced/stream-data, custom-response, additional-status-codes, additional-responses, response-headers, behind-a-proxy, websockets, events, openapi-callbacks, openapi-webhooks, generate-clients, strict-content-type, request-body-limits, json-base64-bytes, sub-applications, settings, opentelemetry, middleware, security (index, http-basic-auth, oauth2-scopes); fastapi-cli; deployment/concepts, server-workers, versions, https; how-to/graphql, conditional-openapi, extending-openapi, separate-openapi-schemas, configure-swagger-ui, authentication-error-status-code, custom-request-and-route; reference/sse, status, exceptions, security, fastapi, openapi (docs, models). Long pages (async, security/oauth2-jwt, deployment/concepts) were read for the bearing parts and grepped for the focus terms.
 
+## 10. REST and gRPC pages (2026-11-23)
+
+Facts the REST and gRPC concept pages need that §1–9 lack. Everything else on those pages comes from §2, §3 and §9. Read on 2026-11-23.
+
+REST methods:
+
+- PUT "requests that the state of the target resource be created or replaced" with the enclosed representation. [RFC 9110 §9.3.4]
+- POST asks the target resource to process the enclosed representation "according to the resource's own specific semantics", for example to create a resource the server has not yet named. [RFC 9110 §9.3.3]
+- PATCH is defined in a separate RFC. It applies "partial modifications to a resource", because PUT overwrites the whole resource. [RFC 5789 §1]
+- "PATCH is neither safe nor idempotent". [RFC 5789 §2]
+- So of GET, POST, PUT, PATCH and DELETE, only GET is safe, and GET, PUT and DELETE are idempotent. [derived from RFC 9110 §9.2.1, §9.2.2 and RFC 5789 §2]
+
+REST status codes (§9.1 already has 404; §2 has the classes):
+
+- 201 Created: the request created one or more new resources. A `Location` header, or else the target URI, identifies the main one. [RFC 9110 §15.3.2]
+- 204 No Content: the request succeeded and there is no content to send. [RFC 9110 §15.3.5]
+- 304 Not Modified: a conditional GET would have returned 200, but the client "already has a valid representation". [RFC 9110 §15.4.5]
+- 400 Bad Request: the server will not process the request because of "something that is perceived to be a client error", such as malformed syntax. [RFC 9110 §15.5.1]
+- 401 Unauthorized: the request "lacks valid authentication credentials". The server MUST send a `WWW-Authenticate` header. [RFC 9110 §15.5.2]
+- 422 Unprocessable Content: the server understands the content type and the syntax is correct, but it "was unable to process the contained instructions". [RFC 9110 §15.5.21]
+- 500 Internal Server Error: "an unexpected condition" stopped the server. [RFC 9110 §15.6.1]
+- FastAPI sets the success code on the decorator, e.g. `@app.post("/items/", status_code=201)`. [FastAPI Response Status Code]
+
+REST caching:
+
+- `ETag` carries an entity tag: "an opaque validator" for one representation of a resource. [RFC 9110 §8.8.3]
+- `If-None-Match` makes a request conditional on the client's stored entity tag no longer matching. [RFC 9110 §13.1.2] If it still matches, a GET gets 304. [RFC 9110 §15.4.5]
+- `Cache-Control: max-age=5` means the response becomes stale after 5 seconds. [RFC 9111 §5.2.2.1]
+
+gRPC streaming in Python:
+
+- A response-streaming method on the server is a generator: it "yields zero or more responses". [grpc.io Python Basics, "Response-streaming RPC"]
+- The client calls it like a sequence: `for feature in stub.ListFeatures(rectangle):`. Each `next()` blocks until the next response arrives. [grpc.io Python Basics, "Calling service methods"]
+- A deadline set on such a call also ends the stream: our scratch test got `DEADLINE_EXCEEDED` from a stream slower than its timeout. (derived from a run, 2026-11-23; see §3 on deadlines)
+
+SOAP (few lines on the API styles page):
+
+- A SOAP message is an `env:Envelope` with an optional `env:Header` and a mandatory `env:Body`. [SOAP 1.2 Part 0 §2.1]
+- SOAP is "silent on" routing, "reliable data transfer" and firewall traversal, but gives a framework for carrying application data "in an extensible manner". [SOAP 1.2 Part 0 §1.1]
+- Header blocks are the extension point; intermediaries on the path may process them. The header is optional. [SOAP 1.2 Part 0 §1.1, §2.1, §3]
+- SOAP can carry RPCs; the Primer's example is a travel reservation. [SOAP 1.2 Part 0 §2.2.2]
+- Use when the other side already speaks SOAP. (derived; no source read states when to choose SOAP)
+
+JSON-RPC 2.0 (few lines on the API styles page):
+
+- Example: `{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}` gets `{"jsonrpc": "2.0", "result": 19, "id": 1}`. [JSON-RPC 2.0 §7]
+- A notification is a request without an `id`; the server MUST NOT reply. [JSON-RPC 2.0 §4.1]
+- A batch is an array of requests; responses may come back in any order, matched by `id`. [JSON-RPC 2.0 §6]
+- Errors use fixed codes, e.g. `-32601` "Method not found". [JSON-RPC 2.0 §5.1]
+- The spec defines no schema or contract file. (derived: the spec has none)
+- Users: the Language Server Protocol "uses JSON-RPC to describe requests, responses and notifications" [LSP 3.17, "Base Protocol"]; MCP uses JSON-RPC 2.0 [MCP spec, Overview].
+
+MCP (pros and cons on the API styles page):
+
+- Pro: "build once and integrate everywhere": AI assistants and developer tools across vendors support it. [MCP docs, What is MCP?, "Broad ecosystem support"]
+- Pro: for developers it "reduces development time and complexity" when building or integrating with an AI app. [same, "Why does MCP matter?"]
+- Con: "Tools represent arbitrary code execution and must be treated with appropriate caution"; hosts must get explicit user consent before calling them. [MCP spec, "Security and Trust & Safety"]
+
 ## Open questions
 
 - **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
@@ -1247,3 +1305,15 @@ Added for §9.12 and §9.13, all read on 2026-11-23:
 - graphql.org Learn, all 29 pages: https://graphql.org/learn/ (index). New for §9.12: queries, mutations, validation, response, thinking-in-graphs, file-uploads, error-handling, global-object-identification, federation, robust-applications, debug-errors (Common HTTP Errors and How to Debug Them), naming-design, schema-review, governance-ownership, governance-tooling, governance-versioning (Schema Change Management), each at https://graphql.org/learn/<name>/
 - graphql.org FAQ (re-read): https://graphql.org/faq/
 - FastAPI docs, 154 pages from the home page nav: https://fastapi.tiangolo.com/ . Read in full or for the bearing parts (§9.13 lists them): tutorial/server-sent-events, stream-json-lines, path-operation-configuration, query-params, query-params-str-validations, cors, metadata, security/* ; advanced/stream-data, generate-clients, websockets, request-body-limits, strict-content-type, openapi-webhooks, openapi-callbacks, behind-a-proxy, sub-applications, opentelemetry ; fastapi-cli ; deployment/concepts, versions ; how-to/authentication-error-status-code, extending-openapi, conditional-openapi, separate-openapi-schemas ; reference/sse, status, security, fastapi, openapi ; release-notes (versions 0.122.0 to 0.165.0). Each at https://fastapi.tiangolo.com/<path>/
+
+Added for §10, all read on 2026-11-23:
+
+- RFC 5789: PATCH Method for HTTP: https://www.rfc-editor.org/rfc/rfc5789
+- RFC 9110 §8.8.3, §9.3.3, §9.3.4, §13.1.2, §15.3.2, §15.3.5, §15.4.5, §15.5.1, §15.5.2, §15.6.1 (already listed above)
+- RFC 9111 §5.2.2.1 (already listed above)
+- FastAPI, Response Status Code: https://fastapi.tiangolo.com/tutorial/response-status-code/
+- grpc.io, Python Basics (re-read for streaming): https://grpc.io/docs/languages/python/basics/
+- SOAP Version 1.2 Part 0: Primer (Second Edition), W3C Recommendation 27 April 2007: https://www.w3.org/TR/soap12-part0/
+- JSON-RPC 2.0 §4.1, §5.1, §6, §7 (already listed above)
+- Language Server Protocol 3.17, Base Protocol: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
+- MCP specification, Overview, "Security and Trust & Safety": https://modelcontextprotocol.io/specification/latest
