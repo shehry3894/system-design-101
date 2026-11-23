@@ -1072,6 +1072,8 @@ REST methods:
 
 - PUT "requests that the state of the target resource be created or replaced" with the enclosed representation. [RFC 9110 §9.3.4]
 - POST asks the target resource to process the enclosed representation "according to the resource's own specific semantics", for example to create a resource the server has not yet named. [RFC 9110 §9.3.3]
+- DELETE asks the server to "remove the association between the target resource and its current functionality". [RFC 9110 §9.3.5]
+- 200 OK: the request succeeded. [RFC 9110 §15.3.1]
 - PATCH is defined in a separate RFC. It applies "partial modifications to a resource", because PUT overwrites the whole resource. [RFC 5789 §1]
 - "PATCH is neither safe nor idempotent". [RFC 5789 §2]
 - So of GET, POST, PUT, PATCH and DELETE, only GET is safe, and GET, PUT and DELETE are idempotent. [derived from RFC 9110 §9.2.1, §9.2.2 and RFC 5789 §2]
