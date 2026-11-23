@@ -1,7 +1,7 @@
 # Research: API styles
 
 Scope: which API styles exist; how REST, gRPC and GraphQL compare (features, strengths and weaknesses, when to use each for browser/public APIs vs service-to-service, payload format and size: JSON vs Protocol Buffers); the Python libraries we will use for each.
-Out of scope: auth design beyond which header carries credentials (§9.2), API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers (our own script, `examples/communication/request_payload_size.py`, measures sizes).
+Out of scope: auth design beyond which header carries credentials (§9.2), API gateways, service meshes, HTTP/3, GraphQL federation, gRPC load balancing, and benchmark numbers from others (our own scripts measure size, `examples/communication/request_payload_size.py`, and encode/decode time, `examples/communication/request_encode_speed.py`; see §12).
 
 Every claim is followed by its source in brackets. Sources read on 2026-11-22; §9 was read on 2026-11-23. RFCs were read as plain text from rfc-editor.org. Editions and versions are listed under Sources.
 
@@ -1144,9 +1144,27 @@ The owner asked why most "REST" APIs have no links, and for the pros and cons of
 - **Use when (as the sources frame it).** Zalando expects hypermedia to give value "more likely in the frontend and human facing service domain"; it requires level 2 for its service-to-service APIs. [Zalando, "MUST use REST maturity level 2", "MAY use REST maturity level 3"] GitHub uses links in a public API so clients survive future upgrades. [GitHub Docs]
 - **Derived (our reading):** everyday REST's matching con is the inverse of strict REST's main pro: a client that builds URLs from the docs breaks when a URL changes.
 
+## 12. Encode and decode speed (2026-11-23)
+
+The owner asked "what about speed?". No primary source gives JSON vs Protobuf speed numbers (§6, Open questions), so we measured our own order.
+
+- protobuf.dev says Protobuf is "like JSON, except it's smaller and faster", with no numbers. [protobuf.dev Overview]
+- Python Protobuf has three backends with "the same API" but "very different performance characteristics": `upb` (C, the default since 4.21.0, "better performance than any of the previous backends"), `cpp` (deprecated, no longer in PyPI packages) and `python` (pure Python). The env var `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION` picks one; `api_implementation.Type()` reports it. [protobuf Python README, "Implementation backends"]
+- Our script `examples/communication/request_encode_speed.py` times 100,000 encodes and decodes of the same order (143 bytes JSON, 40 bytes Protobuf) with stdlib `json` and the `protobuf` library. The schema is built in code from `descriptor_pb2`, so no `protoc` step.
+- Results on 2026-11-23, Apple M1 Pro, Python 3.12.4, microseconds per call (measured; two repeat runs of `upb` agreed within 0.05 µs):
+
+| Backend | JSON encode | JSON decode | Protobuf encode | Protobuf decode |
+|---|---|---|---|---|
+| `upb` (protobuf 7.36.2, default) | 2.23 | 1.93 | 0.18 | 0.32 |
+| `cpp` (protobuf 3.20.3) | 2.34 | 1.97 | 1.47 | 0.84 |
+| `python` (protobuf 7.36.2, forced) | 2.31 | 2.66 | 7.48 | 12.57 |
+
+- **Derived:** with `upb`, Protobuf encodes about 12× and decodes about 6× faster than JSON for this message; with the pure-Python backend it is 3–5× slower. So "Protobuf is faster" depends on the library, not only the format.
+- **Not measured:** full calls (network, HTTP/2 framing, server work), other languages, larger or nested messages, `orjson` or other JSON libraries.
+
 ## Open questions
 
-- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
+- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our scripts measure size (`request_payload_size.py`) and encode/decode time (`request_encode_speed.py`, §12) for our own message. Full-call speed (REST vs gRPC) is still unmeasured.
 - **"REST" in our pages.** Answered: pages say "REST" in the everyday sense, and the REST page compares strict and everyday REST (§11).
 - **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Provider guidelines were read on 2026-11-23 (§9.6): Google puts the major version in the path, Azure forbids that and uses an `api-version` query parameter. No standards-body rule was found.
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.
@@ -1208,6 +1226,7 @@ gRPC and Protobuf:
 - protobuf.dev, Protobuf Basics: Python: https://protobuf.dev/getting-started/pythontutorial/
 - protobuf.dev, Protobuf Compiler Installation: https://protobuf.dev/installation/
 - PyPI, `protobuf` project: https://pypi.org/project/protobuf/
+- protobuf GitHub, Python README ("Implementation backends"), read 2026-11-23: https://github.com/protocolbuffers/protobuf/blob/main/python/README.md
 - RFC 9113, HTTP/2 (June 2022; obsoletes RFC 7540 and 8740): https://www.rfc-editor.org/rfc/rfc9113.txt
 - RFC 7541, HPACK: Header Compression for HTTP/2 (May 2015): https://www.rfc-editor.org/rfc/rfc7541.txt
 

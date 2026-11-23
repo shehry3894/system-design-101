@@ -56,3 +56,4 @@ The prefix is the communication style: `request_` (the caller waits for the answ
 | File | One line |
 |---|---|
 | [request_payload_size.py](communication/request_payload_size.py) | The same order as JSON (143 bytes) and as Protobuf (40 bytes) |
+| [request_encode_speed.py](communication/request_encode_speed.py) | Encode/decode time for the same order, JSON vs Protobuf (needs `pip install protobuf`) |
