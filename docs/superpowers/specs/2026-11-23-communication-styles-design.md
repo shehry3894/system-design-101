@@ -45,12 +45,13 @@ My calls (the owner can change any of them):
   |---|---|
   | `00-overview.md` | Communication styles: request-response, server push, messaging |
   | `01-api-styles.md` | API styles: GraphQL, gRPC, REST |
-  | `02-server-push.md` | Server push: SSE, webhooks, WebRTC, WebSocket |
-  | `03-messaging.md` | Messaging: AMQP, Kafka, MQTT |
+  | `02-rest.md`, `03-grpc.md` | REST and gRPC in depth (added 2026-11-23, see [the REST and gRPC pages design](2026-11-23-rest-grpc-pages-design.md)) |
+  | `04-server-push.md` | Server push: SSE, webhooks, WebRTC, WebSocket |
+  | `05-messaging.md` | Messaging: AMQP, Kafka, MQTT |
 
   - `01-api-styles.md` also gives SOAP and JSON-RPC one line each.
   - `01-api-styles.md` gives **MCP (Model Context Protocol)** a short section of its own (the owner asked for it): what it is, JSON-RPC 2.0 underneath, its two transports, and when to build an MCP server. MCP stays out of the comparison table: it connects AI apps to tools, not any client to any backend.
-  - `03-messaging.md` opens with event-driven architecture and ends with AsyncAPI in one line.
+  - `05-messaging.md` opens with event-driven architecture and ends with AsyncAPI in one line.
 - **Decision-page template:** a new `docs/_template-decision.md` with these sections:
   1. The problem.
   2. The options: the same four lines for each option (what it is, pros, cons, use when).

@@ -75,7 +75,7 @@ _Avoid_: Reverse proxy (same thing; we say gateway)
 
 ## Communication styles
 
-Taught in [Communication styles](docs/concepts/communication/00-overview.md) and [API styles](docs/concepts/communication/01-api-styles.md). Sources: [hub research note](docs/research/communication-styles.md), [API styles research note](docs/research/api-styles.md).
+Taught in [Communication styles](docs/concepts/communication/00-overview.md), [API styles](docs/concepts/communication/01-api-styles.md), [REST](docs/concepts/communication/02-rest.md) and [gRPC](docs/concepts/communication/03-grpc.md). Sources: [hub research note](docs/research/communication-styles.md), [API styles research note](docs/research/api-styles.md).
 
 **Communication style**: How two programs exchange messages. This repo uses three groups: request-response, server push and messaging.
 _Avoid_: API style (that is one group only), protocol (HTTP, MQTT and so on are protocols)
@@ -120,3 +120,30 @@ _Avoid_: Proto (when you mean the format, not the `.proto` file)
 **Server reflection**: A gRPC service that lists a server's Protobuf APIs, so tools such as `grpcurl` can call it without the `.proto` file.
 
 **Health check**: A request that asks whether a service can serve traffic. gRPC has a standard health service; HTTP has no standard one.
+
+**Resource**: Anything that can be named, such as an order. In REST, each resource has a URI.
+
+**URI** (Uniform Resource Identifier): The name of a resource, e.g. `/orders/1`.
+_Avoid_: URL, endpoint (when you mean the resource's name)
+
+**Representation**: The bytes a server sends to show a resource's state, in a media type such as JSON.
+
+**Safe method**: An HTTP method that only reads, such as GET.
+
+**Idempotent method**: An HTTP method with the same effect sent once or many times, such as PUT or DELETE, so a client may repeat it.
+
+**Status code**: A number that says how a call went. HTTP uses three digits, and the first is the class (e.g. 404). gRPC has 17 codes, sent in trailers.
+
+**Stateless**: Each request carries everything the server needs; the server keeps no session between requests.
+
+**ETag** (entity tag): A label for one version of a resource. The client sends it back in `If-None-Match`, and gets 304 if nothing changed.
+
+**OpenAPI**: A standard format that describes an HTTP API. FastAPI generates it at `/openapi.json`.
+
+**Stub**: The client-side object generated from a `.proto` file. Calling its methods makes gRPC calls.
+
+**Servicer**: The server-side class generated from a `.proto` file. In Python you subclass it to implement the service.
+
+**Streaming RPC**: A gRPC call where one or both sides send a sequence of messages: server, client or bidirectional streaming.
+
+**Trailers**: Fields sent after the message body. gRPC puts its status there, in `grpc-status`.

@@ -15,12 +15,12 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Hub research done from official docs: [docs/research/communication-styles.md](research/communication-styles.md). It classifies all 15 and checks 21 of the video's claims (several fail).
 - Design written: [2026-11-23-communication-styles-design.md](superpowers/specs/2026-11-23-communication-styles-design.md) (umbrella term "communication style", file names, a decision-page template, order).
 - The owner approved the design on 2026-11-23 and asked where MCP was. MCP now gets its own short section on the API styles page; it stays out of the comparison table (it connects AI apps to tools).
-- Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP; from the rework: introspection, metadata, deadline, server reflection, health check).
+- Glossary terms resolved and added to `CONTEXT.md` (communication style, request-response, server push, messaging, API style, HTTP API, REST, RPC, MCP; from the rework: introspection, metadata, deadline, server reflection, health check; from the REST and gRPC pages: resource, URI, representation, safe method, idempotent method, status code, stateless, ETag, OpenAPI, stub, servicer, streaming RPC, trailers).
 - Plan written: [2026-11-23-communication-styles-hub.md](superpowers/plans/2026-11-23-communication-styles-hub.md) (4 tasks: example, API styles page + template, hub, indexes).
 - The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green. A fresh reviewer then checked the whole change; its fixes are in (wording of the `-2` surprise, a `.proto` con, abbreviations, WebRTC marked peer-to-peer, stale paths), and everything is pushed.
   - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
   - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
-- The owner reviewed the two pages on 2026-11-23, and the rework from that review is built (below). The next page is "Server push" (`02-server-push.md`). It needs its own deep research note first, and it waits for the owner's go.
+- The owner reviewed the two pages on 2026-11-23, and the rework from that review is built (below). The next page is "Server push" (`04-server-push.md`, renumbered from `02`). It needs its own deep research note first, and it waits for the owner's go.
 - 2026-11-23: the owner said "fix minors first", and all 7 minor review notes are fixed. Groups are now in alphabetical order, our own terms are flagged as ours, page 01 has a REST surprise, and the example skips proto3 default values and sends UTF-8 JSON. (The hub's surprises were failing video claims then; the rework replaced them with sourced facts.)
 - Carry over to the messaging page: the smallest MQTT packet (`PINGREQ`) is 2 bytes [MQTT 5.0 §3.12]. The RabbitMQ AMQP 0-9-1 fact is back on the hub as a surprise.
 - Video claims not used on any page: #3 (the GraphQL name), #11 (AMQP "older sibling"), #15 (Kafka per second) and #20 (gRPC at Netflix and Uber). Their verdicts are only "no source" or "not found", too weak for a surprise.
@@ -45,7 +45,10 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - Strawberry's docs have not had a full survey; only the pages the snippets needed were read. The owner said "Not now" and paused further surveys.
 - 2026-11-23: the owner asked for **separate REST and gRPC pages**, since they are "the main ones to be understood better". The other request-response items get a few lines each (example, pros, cons, use when). Scope: "Request-response only", so SOAP, JSON-RPC and MCP get the few lines on page 01, and server push and messaging keep their own pages (renumbered to `04` and `05`).
   - Design approved: [2026-11-23-rest-grpc-pages-design.md](superpowers/specs/2026-11-23-rest-grpc-pages-design.md).
-  - Plan written: [2026-11-23-rest-grpc-pages.md](superpowers/plans/2026-11-23-rest-grpc-pages.md) (7 tasks). **Waiting on the owner:** plan review and the execution method.
+  - Plan written: [2026-11-23-rest-grpc-pages.md](superpowers/plans/2026-11-23-rest-grpc-pages.md) (7 tasks); the owner chose native execution.
+  - Built on 2026-11-23: [REST](concepts/communication/02-rest.md) and [gRPC](concepts/communication/03-grpc.md) concept pages, each with a Mermaid diagram, numbered "How it works" steps, folded code that was run once in a scratch virtual environment, and real Try-it output. Page 01 links to both and gives JSON-RPC and SOAP an example, pros, cons and use-when; MCP gained pros and cons. New facts are in the research note §10; new glossary terms are in `CONTEXT.md`.
+  - The REST example sets `Location` on 201 (RFC 9110 §15.3.2). Its Try-it output was captured on port 8001, because Docker holds port 8000 on the owner's machine. grpcurl is not installed, so the gRPC Try-it uses the Python client.
+  - Server push and messaging are renumbered to `04-server-push.md` and `05-messaging.md`.
 
 ## Decisions the owner made
 
@@ -64,6 +67,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Material the owner shares (videos, other agents' answers) guides topics and layout only. It is never a source, and pages are not shaped around its claims.
 - **Keep everything short.** The owner finds long text tiring, so chat replies, pages and comments must all be brief.
 - On decision pages, code folds into `<details>` blocks (2026-11-23), so the page reads short and the code is a click away.
+- **REST and gRPC get their own concept pages** (2026-11-23), because they are "the main ones to be understood better". The other request-response items get a few lines each (example, pros, cons, use when) on the API styles page. Further doc surveys are paused (Strawberry: "Not now").
 - Example naming: the prefix shows the purpose.
   - `concurrency/`: `lock_`, `limit_`, `wait_`.
   - `patterns/`: `creational_`, then `structural_` and `behavioral_`.
@@ -95,7 +99,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
    6. ~~Code `examples/communication/request_payload_size.py`.~~ Done.
    7. ~~Update `CONTEXT.md`, `README.md`, `llms.txt`, the spec and this file.~~ Done.
    8. ~~Rework from the owner's review (analogies, two tables, same call in code).~~ Done.
-   9. **Now:** `02-rest.md` and `03-grpc.md`, plus few lines for SOAP, JSON-RPC and MCP on page 01 (plan above, waiting on the owner's plan review).
+   9. ~~`02-rest.md` and `03-grpc.md`, plus few lines for SOAP, JSON-RPC and MCP on page 01.~~ Done.
    10. **After that, when the owner says go:** `04-server-push.md`, then `05-messaging.md`, each with its own deep research note.
 2. Proposed order after that: password hashing (bcrypt vs scrypt vs Argon2id), sessions vs tokens (JWT), token signing (HS256 vs RS256), then database decisions.
 3. Separate task, when the owner says: `project/foodpanda/services/auth_service/GAPS.md` (bad practice, why it is bad, the fix, link to the concept page). The current list is in [project/foodpanda/README.md](../project/foodpanda/README.md).

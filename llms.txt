@@ -15,7 +15,9 @@
 ## Concepts
 
 - [Communication styles](docs/concepts/communication/00-overview.md): request-response, server push or messaging, each with a real-world analogy; all 15 common terms (REST to Kafka) by group
-- [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md): a real-world analogy for each, pros, cons, when to use each, design and run comparison tables, the same call in code, and MCP
+- [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md): a real-world analogy for each, pros, cons, when to use each, design and run comparison tables, the same call in code, and a few lines each on JSON-RPC, SOAP and MCP
+- [REST](docs/concepts/communication/02-rest.md): resources and URIs, methods (safe, idempotent), status codes, stateless requests, caching with ETag, OpenAPI, versioning, push with SSE, and a FastAPI orders example
+- [gRPC](docs/concepts/communication/03-grpc.md): RPC, the .proto contract, generated stub and servicer, four call types, HTTP/2 with the status in trailers, metadata, deadlines, retries, health and reflection, and a streaming example
 - [Decision page template](docs/_template-decision.md): the fixed section order for pages that compare options
 
 ## Project

@@ -1,6 +1,6 @@
 # Design: REST and gRPC concept pages
 
-Date: 2026-11-23. Status: **approved by the owner on 2026-11-23** ("Approve"). Short design (a small change on top of [the communication styles design](2026-11-23-communication-styles-design.md)).
+Date: 2026-11-23. Status: **approved by the owner on 2026-11-23** ("Approve"); built on 2026-11-23 ([plan](../plans/2026-11-23-rest-grpc-pages.md)). Short design (a small change on top of [the communication styles design](2026-11-23-communication-styles-design.md)).
 
 ## Why
 

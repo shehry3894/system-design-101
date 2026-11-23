@@ -40,7 +40,7 @@ flowchart TD
 - The client sends a request and waits for the reply. Examples: gRPC ("gRPC Remote Procedure Calls"), REST (Representational State Transfer). [microservices.io, RPI; grpc.io FAQ]
 - microservices.io calls this group Remote Procedure Invocation (RPI). [microservices.io, RPI]
 - Cost: both sides must be up for the whole call. [microservices.io, RPI]
-- Page: [API styles: GraphQL, gRPC, REST](01-api-styles.md). API means Application Programming Interface.
+- Pages: [API styles: GraphQL, gRPC, REST](01-api-styles.md), then [REST](02-rest.md) and [gRPC](03-grpc.md) in depth. API means Application Programming Interface.
 
 ### Server push
 - **In real life:** the counter hands you a pager, and it buzzes when your food is ready. You don't keep asking.
