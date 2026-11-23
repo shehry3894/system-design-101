@@ -42,7 +42,10 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - GraphQL: 2xx status beside partial data (Errors), no built-in file uploads (Payload), `curl` (Debugging).
   - REST: OpenAPI 3.1 and client generation (Contract), SSE built into FastAPI (Call types), `deprecated=True` (Changing the API), `{"detail": ...}` and `422` (Errors), Swagger UI at `/docs` (Debugging).
   - The open question on OpenAPI 3.2 is answered: FastAPI emits 3.1.0 only. graphql.org's own pages disagree on 422 for validation errors (§9.12; the page does not use it).
-  - Strawberry's docs have not had a full survey; only the pages the snippets needed were read.
+  - Strawberry's docs have not had a full survey; only the pages the snippets needed were read. The owner said "Not now" and paused further surveys.
+- 2026-11-23: the owner asked for **separate REST and gRPC pages**, since they are "the main ones to be understood better". The other request-response items get a few lines each (example, pros, cons, use when). Scope: "Request-response only", so SOAP, JSON-RPC and MCP get the few lines on page 01, and server push and messaging keep their own pages (renumbered to `04` and `05`).
+  - Design approved: [2026-11-23-rest-grpc-pages-design.md](superpowers/specs/2026-11-23-rest-grpc-pages-design.md).
+  - Plan written: [2026-11-23-rest-grpc-pages.md](superpowers/plans/2026-11-23-rest-grpc-pages.md) (7 tasks). **Waiting on the owner:** plan review and the execution method.
 
 ## Decisions the owner made
 
@@ -92,7 +95,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
    6. ~~Code `examples/communication/request_payload_size.py`.~~ Done.
    7. ~~Update `CONTEXT.md`, `README.md`, `llms.txt`, the spec and this file.~~ Done.
    8. ~~Rework from the owner's review (analogies, two tables, same call in code).~~ Done.
-   9. **Next, after the owner reviews the reworked pages and says go:** `02-server-push.md`, then `03-messaging.md`, each with its own deep research note.
+   9. **Now:** `02-rest.md` and `03-grpc.md`, plus few lines for SOAP, JSON-RPC and MCP on page 01 (plan above, waiting on the owner's plan review).
+   10. **After that, when the owner says go:** `04-server-push.md`, then `05-messaging.md`, each with its own deep research note.
 2. Proposed order after that: password hashing (bcrypt vs scrypt vs Argon2id), sessions vs tokens (JWT), token signing (HS256 vs RS256), then database decisions.
 3. Separate task, when the owner says: `project/foodpanda/services/auth_service/GAPS.md` (bad practice, why it is bad, the fix, link to the concept page). The current list is in [project/foodpanda/README.md](../project/foodpanda/README.md).
 
