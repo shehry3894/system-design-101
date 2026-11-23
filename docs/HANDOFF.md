@@ -20,10 +20,14 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - The owner chose native execution. The plan ran on 2026-11-23: all 4 tasks done, pages written, checks green. A fresh reviewer then checked the whole change; its fixes are in (wording of the `-2` surprise, a `.proto` con, abbreviations, WebRTC marked peer-to-peer, stale paths), and everything is pushed.
   - [Communication styles](concepts/communication/00-overview.md) (hub) and [API styles: GraphQL, gRPC, REST](concepts/communication/01-api-styles.md), with a [decision-page template](_template-decision.md).
   - Example: [request_payload_size.py](../examples/communication/request_payload_size.py) (JSON 143 bytes, Protobuf 40 bytes for one order).
-- **Waiting on the owner:** review the two pages. Then say go for the next page, "Server push" (`02-server-push.md`), which needs its own deep research note first.
+- The owner reviewed the two pages on 2026-11-23; the feedback is below. After the rework, the next page is "Server push" (`02-server-push.md`). It needs its own deep research note first, and it waits for the owner's go.
 - 2026-11-23: the owner said "fix minors first", and all 7 minor review notes are fixed. Groups are now in alphabetical order, our own terms are flagged as ours, page 01 has a REST surprise, the hub's surprises are now failing video claims (research note §6), and the example skips proto3 default values and sends UTF-8 JSON.
 - Carry over to the messaging page: two facts left the hub. The smallest MQTT packet (`PINGREQ`) is 2 bytes [MQTT 5.0 §3.12]. RabbitMQ was built for AMQP 0-9-1, which shares nothing at the wire level with AMQP 1.0 [RabbitMQ, Protocols].
 - Video claims not used on any page: #3 (the GraphQL name), #11 (AMQP "older sibling"), #15 (Kafka per second) and #20 (gRPC at Netflix and Uber). Their verdicts are only "no source" or "not found", too weak for a surprise.
+- 2026-11-23, owner review feedback:
+  - The video is not a source, and pages should not lean on its claims. It was shared to show missing topics and its good real-world analogies, such as ordering from a waiter, or asking for "just the salad" (GraphQL).
+  - The owner also shared another agent's REST vs gRPC table as a layout idea, not a source. Its rows are questions a developer asks, and its cells give concrete examples. Its rows for auth/metadata, timeouts, changing the API, debugging and health checks are missing from ours.
+  - **Waiting on the owner:** approval of a proposed rework of the hub and API styles page. The proposal adds a running restaurant analogy, splits the compare table into two, shows the same call written three ways, and replaces the hub surprises that rebut the video. New sources it needs: gRPC health checking, server reflection, and grpcurl.
 
 ## Decisions the owner made
 
@@ -38,6 +42,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Chat replies always use the `caveman` skill: brief, to the point, structured.
 - Sources: official or authoritative docs only. The owner's Google Doc "System Design" is a **topic list only**, never a source.
 - No HTML visual for non-visual ideas (e.g. KISS). Use a short code example instead.
+- **Real-world analogies** (2026-11-23): explain concepts with everyday examples, like a restaurant waiter, so they are easy to grasp and remember. We write them in our own words. Analogies need no source; facts still do.
+- Material the owner shares (videos, other agents' answers) guides topics and layout only. It is never a source, and pages are not shaped around its claims.
 - **Keep everything short.** The owner finds long text tiring, so chat replies, pages and comments must all be brief.
 - Example naming: the prefix shows the purpose.
   - `concurrency/`: `lock_`, `limit_`, `wait_`.
