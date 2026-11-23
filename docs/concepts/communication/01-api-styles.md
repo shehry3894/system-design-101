@@ -11,44 +11,44 @@ A client asks a server for work and waits for the answer. This is [request-respo
 An API (Application Programming Interface) style is the shape of those calls: how you name the work, and what the answer looks like. The term is ours; the sources don't define it.
 
 Two terms first:
-- **HTTP API**: any API whose messages travel over HTTP (Hypertext Transfer Protocol). All three styles below can run over HTTP, so this is the umbrella, not an option. [OpenAPI §2]
-- **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses "cannot be RESTful". Many APIs called REST skip the links. This page uses "REST" in the everyday sense. [Fielding 2008]
+- **HTTP API**: any API whose messages travel over HTTP (Hypertext Transfer Protocol). All three styles below can run over HTTP, so this is the umbrella, not an option.
+- **REST (Representational State Transfer), strictly**: Roy Fielding, who defined REST, says an API not driven by links in its responses ["cannot be RESTful"](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven). Most APIs called REST skip the links, like using saved addresses instead of clicking links on a website. This page uses "REST" in that everyday sense. The [REST page](02-rest.md#strict-rest-vs-everyday-rest) compares the two, with pros and cons.
 
 ## The options
 REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-grpc.md).
 
 ### GraphQL
 - **In real life:** you tell the waiter "just the salad, no bread", and the plate comes back with exactly that.
-- **What it is:** "a query language and execution engine". The client sends one document to one endpoint, usually `/graphql`, and names the fields it wants. [GraphQL spec, Introduction; graphql.org, Serving over HTTP]
-- **Pros:** the answer holds exactly the requested fields, "avoiding over-fetching and under-fetching". One typed schema that clients can query. New fields need no new version. [GraphQL spec §2.5, §4; graphql.org, Schema Design]
-- **Cons:** a naive server makes one data call for a list, then one more per item (the N+1 problem). Public APIs need depth, breadth and rate limits. Most HTTP caches skip POST. [graphql.org, Performance; graphql.org, Security; RFC 9110 §9.2.3]
-- **Use when:** front ends need flexible data shapes, or one gateway sits in front of many services. [GraphQL spec §1; graphql.org FAQ]
+- **What it is:** ["a query language and execution engine"](https://spec.graphql.org/September2026/). The client sends one document to one endpoint, usually `/graphql`, and names the fields it wants.
+- **Pros:** the answer holds exactly the requested fields, ["avoiding over-fetching and under-fetching"](https://spec.graphql.org/September2026/). One typed schema that clients can query. New fields need no new version.
+- **Cons:** a naive server makes one data call for a list, then one more per item (the N+1 problem). Public APIs need depth, breadth and rate limits. Most HTTP caches skip POST.
+- **Use when:** front ends need flexible data shapes, or one gateway sits in front of many services.
 
 ### gRPC
 - **In real life:** you and the kitchen share a printed order pad. Its boxes are numbered, not labeled, so orders are quick to write and read, but hard to read without the key (the `.proto` file).
-- **What it is:** an RPC (Remote Procedure Call) framework. The client calls a server method "as if it were a local object", over HTTP/2, with Protobuf (Protocol Buffers) messages by default. The name stands for "gRPC Remote Procedure Calls". [grpc.io Introduction; grpc.io FAQ]
-- **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines, cancellation and retries are built in; retries need a policy you set. [grpc.io Python Basics; grpc.io Core concepts; grpc.io Retry]
-- **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be fully read without its `.proto` file: the bytes hold field numbers, not names. No deadline unless you set one. [grpc-web README; protobuf.dev Overview; protobuf.dev Encoding; grpc.io Deadlines]
-- **Use when:** services in many languages talk to each other, or mobile clients talk to cloud servers. [grpc.io About; grpc.io FAQ]
+- **What it is:** an RPC (Remote Procedure Call) framework. The client calls a server method ["as if it were a local object"](https://grpc.io/docs/what-is-grpc/introduction/), over HTTP/2, with Protobuf (Protocol Buffers) messages by default. The name stands for "gRPC Remote Procedure Calls".
+- **Pros:** one `.proto` file generates clients and servers in many languages. Four call kinds: unary, server streaming, client streaming, bidirectional. Deadlines, cancellation and retries are built in; retries need a policy you set.
+- **Cons:** browsers need gRPC-Web and a proxy, without client or bidirectional streaming. A message can't be fully read without its `.proto` file: the bytes hold field numbers, not names. No deadline unless you set one.
+- **Use when:** services in many languages talk to each other, or mobile clients talk to cloud servers.
 
 ### REST
 - **In real life:** a menu where every dish has its own number. You name the dish and what to do with it (order it, cancel it). You can pick options the menu lists, like query parameters, but the kitchen decides how to plate it.
-- **What it is:** REST is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it. [Fielding 2000 ch. 5; RFC 9110 §9.1]
-- **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests they can repeat (the idempotent ones). FastAPI generates an OpenAPI contract at `/openapi.json`. [RFC 9111 §2; RFC 9110 §9.2.2; FastAPI First Steps]
-- **Cons:** the standard form "degrades efficiency". The server decides the shape of each response. It is pull-only, so watching for changes costs more. [Fielding 2000 §5.1.5, §5.4; GraphQL spec §1]
-- **Use when:** many independent clients, browsers or public users call you, and caching helps. [Fielding 2000 §5.5, §6.5.2]
+- **What it is:** REST is an architectural style. Each resource has a URI (Uniform Resource Identifier); clients use standard HTTP methods such as GET and POST on it.
+- **Pros:** browsers, proxies and shared caches can store GET responses. Standard methods tell clients which requests they can repeat (the idempotent ones). FastAPI generates an OpenAPI contract at `/openapi.json`.
+- **Cons:** the standard form ["degrades efficiency"](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm). The server decides the shape of each response. It is pull-only, so watching for changes costs more.
+- **Use when:** many independent clients, browsers or public users call you, and caching helps.
 
 ### Also in this group
 #### JSON-RPC
-- **What it is:** JSON-RPC 2.0, a small, stateless RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport. [JSON-RPC 2.0 §1]
-- **Example:** `{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}` gets back `{"jsonrpc": "2.0", "result": 19, "id": 1}`. [JSON-RPC 2.0 §7]
-- **Pros:** light-weight. Notifications (a call with no `id`, which gets no reply) and batches (an array of calls) are built in. [JSON-RPC 2.0 §1, §4.1, §6]
-- **Cons:** the spec defines no schema or contract file, so both sides must agree on methods some other way. This is our reading; the spec has no such part. [JSON-RPC 2.0]
-- **Use when:** you want a small RPC protocol over any channel. The Language Server Protocol and MCP (Model Context Protocol, below) both use it. [Language Server Protocol 3.17, Base Protocol; MCP spec, Overview]
+- **What it is:** [JSON-RPC 2.0](https://www.jsonrpc.org/specification), a small, stateless RPC protocol that uses JSON (JavaScript Object Notation) and works over any transport.
+- **Example:** `{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}` gets back `{"jsonrpc": "2.0", "result": 19, "id": 1}`.
+- **Pros:** light-weight. Notifications (a call with no `id`, which gets no reply) and batches (an array of calls) are built in.
+- **Cons:** the spec defines no schema or contract file, so both sides must agree on methods some other way. This is our reading; the spec has no such part.
+- **Use when:** you want a small RPC protocol over any channel. The [Language Server Protocol](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/) and MCP (Model Context Protocol, below) both use it.
 
 #### SOAP
-- **What it is:** a protocol for structured messages in XML (Extensible Markup Language), over many transports. The name is no longer an acronym. [SOAP 1.2 Part 1, Abstract, §1]
-- **Example:** an envelope holding an optional header and a body. [SOAP 1.2 Part 0 §2.1]
+- **What it is:** [SOAP 1.2](https://www.w3.org/TR/soap12-part1/) is a protocol for structured messages in XML (Extensible Markup Language), over many transports. The name is no longer an acronym.
+- **Example:** an envelope holding an optional header and a body.
 <details>
 <summary>Code: a SOAP request for order 42</summary>
 
@@ -64,18 +64,18 @@ REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-gr
 
 </details>
 
-- **Pros:** header blocks are an extension point, and intermediaries on the path can process them. It runs over many transports. [SOAP 1.2 Part 0 §1.1, §3; SOAP 1.2 Part 1, Abstract]
-- **Cons:** core SOAP is silent on routing and reliable delivery. Reliable delivery is a separate spec, WS-ReliableMessaging (Web Services Reliable Messaging). [SOAP 1.2 Part 0 §1.1; WS-RM 1.2]
+- **Pros:** header blocks are an extension point, and intermediaries on the path can process them. It runs over many transports.
+- **Cons:** core SOAP is silent on routing and reliable delivery. Reliable delivery is a separate spec, [WS-ReliableMessaging](http://docs.oasis-open.org/ws-rx/wsrm/200702/wsrm-1.2-spec-os.html) (Web Services Reliable Messaging).
 - **Use when:** the service you must call already speaks SOAP. This is our reading; no source we read says when to pick SOAP.
 
 ### MCP (Model Context Protocol)
-- **In real life:** MCP's own docs compare it to "a USB-C port for AI applications": one standard plug between AI (artificial intelligence) apps and outside tools. [MCP docs, What is MCP?] USB is Universal Serial Bus.
-- **What it is:** "an open protocol that enables seamless integration between LLM applications and external data sources and tools". An LLM is a large language model. [MCP spec, Overview]
-- **How it works:** JSON-RPC 2.0 messages between a host (the AI app), its clients (connectors) and servers (which offer tools and data). [MCP spec, Overview]
-- **Transports:** stdio (standard input and output), where the app starts the server as a local process, and Streamable HTTP, where each message is an HTTP POST to one endpoint, and replies come back as JSON or an SSE (Server-Sent Events) stream. [MCP Transports]
-- **Pros:** "build once and integrate everywhere": many AI assistants and developer tools support it. [MCP docs, What is MCP?]
-- **Cons:** "Tools represent arbitrary code execution", so the host must get the user's consent before it calls one. [MCP spec, Security and Trust & Safety]
-- **Build an MCP server when:** you want AI apps to use your service's tools or data. [MCP spec, Overview] It stays out of the table because it connects AI apps to tools; it is not a general way for any client to call any backend.
+- **In real life:** [MCP's own docs](https://modelcontextprotocol.io/docs/getting-started/intro) compare it to "a USB-C port for AI applications": one standard plug between AI (artificial intelligence) apps and outside tools. USB is Universal Serial Bus.
+- **What it is:** ["an open protocol that enables seamless integration between LLM applications and external data sources and tools"](https://modelcontextprotocol.io/specification/latest). An LLM is a large language model.
+- **How it works:** JSON-RPC 2.0 messages between a host (the AI app), its clients (connectors) and servers (which offer tools and data).
+- **Transports:** stdio (standard input and output), where the app starts the server as a local process, and Streamable HTTP, where each message is an HTTP POST to one endpoint, and replies come back as JSON or an SSE (Server-Sent Events) stream.
+- **Pros:** ["build once and integrate everywhere"](https://modelcontextprotocol.io/docs/getting-started/intro): many AI assistants and developer tools support it.
+- **Cons:** ["Tools represent arbitrary code execution"](https://modelcontextprotocol.io/specification/latest), so the host must get the user's consent before it calls one.
+- **Build an MCP server when:** you want AI apps to use your service's tools or data. It stays out of the table because it connects AI apps to tools; it is not a general way for any client to call any backend.
 
 ## Compare
 
@@ -87,7 +87,7 @@ REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-gr
 | Payload | JSON is most common; file uploads are not built in | Protobuf (binary) by default | Any; FastAPI uses JSON |
 | Response shape | The client picks the fields | Fixed by the message | The server decides |
 | Call types | Query, mutation, subscription | Unary, server streaming, client streaming, bidirectional | One request, one response; add SSE for push (built into FastAPI) |
-| Changing the API | Add fields, mark old ones `@deprecated`; avoid versions | Add fields with new numbers; never reuse a number | No standard: Google puts `v1` in the path, Azure uses `?api-version=`; FastAPI marks old routes `deprecated=True` |
+| Changing the API | Add fields, mark old ones `@deprecated`; avoid versions | Add fields with new numbers; never reuse a number | No standard: [Google](https://google.aip.dev/185) puts `v1` in the path, [Azure](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md) uses `?api-version=`; FastAPI marks old routes `deprecated=True` |
 
 ### Run
 | | GraphQL | gRPC | REST |
@@ -105,11 +105,11 @@ REST and gRPC each have a page of their own: [REST](02-rest.md) and [gRPC](03-gr
 Every cell is cited in the research note, [§5](../../research/api-styles.md#5-side-by-side) and [§9](../../research/api-styles.md#9-rework-facts-2026-11-23-more-compare-rows-snippets-analogies).
 
 ## Surprises
-- GraphQL can be cached: send queries with GET and use persisted documents (a stored query, sent as a hash). [graphql.org, Performance]
-- gRPC answers HTTP 200 even when a call fails. The real status travels in trailers. [gRPC HTTP/2 protocol, "Responses"]
-- In Protobuf, the field number is the contract, not the name: the binary bytes carry only numbers. "Changing the field number is equivalent to deleting the field and adding a new field with the same type." Names travel only in JSON and text format, so a rename breaks old readers there, and code that uses the old name must change. [protobuf.dev Encoding; protobuf.dev proto3 guide; protobuf.dev Proto Best Practices]
-- REST does not require JSON. Neither Fielding nor the HTTP spec requires it; a representation can be an HTML page or a JPEG image. [Fielding 2000 §5.2.1; RFC 9110 §3.2]
-- One service can offer more than one style. GitHub runs a REST API and a GraphQL API side by side. [GitHub REST docs; GitHub GraphQL docs]
+- GraphQL can be cached: send queries with GET and use persisted documents (a stored query, sent as a hash).
+- gRPC answers HTTP 200 even when a call fails. The real status travels in trailers.
+- In Protobuf, the field number is the contract, not the name: the binary bytes carry only numbers. ["Changing the field number is equivalent to deleting the field and adding a new field with the same type."](https://protobuf.dev/programming-guides/proto3/) Names travel only in JSON and text format, so a rename breaks old readers there, and code that uses the old name must change.
+- REST does not require JSON. Neither [Fielding](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) nor [the HTTP spec](https://www.rfc-editor.org/rfc/rfc9110) requires it; a representation can be an HTML page or a JPEG image.
+- One service can offer more than one style. GitHub runs a [REST API](https://docs.github.com/en/rest) and a [GraphQL API](https://docs.github.com/en/graphql) side by side.
 
 ## Same call, three ways
 On the wire, "get order 42" looks like this:
@@ -133,9 +133,9 @@ sequenceDiagram
     S-->>C: 200, JSON order in the shape the server chose
 ```
 
-In the server, each snippet follows its library's official tutorial, and each one was run. Install `"fastapi[standard]" "strawberry-graphql[fastapi]" grpcio grpcio-tools`. Start the FastAPI apps with `fastapi dev <file>`, and the gRPC server with `python grpc_server.py`. [FastAPI First Steps; FastAPI Path Parameters; grpc.io Python Basics; Strawberry FastAPI integration]
+In the server, each snippet follows its library's official tutorial, and each one was run. Install `"fastapi[standard]" "strawberry-graphql[fastapi]" grpcio grpcio-tools`. Start the FastAPI apps with `fastapi dev <file>`, and the gRPC server with `python grpc_server.py`.
 
-**GraphQL** with Strawberry. Fields use `async def`, because Strawberry runs every field on the event loop. `total_cents` becomes `totalCents` in the schema. [Strawberry FastAPI integration; Strawberry Schema Configurations]
+**GraphQL** with Strawberry. Fields use `async def`, because Strawberry runs every field on the event loop. `total_cents` becomes `totalCents` in the schema.
 
 <details>
 <summary>Code: <code>graphql_app.py</code> and a <code>curl</code> call</summary>
@@ -240,9 +240,9 @@ python3 examples/communication/request_payload_size.py
 ```
 It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two items. See [request_payload_size.py](../../../examples/communication/request_payload_size.py); the schema is a comment at the top.
 - This is one order, uncompressed. It is not a benchmark.
-- The counts are message bodies only. gRPC adds a 5-byte prefix to each message, and HTTP adds headers. [gRPC HTTP/2 protocol, "Requests"]
-- Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8. [protobuf.dev Encoding, "Signed Integers"]
-- JSON compresses well with gzip. Protobuf does not compress itself, but gRPC can compress each call or message. [graphql.org, Performance; protobuf.dev Overview; grpc.io Compression]
+- The counts are message bodies only. gRPC adds a 5-byte prefix to each message, and HTTP adds headers.
+- Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8.
+- JSON compresses well with gzip. Protobuf does not compress itself, but gRPC can compress each call or message.
 - Real projects use the `protobuf` library and a `.proto` file. The example writes the bytes by hand so you can see them.
 
 ## Remember

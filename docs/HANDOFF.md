@@ -53,6 +53,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - Small notes left for later: the gRPC page could add that a proxy in the path can still answer 502 or 503; page 01 sits exactly at its 150-line budget.
 - **2026-11-23: paused for the owner's review.** The owner will read every doc made so far, check the pages are good, and decide whether the same approach suits the next topics. Before the pause, a completeness check passed: 27 tests and the link check are green, `main` matches `origin`, both finished plans are ticked and marked done, and the spec status lines are current. Do nothing new until the owner gives review feedback or says go.
   - Review step 1.1, page 01 (2026-11-23): the owner ran the three Try-it commands. `dig +trace` showed only `Received 17 bytes`, because a device on the owner's network answers every UDP DNS query itself (the same `SERVFAIL` came back from the router, 1.1.1.1, 8.8.8.8 and a root server's address); over TCP it works. The owner said "Fix now": page 01's Try it now gives the TCP fallback (`dig +trace +tcp @198.41.0.4 google.com`) and says what to look for in `curl -v` (port 443, TLS 1.3 and curl's `(304)` version number, ALPN and `h2`, HTTP/2 pseudo-headers, the 301 redirect) and in `traceroute`. Facts are in the research note's Try it section; ALPN is in `CONTEXT.md`. The diagram still ends at "Response", which stays true; the redirect is explained in Try it.
+  - Review of page 01 (API styles), 2026-11-23: the owner found the `[bracket]` citations hard to read. **New rule:** page text has no bracket citations; a quote or a named source links inline, and every source is listed under Sources. Research notes keep a citation on every claim. Applied to all five pages and both templates (`CLAUDE.md` updated).
+  - The owner asked why most "REST" APIs have no links, and for pros and cons. The REST page now has "Strict REST vs everyday REST" (HATEOAS, an example, an analogy, a pros/cons/use-when table, Zalando's reason). Facts: research note `api-styles.md` §11 (Fielding, Fowler, Microsoft Learn, Zalando, GitHub). Page 01's note links to it. The owner is still reading page 01.
 
 ## Decisions the owner made
 
@@ -71,6 +73,7 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - Material the owner shares (videos, other agents' answers) guides topics and layout only. It is never a source, and pages are not shaped around its claims.
 - **Keep everything short.** The owner finds long text tiring, so chat replies, pages and comments must all be brief.
 - On decision pages, code folds into `<details>` blocks (2026-11-23), so the page reads short and the code is a click away.
+- **No bracket citations on pages** (2026-11-23): they make text hard to read. Link quotes and named sources inline; list every source under Sources. Research notes keep per-claim citations.
 - **REST and gRPC get their own concept pages** (2026-11-23), because they are "the main ones to be understood better". The other request-response items get a few lines each (example, pros, cons, use when) on the API styles page. Further doc surveys are paused (Strawberry: "Not now").
 - Example naming: the prefix shows the purpose.
   - `concurrency/`: `lock_`, `limit_`, `wait_`.

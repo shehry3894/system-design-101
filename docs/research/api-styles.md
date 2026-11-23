@@ -1124,10 +1124,30 @@ MCP (pros and cons on the API styles page):
 - Pro: for developers it "reduces development time and complexity" when building or integrating with an AI app. [same, "Why does MCP matter?"]
 - Con: "Tools represent arbitrary code execution and must be treated with appropriate caution"; hosts must get explicit user consent before calling them. [MCP spec, "Security and Trust & Safety"]
 
+## 11. Strict REST vs everyday REST (2026-11-23)
+
+The owner asked why most "REST" APIs have no links, and for the pros and cons of each kind.
+
+- **The strict rule.** "if the engine of application state (and hence the API) is not being driven by hypertext, then it cannot be RESTful and cannot be a REST API." A REST API "should be entered with no prior knowledge beyond the initial URI (bookmark) and set of standardized media types". It "must not define fixed resource names or hierarchies"; "Servers must have the freedom to control their own namespace." [Fielding 2008, post body; reader comments on that page are not used]
+- **The constraint's name.** REST's four interface constraints include "hypermedia as the engine of application state". [Fielding 2000 §5.1.5] Microsoft calls it HATEOAS, "Hypertext as the Engine of Application State". [Microsoft Learn, Web API design, "Implement HATEOAS"]
+- **Everyday REST is the common case.** Richardson Maturity Model: level 2 uses HTTP methods on resources, and "many published web APIs align approximately with this level"; level 3 uses hypermedia and "is truly a RESTful API, according to Fielding's definition". [Microsoft Learn, "Web API maturity model"; Fowler 2010]
+- **Pros of links (strict).**
+  - "allows the server to change its URI scheme without breaking clients", as long as clients look up the link. [Fowler 2010]
+  - "helps client developers explore the protocol"; links give "a hint as to what may be possible next", and new links can advertise new capabilities. [Fowler 2010]
+  - The uniform interface decouples implementations from services, which "encourages independent evolvability". [Fielding 2000 §5.1.5]
+  - Real example: GitHub's REST API puts `*_url` properties in responses "so that proper API clients don't need to construct URLs on their own", and says using them "will make future upgrades of the API easier". [GitHub Docs, Getting started with the REST API, "Hypermedia"]
+- **Cons of links (strict).**
+  - "There are no general-purpose standards that define how to model the HATEOAS principle." [Microsoft Learn, "Implement HATEOAS"] Fowler (2010): "There's no absolute standard as to how to represent hypermedia controls."
+  - A link does not give all the information: Fowler's `self` and `cancel` links point to the same URI, and the client must know one is GET and the other DELETE. [Fowler 2010]
+  - Zalando (company API guidelines): "We do not generally recommend" level 3; HATEOAS "comes with additional API complexity without real value" where client engineers find links and usage in the API reference anyway. Generic clients that need no prior knowledge are "a theoretical concept that we haven't seen working in practice". OpenAPI tooling "doesn't provide sufficient support for HATEOAS". Hypermedia "does not prevent clients from required manual changes when domain model changes", and clients can still "implement shortcuts and directly target resources". [Zalando RESTful API Guidelines, "MAY use REST maturity level 3 - HATEOAS"]
+  - Microsoft: versioning in the URI, query string or a custom header "complicates the implementation of HATEOAS", because every link must carry the version. [Microsoft Learn, "Implement versioning"]
+- **Use when (as the sources frame it).** Zalando expects hypermedia to give value "more likely in the frontend and human facing service domain"; it requires level 2 for its service-to-service APIs. [Zalando, "MUST use REST maturity level 2", "MAY use REST maturity level 3"] GitHub uses links in a public API so clients survive future upgrades. [GitHub Docs]
+- **Derived (our reading):** everyday REST's matching con is the inverse of strict REST's main pro: a client that builds URLs from the docs breaks when a URL changes.
+
 ## Open questions
 
 - **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
-- **"REST" in our pages.** Fielding's strict definition requires hypertext-driven APIs [Fielding 2008]; most FastAPI-style JSON APIs with fixed paths do not meet it (derived). The owner should decide whether pages say "REST" or "HTTP/JSON API (REST-style)".
+- **"REST" in our pages.** Answered: pages say "REST" in the everyday sense, and the REST page compares strict and everyday REST (§11).
 - **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Provider guidelines were read on 2026-11-23 (§9.6): Google puts the major version in the path, Azure forbids that and uses an `api-version` query parameter. No standards-body rule was found.
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.
 - **GraphQL status 294.** Not IANA-registered; how real proxies and caches handle it is unknown. [GoH §6.1]
@@ -1319,3 +1339,7 @@ Added for §10, all read on 2026-11-23:
 - JSON-RPC 2.0 §4.1, §5.1, §6, §7 (already listed above)
 - Language Server Protocol 3.17, Base Protocol: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
 - MCP specification, Overview, "Security and Trust & Safety": https://modelcontextprotocol.io/specification/latest
+- Fowler, Richardson Maturity Model (18 March 2010): https://martinfowler.com/articles/richardsonMaturityModel.html (read 2026-11-23)
+- Microsoft Learn, Web API design best practices: https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design (read 2026-11-23)
+- Zalando RESTful API Guidelines: https://opensource.zalando.com/restful-api-guidelines/ (read 2026-11-23)
+- GitHub Docs, Getting started with the REST API, "Hypermedia": https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api#hypermedia (read 2026-11-23)

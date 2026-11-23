@@ -40,17 +40,17 @@ sequenceDiagram
 ```
 
 ## How it works
-1. **Your address.** Your laptop has a private IP (Internet Protocol) address, like `192.168.1.20`. It only means something inside your home network. [RFC 1918 §3]
-2. **NAT (Network Address Translation).** Your router swaps that private address and port for its own public address and a new port. It remembers the swap so replies find their way back. [RFC 3022 §2.2, §3.1]
-3. **The name exists.** Someone bought `google.com` from a registrar. The `.com` registry points the name to Google's DNS (Domain Name System) servers. [ICANN](https://www.icann.org/resources/pages/domain-name-registration-process-2023-11-02-en); [RFC 1034 §4.2]
-4. **Ask a resolver.** Your OS has a small stub resolver. It hands the question to a recursive resolver. [RFC 1034 §5.3.1]
-5. **Walk the tree.** If the answer isn't cached, the resolver asks a root server. The root points to the `.com` TLD (top-level domain) servers, and they point to Google's own DNS servers. [RFC 1034 §5.3.3; RFC 9499 §4]
-6. **Cache with a TTL (time to live).** Google's server returns the IP address. Every resolver caches it for its TTL, in seconds. [RFC 1035 §3.2.1]
-7. **TCP (Transmission Control Protocol).** The browser connects to that IP on port 443, the standard port for secure web traffic (HTTPS). It takes three packets: SYN, SYN-ACK, ACK. [RFC 9293 §3.5; RFC 9110 §4.2.2]
-8. **TLS (Transport Layer Security).** The browser and server agree on keys, and the server proves who it is with a certificate. In TLS 1.3 this takes one round trip. [RFC 8446 §2]
-9. **HTTP (Hypertext Transfer Protocol).** The browser sends `GET /` with a `Host: google.com` header. [RFC 9110 §9.3.1, §7.2]
-10. **The front door.** The address usually belongs to a gateway, not the final server. The gateway forwards the request to one of many servers behind it. This is how load balancing works. [RFC 9110 §3.7]
-11. **The way back.** The response returns along the same path. Your router uses its NAT record to hand it to your laptop. [RFC 3022 §3.2]
+1. **Your address.** Your laptop has a private IP (Internet Protocol) address, like `192.168.1.20`. It only means something inside your home network.
+2. **NAT (Network Address Translation).** Your router swaps that private address and port for its own public address and a new port. It remembers the swap so replies find their way back.
+3. **The name exists.** Someone bought `google.com` from a [registrar](https://www.icann.org/resources/pages/domain-name-registration-process-2023-11-02-en). The `.com` registry points the name to Google's DNS (Domain Name System) servers.
+4. **Ask a resolver.** Your OS has a small stub resolver. It hands the question to a recursive resolver.
+5. **Walk the tree.** If the answer isn't cached, the resolver asks a root server. The root points to the `.com` TLD (top-level domain) servers, and they point to Google's own DNS servers.
+6. **Cache with a TTL (time to live).** Google's server returns the IP address. Every resolver caches it for its TTL, in seconds.
+7. **TCP (Transmission Control Protocol).** The browser connects to that IP on port 443, the standard port for secure web traffic (HTTPS). It takes three packets: SYN, SYN-ACK, ACK.
+8. **TLS (Transport Layer Security).** The browser and server agree on keys, and the server proves who it is with a certificate. In TLS 1.3 this takes one round trip.
+9. **HTTP (Hypertext Transfer Protocol).** The browser sends `GET /` with a `Host: google.com` header.
+10. **The front door.** The address usually belongs to a gateway, not the final server. The gateway forwards the request to one of many servers behind it. This is how load balancing works.
+11. **The way back.** The response returns along the same path. Your router uses its NAT record to hand it to your laptop.
 
 ## In our code
 None yet. The auth service in M2 is where the request lands: [auth_service](../../project/foodpanda/services/auth_service/).
@@ -58,8 +58,8 @@ None yet. The auth service in M2 is where the request lands: [auth_service](../.
 ## Try it
 Run these in a terminal. Each one shows part of the picture.
 
-1. **DNS:** `dig google.com +trace` shows the walk: the root servers, then the `.com` servers, then Google's servers, then the address with its TTL. [dig(1)]
-   - If it stops at `Received 17 bytes`, the reply was empty: a device on your network answered in the root server's place. Ask a root server directly, over TCP: [dig(1); IANA Root Servers]
+1. **DNS:** `dig google.com +trace` shows the walk: the root servers, then the `.com` servers, then Google's servers, then the address with its TTL.
+   - If it stops at `Received 17 bytes`, the reply was empty: a device on your network answered in the root server's place. Ask [a root server](https://www.iana.org/domains/root/servers) directly, over TCP:
 
      ```bash
      dig +trace +tcp @198.41.0.4 google.com
@@ -67,11 +67,11 @@ Run these in a terminal. Each one shows part of the picture.
 
 2. **TCP, TLS and HTTP:** `curl -v https://google.com`. Look for these lines:
    - `Connected to google.com (<IP>) port 443`: the TCP connection (step 7).
-   - `TLS handshake` and `SSL connection using TLSv1.3`: step 8. A `(304)` on those lines is the TLS version number, 0x0304 = TLS 1.3, not an HTTP status. [RFC 8446 §4.2.1; curl source, `openssl.c`]
-   - `ALPN: server accepted h2`: inside the TLS handshake, ALPN (Application-Layer Protocol Negotiation) picked HTTP/2. [RFC 7301; RFC 9113 §3.1]
-   - `:method: GET`, `:path: /`, `:authority: google.com`: HTTP/2's way of writing `GET /` and `Host: google.com` (step 9). [RFC 9113 §8.3.1]
-   - `HTTP/2 301` and `location: https://www.google.com/`: google.com answers "moved to `www.google.com`". A browser follows it and asks `www.google.com` for the page. [RFC 9110 §15.4, §15.4.2]
-3. **The path:** `traceroute google.com` lists each router on the way, with three round-trip times per hop (three probes). The first hop is your home router, at a private address. [traceroute(8); RFC 1918 §3]
+   - `TLS handshake` and `SSL connection using TLSv1.3`: step 8. A `(304)` on those lines is not an HTTP status: it is how [curl prints](https://github.com/curl/curl/blob/curl-8_7_1/lib/vtls/openssl.c) the TLS version number 0x0304, which means TLS 1.3.
+   - `ALPN: server accepted h2`: inside the TLS handshake, ALPN (Application-Layer Protocol Negotiation) picked HTTP/2.
+   - `:method: GET`, `:path: /`, `:authority: google.com`: HTTP/2's way of writing `GET /` and `Host: google.com` (step 9).
+   - `HTTP/2 301` and `location: https://www.google.com/`: google.com answers "moved to `www.google.com`". A browser follows it and asks `www.google.com` for the page.
+3. **The path:** `traceroute google.com` lists each router on the way, with three round-trip times per hop (three probes). The first hop is your home router, at a private address.
 
 ## Remember
 - DNS turns a name into an IP address, and the answer is cached for its TTL.

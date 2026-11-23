@@ -14,10 +14,10 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 
 ### <Option A>
 - **In real life:** <one everyday analogy, in our own words; one setting (e.g. a restaurant) across the whole page group; no citation>
-- **What it is:** <one sentence, in its own source's words> [source]
-- **Pros:** <2–3 short points> [source]
-- **Cons:** <2–3 short points> [source]
-- **Use when:** <one sentence> [source]
+- **What it is:** <one sentence, in its own source's words; the quote links to its source>
+- **Pros:** <2–3 short points>
+- **Cons:** <2–3 short points>
+- **Use when:** <one sentence>
 
 ## Compare
 <Each row is a question a developer asks. Each cell gives a concrete example where one exists, e.g. `GET /orders/42`. Over about 8 rows? Split into the two tables below.>
@@ -56,4 +56,5 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 - <bullet>
 
 ## Sources
+<Every source the page uses. No [bracket] citations in the text: link a quote or a named source inline instead. The research note keeps a citation on every claim.>
 - [<Title>](<primary source URL>)

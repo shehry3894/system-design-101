@@ -123,6 +123,8 @@ _Avoid_: Proto (when you mean the format, not the `.proto` file)
 
 **Health check**: A request that asks whether a service can serve traffic. gRPC has a standard health service; HTTP has no standard one.
 
+**HATEOAS** (Hypermedia as the Engine of Application State): Fielding's rule that each REST response links to what the client can do next, so the client needs only the first URL. Most APIs called REST skip it.
+
 **Resource**: Anything that can be named, such as an order. In REST, each resource has a URI.
 
 **URI** (Uniform Resource Identifier): The name of a resource, e.g. `/orders/1`.

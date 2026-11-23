@@ -27,6 +27,7 @@ grounds: []         # new terms this page explains (add them to CONTEXT.md)
 - <bullet>
 
 ## Sources
+<Every source the page uses. No [bracket] citations in the text: link a quote or a named source inline instead. The research note keeps a citation on every claim.>
 - [<Title>](<primary source URL>)
 
 ## Animation script
