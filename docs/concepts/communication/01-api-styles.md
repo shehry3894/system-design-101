@@ -55,22 +55,22 @@ Two terms first:
 | | GraphQL | gRPC | REST |
 |---|---|---|---|
 | What you design | Types and fields, e.g. `Order.totalCents` | Services and methods, e.g. `Orders.GetOrder` | Resources and methods, e.g. `GET /orders/42` |
-| Contract | A schema; clients can read it (introspection) | A `.proto` file; client and server code are generated from it | None built in; FastAPI generates OpenAPI at `/openapi.json` |
-| Payload | JSON is most common | Protobuf (binary) by default | Any; FastAPI uses JSON |
+| Contract | A schema; clients can read it (introspection) | A `.proto` file; client and server code are generated from it | None built in; FastAPI generates OpenAPI 3.1 at `/openapi.json`, and clients can be generated from it |
+| Payload | JSON is most common; file uploads are not built in | Protobuf (binary) by default | Any; FastAPI uses JSON |
 | Response shape | The client picks the fields | Fixed by the message | The server decides |
-| Call types | Query, mutation, subscription | Unary, server streaming, client streaming, bidirectional | One request, one response; add SSE for push |
-| Changing the API | Add fields, mark old ones `@deprecated`; avoid versions | Add fields with new numbers; never reuse a number | No standard: Google puts `v1` in the path, Azure uses `?api-version=` |
+| Call types | Query, mutation, subscription | Unary, server streaming, client streaming, bidirectional | One request, one response; add SSE for push (built into FastAPI) |
+| Changing the API | Add fields, mark old ones `@deprecated`; avoid versions | Add fields with new numbers; never reuse a number | No standard: Google puts `v1` in the path, Azure uses `?api-version=`; FastAPI marks old routes `deprecated=True` |
 
 ### Run
 | | GraphQL | gRPC | REST |
 |---|---|---|---|
 | Transport | Any; HTTP is most common | HTTP/2 | HTTP in practice |
 | From a browser | Plain HTTP | gRPC-Web plus a proxy | Native |
-| Errors | An `errors` list in the body; partial data possible | A code such as `NOT_FOUND` plus a message, in trailers; HTTP status 200 | An HTTP status such as `404` |
+| Errors | An `errors` list in the body, beside any partial data; HTTP 2xx if data came back | A code such as `NOT_FOUND` plus a message, in trailers; HTTP status 200 | An HTTP status such as `404`; FastAPI sends `{"detail": ...}`, and `422` for bad input |
 | Auth | HTTP middleware, before GraphQL runs | Metadata (gRPC's headers): `authorization: Bearer <token>` | A header: `Authorization: Bearer <token>` |
 | Timeouts | Same as REST | A deadline, sent to the server; none by default | Set in the HTTP client: HTTPX defaults to 5 s without data, Requests to no limit |
 | HTTP caching | With GET and persisted documents | Not by generic caches (all POST) | GET responses |
-| Debugging | GraphiQL in the browser (Strawberry serves it) | `grpcurl`, which asks the server for its API (server reflection) or reads the `.proto` file | `curl` or the browser |
+| Debugging | GraphiQL in the browser (Strawberry serves it), or `curl` with a JSON body | `grpcurl`, which asks the server for its API (server reflection) or reads the `.proto` file | `curl`, the browser, or Swagger UI at `/docs` |
 | Health checks | Same as REST | A standard service, `grpc.health.v1.Health` | No standard; Kubernetes examples use `/healthz` |
 | Python library | Strawberry | `grpcio`, `grpcio-tools` | FastAPI |
 
@@ -225,13 +225,13 @@ It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two
 ## Sources
 - [Fielding 2000, chapter 5: REST](https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) and [Fielding 2008: REST APIs must be hypertext-driven](https://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven)
 - [RFC 9110: HTTP semantics](https://www.rfc-editor.org/rfc/rfc9110), [RFC 9111: HTTP caching](https://www.rfc-editor.org/rfc/rfc9111), [RFC 6750: Bearer tokens](https://www.rfc-editor.org/rfc/rfc6750)
-- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html), [FastAPI: First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/), [Path Parameters](https://fastapi.tiangolo.com/tutorial/path-params/)
+- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html), [FastAPI: First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/), [Path Parameters](https://fastapi.tiangolo.com/tutorial/path-params/), [Handling Errors](https://fastapi.tiangolo.com/tutorial/handling-errors/), [Path Operation Configuration](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/), [Server-Sent Events](https://fastapi.tiangolo.com/tutorial/server-sent-events/), [Generate Clients](https://fastapi.tiangolo.com/advanced/generate-clients/)
 - [grpc.io: Introduction](https://grpc.io/docs/what-is-grpc/introduction/), [Core concepts](https://grpc.io/docs/what-is-grpc/core-concepts/), [About](https://grpc.io/about/), [FAQ](https://grpc.io/docs/what-is-grpc/faq/), [Python Basics](https://grpc.io/docs/languages/python/basics/)
 - grpc.io guides: [Deadlines](https://grpc.io/docs/guides/deadlines/), [Retry](https://grpc.io/docs/guides/retry/), [Compression](https://grpc.io/docs/guides/compression/), [Error handling](https://grpc.io/docs/guides/error/), [Status codes](https://grpc.io/docs/guides/status-codes/), [Metadata](https://grpc.io/docs/guides/metadata/), [Health checking](https://grpc.io/docs/guides/health-checking/), [Reflection](https://grpc.io/docs/guides/reflection/)
 - [gRPC over HTTP/2 protocol](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md), [grpc-web README](https://github.com/grpc/grpc-web), [grpcurl README](https://github.com/fullstorydev/grpcurl)
 - [protobuf.dev: Overview](https://protobuf.dev/overview/), [Encoding](https://protobuf.dev/programming-guides/encoding/), [proto3 guide](https://protobuf.dev/programming-guides/proto3/), [Proto Best Practices](https://protobuf.dev/best-practices/dos-donts/)
 - [GraphQL specification, September 2026](https://spec.graphql.org/September2026/)
-- [graphql.org: Serving over HTTP](https://graphql.org/learn/serving-over-http/), [Performance](https://graphql.org/learn/performance/), [Security](https://graphql.org/learn/security/), [Schema Design](https://graphql.org/learn/schema-design/), [Authorization](https://graphql.org/learn/authorization/), [Introspection](https://graphql.org/learn/introspection/), [FAQ](https://graphql.org/faq/)
+- [graphql.org: Serving over HTTP](https://graphql.org/learn/serving-over-http/), [Performance](https://graphql.org/learn/performance/), [Security](https://graphql.org/learn/security/), [Schema Design](https://graphql.org/learn/schema-design/), [Authorization](https://graphql.org/learn/authorization/), [Introspection](https://graphql.org/learn/introspection/), [Response](https://graphql.org/learn/response/), [Common HTTP Errors](https://graphql.org/learn/debug-errors/), [File Uploads](https://graphql.org/learn/file-uploads/), [FAQ](https://graphql.org/faq/)
 - [Strawberry: FastAPI integration](https://strawberry.rocks/docs/integrations/fastapi) and [Schema Configurations](https://strawberry.rocks/docs/types/schema-configurations)
 - [HTTPX: Timeouts](https://www.python-httpx.org/advanced/timeouts/), [Requests: Timeouts](https://requests.readthedocs.io/en/latest/user/advanced/), [Kubernetes: Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 - [Google AIP-185: API versioning](https://google.aip.dev/185) and [Azure REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md)

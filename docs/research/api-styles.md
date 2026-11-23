@@ -844,19 +844,19 @@ The API styles page has a Design table and a Run table. Rows that repeat a §5 r
 Design:
 
 - **What you design:** types and fields [GraphQL spec §3] / services and methods [grpc.io Core concepts] / resources and standard methods [RFC 9110 §3.1, §9.1]. The examples `Order.totalCents`, `Orders.GetOrder` and `GET /orders/42` come from the page's own snippets (§9.8).
-- **Contract:** §5 "Contract / IDL" and "Code generation". `/openapi.json` [FastAPI First Steps].
-- **Payload:** §5 "Payload format".
+- **Contract:** §5 "Contract / IDL" and "Code generation". `/openapi.json` [FastAPI First Steps]. FastAPI emits OpenAPI 3.1, and client code can be generated from it [FastAPI Generate Clients] (§9.13).
+- **Payload:** §5 "Payload format". GraphQL: file uploads are not built in [graphql.org File uploads] (§9.12).
 - **Response shape:** §5 "Response shape".
-- **Call types:** query, mutation, subscription [GraphQL spec §2.4] / four call kinds [grpc.io Core concepts] / one request, one response; REST is pull-based [Fielding 2000 §5.4]; SSE for push [HTML §9.2.1].
-- **Changing the API:** add fields, `@deprecated`, avoid versions [graphql.org/learn/schema-design; GraphQL spec §3.6.2] / new numbers, never reuse one (§9.7) [protobuf.dev proto3 guide] / Google path vs Azure query parameter (§9.6).
+- **Call types:** query, mutation, subscription [GraphQL spec §2.4] / four call kinds [grpc.io Core concepts] / one request, one response; REST is pull-based [Fielding 2000 §5.4]; SSE for push [HTML §9.2.1], built into FastAPI since 0.135.0 [FastAPI Server-Sent Events] (§9.13).
+- **Changing the API:** add fields, `@deprecated`, avoid versions [graphql.org/learn/schema-design; GraphQL spec §3.6.2] / new numbers, never reuse one (§9.7) [protobuf.dev proto3 guide] / Google path vs Azure query parameter (§9.6); FastAPI's `deprecated=True` [FastAPI Path Operation Configuration] (§9.13). graphql.org also backs "avoid versions": "GraphQL favors evolution over versioning" [graphql.org Schema change management] (§9.12).
 
 Run:
 
 - **Transport, From a browser, HTTP caching, Python library:** §5, same rows.
-- **Errors:** §5 "Error model". `NOT_FOUND` (§9.1), plus an optional message (§9.11). `404 Not Found` [RFC 9110 §15.5.5].
+- **Errors:** §5 "Error model". GraphQL: partial data beside `errors`, and 2xx whenever `data` is not null [graphql.org Response; graphql.org Serving over HTTP, "Status Codes"] (§9.12). `NOT_FOUND` (§9.1), plus an optional message (§9.11). `404 Not Found` [RFC 9110 §15.5.5]; FastAPI's `{"detail": ...}` body and `422` for invalid input [FastAPI Handling Errors; FastAPI Path Parameters] (§9.13).
 - **Auth:** middleware before GraphQL [graphql.org/learn/authorization] / metadata `authorization: Bearer <token>` (§9.2) / `Authorization: Bearer <token>` [RFC 6750 §2.1].
-- **Timeouts:** GraphQL "same as REST", because it runs over an HTTP client (derived from §9.3) / deadline sent as `grpc-timeout`, none by default (§3) [gRPC HTTP/2 protocol; grpc.io Deadlines] / HTTPX 5 s, Requests no limit (§9.3).
-- **Debugging:** GraphiQL; Strawberry serves it by default (§9.5) / grpcurl with reflection or `.proto` files (§9.5) / curl [curl man page]; a browser can send GET (derived).
+- **Timeouts:** GraphQL "same as REST", because it runs over an HTTP client (derived from §9.3); graphql.org lists timeouts as transport-layer practice (§9.12) / deadline sent as `grpc-timeout`, none by default (§3) [gRPC HTTP/2 protocol; grpc.io Deadlines] / HTTPX 5 s, Requests no limit (§9.3).
+- **Debugging:** GraphiQL; Strawberry serves it by default (§9.5); `curl` with a JSON body [graphql.org FAQ, "Does GraphQL use HTTP?"] (§9.12) / grpcurl with reflection or `.proto` files (§9.5) / curl [curl man page]; a browser can send GET (derived); Swagger UI at `/docs` [FastAPI First Steps, "Interactive API docs"] (§9.13).
 - **Health checks:** GraphQL "same as REST", because a Strawberry app is a FastAPI app (derived) / `grpc.health.v1.Health` (§9.4) / no standard; Kubernetes examples use `/healthz` (§9.4).
 
 Surprise on the page: "Changing the field number is equivalent to deleting the field and adding a new field" [protobuf.dev proto3 guide, "Binary Wire-unsafe Changes"]; names travel in JSON and text format, so renames break those [protobuf.dev Proto Best Practices] (§9.7).
@@ -891,6 +891,179 @@ Operations topics, outside this page's scope (one line each, from each guide's o
 - Custom load balancing, custom name resolution, custom backend metrics: spread calls across servers, find a service's addresses, and balance on app-specific load. [grpc.io Custom Load Balancing, Custom Name Resolution, Custom Backend Metrics guides]
 - OpenTelemetry metrics: per-call and per-attempt client metrics, including retries. [grpc.io OpenTelemetry Metrics guide]
 
+### 9.12 The rest of the graphql.org docs
+
+After the grpc.io gap (§9.11), the owner asked for the same full survey of graphql.org. The Learn index has 29 pages. Until now §1–9 used 13 of them (Introduction, Schemas and Types, Execution, Introspection, Best Practices, Serving over HTTP, Authorization, Pagination, Schema Design, Caching, Performance, Security, Subscriptions) plus the FAQ. The other 16 (Queries, Mutations, Validation, Response, Thinking in Graphs, File Uploads, Error Handling, Global Object Identification, Federation, Robust Applications, Common HTTP Errors and How to Debug Them (`debug-errors`), Naming Conventions, Schema Review, Schema Ownership and Governance Models, Governance Tooling, Schema Change Management (`governance-versioning`)) were read on 2026-11-23, and the earlier 14 were re-read the same day. The FAQ has no subpages; its only other link is the Foundation's membership FAQ, which was not read.
+
+Bearing on the API styles page:
+
+- **A failed field.** Execution can raise an error in one field. GraphQL "will attempt to continue executing the other fields". The response then has `data` and `errors` together, which graphql.org calls a partial response. The failed field is `null`. [graphql.org Response, "Field errors"]
+- **A failed request.** A syntax or validation mistake is a request error. It is raised before execution, so the response has `errors` and no `data`: "so data won’t be included in the response". [graphql.org Response, "Next steps"; graphql.org Validation, "Validation errors"]
+- **Error entries.** `message` says what went wrong. `locations`, if present, points into the document. [graphql.org Response, "Request errors"]
+- **`extensions`.** A third top-level key, "reserved for GraphQL implementations to provide additional information about the response". It must be an object. Servers may put telemetry or rate-limit use there. [graphql.org Response, "Extensions"]
+  - Error handling's example puts a code inside one error: `"extensions": {"code": "INTERNAL_SERVER_ERROR"}`. [graphql.org Error handling, "Use top-level errors for exceptional failures"]
+- **Two ways to report failure.** "The top-level errors array for exceptional failures, and errors-as-data". [graphql.org Error handling, intro]
+  - Top-level `errors`: infrastructure failures, invalid GraphQL, a missing auth token. [same, "Choose based on whether errors are exceptional"]
+  - Errors-as-data: business rules such as "username taken". The mutation returns a payload type with a `userErrors` list, so clients can find the codes through introspection. [same, "Use errors-as-data for domain errors"]
+  - Naming Conventions agrees: payload types "let you add validation errors and related entities without breaking existing clients". [graphql.org Naming conventions, "Wrap mutation results in payload types"]
+- **HTTP status.**
+  - A response with non-null `data` gets a 2xx code, even with `errors`, because "HTTP does not yet have a status code representing “partial success.”" [graphql.org Serving over HTTP, "Status Codes"]
+  - With the newer media type `application/graphql-response+json`, a valid request that fails to execute gets 4xx or 5xx. Older servers using `application/json` should keep 2xx. [same]
+  - Common HTTP Errors lists 400 (bad JSON or document), 405 (wrong method, e.g. GET for a mutation) and 500 (unhandled resolver exception). It also has a section titled "GraphQL errors with 200 OK": "The HTTP layer succeeded, but the GraphQL operation produced errors." [graphql.org Common HTTP errors, "GraphQL errors with 200 OK"]
+  - It says older servers may use 200 even when the whole request failed, and some servers use 422 for validation errors. It calls 422 "not recommended by the specification for most cases". [same, "Implementation-specific status codes"] The note's §4 says the September 2026 over-HTTP edition recommends 422, so the two sources differ.
+- **Network errors.** Problems like an SSL error or "a connection timeout" happen before GraphQL gets involved. Client libraries may offer retries. [graphql.org Response, "Network errors"]
+- **Debugging.** Common HTTP Errors says to check the `errors` array in the response body.
+  - With a `data` key, the document is probably valid and a resolver failed. Without `data`, validation failed. [graphql.org Common HTTP errors, "GraphQL errors with 200 OK", "How to debug"]
+  - Other steps it names: validate the JSON body with a linter, check that the call is a POST with `Content-Type: application/json`, read server logs or stack traces, and use "introspection or an IDE" to check a query against the schema. [same, 400, 405, 500 and 200 sections]
+  - Operation names are "helpful for debugging and server-side logging". [graphql.org Queries, "Operation type and name"]
+  - The FAQ says you can try GraphQL "by creating a single HTTP request", and that GraphiQL shows what an API exposes. [graphql.org FAQ, "Does GraphQL use HTTP?"; "How can I document my GraphQL API?"]
+- **Timeouts and limits.** There is no GraphQL-specific timeout feature. graphql.org lists timeouts as ordinary HTTP practice.
+  - "set appropriate timeout durations for requests" is listed among transport-layer measures. [graphql.org Security, "Transport layer security"]
+  - The FAQ names "Using a timeout, setting a maximum depth for queries" and throttling by server time as defences. [graphql.org FAQ, "What are the security concerns with GraphQL?"]
+  - The Introspection page lists "execution timeouts" next to depth, breadth, alias limits and cost analysis. [graphql.org Introspection, "Introspection in production"]
+  - Security also says rate limits belong in the business logic layer, not by counting requests, because a request's cost isn't known in advance. [graphql.org Security, "Rate limiting"]
+- **Retries.** The Learn pages give no retry rules. They mention only that some client libraries retry failed operations. [graphql.org Response, "Network errors"]
+- **Health.** None of the 29 Learn pages or the FAQ describes a health-check endpoint. The Performance page names monitoring with OpenTelemetry (metrics, logs, traces). [graphql.org Performance, "Performance monitoring"]
+- **Robust Applications.** Not about the server. It tells client code to expect schema growth: add a `default` branch for new enum values, query `__typename` for new union and interface members, and don't force-unwrap nullable fields. [graphql.org Robust applications, "Recap"]
+  - "GraphQL fields are nullable by default", so a failed field becomes `null` instead of failing the request. [same, "Do not force-unwrap nullable fields"; graphql.org Schema Design, "Nullability"]
+- **Changing the API.** "GraphQL favors evolution over versioning." You make backward-compatible changes to one schema. [graphql.org Schema change management, "Understand schema evolution"]
+  - Versioning is not forbidden: "You could create /graphql/v2 for major overhauls." But it costs the benefits and means running several schemas. [same]
+  - Safe: new fields, types, queries, mutations, optional arguments. [same, "Make additive changes"]
+  - Breaking: removing or renaming fields, types or enum values; changing a field or argument type; making an optional argument required. [same, "Identify breaking changes"]
+  - Dangerous but not breaking: adding enum values or new types behind an interface, because clients may not handle them. [same, "Handle dangerous changes"]
+  - Deprecation lifecycle: add the replacement, deprecate the old element, migrate clients, remove. The deprecated field keeps working. Log who still uses it. [same, "Follow the deprecation lifecycle"]
+  - Public APIs "should announce breaking changes months ahead". [same, "Announce deprecations"]
+  - Tools compare the new schema to the old one in CI, for example `findBreakingChanges` in `graphql` and GraphQL Inspector. [same, "Detect breaking changes automatically"]
+  - Schema Design: "a common practice of always avoiding breaking changes and serving a versionless API". [graphql.org Schema Design, "Versioning"]
+- **Payload and file uploads.** "GraphQL was not designed with file uploads in mind." JSON can't carry binary data directly. Base64 in JSON is inefficient. The common workaround is a community spec, the GraphQL multipart request specification, which needs care over memory use, CSRF (Cross-Site Request Forgery) and size caps. [graphql.org File uploads, intro; "Why uploads are challenging"; "Risks to be aware of"]
+  - Recommended instead: a mutation returns a signed upload URL (for example from Amazon S3), the client uploads there, and a second mutation links the file. "avoid uploading files through GraphQL entirely". [same, "Recommendation: Use signed URLs"]
+  - Responses are usually JSON, and JSON "compresses exceptionally well" with GZIP. [graphql.org Performance, "JSON (with GZIP)"]
+- **Validation before execution.** Every request is parsed, then validated against the schema, and only then run. The spec requires validation, so developers "won’t need to write specific runtime logic" for it. A validation failure produces a request error with no partial data. [graphql.org Validation, "Validation errors"]
+- **Response format.** The spec allows three top-level keys: `data`, `errors`, `extensions`. At least one of `data` or `errors` is present. [graphql.org Response, "Next steps"]
+  - Serving over HTTP: if there are no errors, `errors` "must not be present". [graphql.org Serving over HTTP, "Body"]
+- **Mutations.** Top-level mutation fields run one after another; query fields run in parallel. "Some mutation fields may resolve successfully while others return errors", and there is no built-in rollback. [graphql.org Mutations, "Multiple fields in mutations"]
+- **Subscriptions.** Each subscription operation must have exactly one root field. Servers need "a more complicated architecture than one that only exposes query and mutation fields": each subscribed client is bound to one server instance, which makes scaling harder. For data that changes rarely, graphql.org suggests polling, push notifications or re-fetching. [graphql.org Subscriptions, "Using subscriptions at scale"]
+- **Where auth runs.** Place GraphQL after authentication middleware. Make authorization decisions during execution, in the business logic layer, so a partial response can be produced when access is denied. [graphql.org Serving over HTTP, "Where auth happens"; graphql.org Authorization, "Recap"]
+  - The FAQ: "There’s nothing special about authentication within the GraphQL specification"; OAuth and JWT (JSON Web Token) are named. [graphql.org FAQ, "How does authentication work with GraphQL?"]
+- **Gateway.** The FAQ recommends "one GraphQL schema as an API gateway" over clients talking to many GraphQL services. [graphql.org FAQ, "Is GraphQL the right fit for designing a microservice architecture?"] The Federation page describes the pattern: subgraphs owned by teams, composed by a gateway into one schema. [graphql.org Federation, "How federation works in GraphQL"]
+- **REST comparison.** The FAQ says GraphQL is an alternative to REST but "not necessarily" a replacement. [graphql.org FAQ, "Does GraphQL replace REST?"] Queries says every field can take its own arguments, while REST has one set of query parameters per request. [graphql.org Queries, "Arguments"]
+- **Do not copy.** Schema Change Management shows a nullable-to-non-null example under the heading "Making a non-null field nullable"; the heading and the example disagree. [graphql.org Schema change management]
+
+Outside this page's scope (one line each):
+
+- Thinking in Graphs: model the domain as a graph; keep validation and auth in one business logic layer shared by REST, GraphQL and RPC entry points. [graphql.org Thinking in Graphs]
+- Global Object Identification: the `Node` interface and `node(id:)` root field, so any object can be refetched by id. [graphql.org Global Object Identification]
+- Naming Conventions: `is`/`has` for booleans, plural list names, noun-first or verb-first mutations (pick one), `Input` suffix for input types. [graphql.org Naming conventions]
+- Schema Review: review criteria, CI checks (syntax, breaking changes, field usage, linting, composition) and ownership approvals. [graphql.org Schema review]
+- Schema Ownership and Governance Models: centralized, federated and hybrid ownership of a schema. [graphql.org Schema ownership and governance models]
+- Governance Tooling: schema registry, CI validation, auto-generated reference docs. [graphql.org Governance tooling]
+- Queries (fields, aliases, variables, fragments, directives), Schemas and Types (SDL, scalars, enums, interfaces, unions, input types), Execution (resolvers) and Pagination (cursor connections): no new fact for the page cells beyond what the note already holds.
+- Federation (subgraphs, composition): covered above only for the gateway fact.
+- Best Practices (index) and FAQ (Foundation, membership, state management): lists and community topics; nothing for the cells.
+
+### 9.13 The rest of the FastAPI docs
+
+The same full survey, for fastapi.tiangolo.com. Until now §2, §8 and §9 used 10 pages: home, Features, First Steps, Path Parameters, Handling Errors, Security First Steps, Testing, Custom Response, Additional Responses and How-to GraphQL. On 2026-11-23 the home page's nav gave 154 pages (the home page plus 153 more); all returned HTTP 200, none 404. The pages that bear on the API styles page were read again and in full for prose. The rest were skimmed at the opening and grepped for `timeout`, `health`, `deprecated`, `version`, `422` and `3.x`. The language switchers (`/de/`, `/es/`, ...) and links to other sites were not followed. The docs show Release Notes up to 0.165.0 (2026-11-18). [FastAPI Release Notes, "Latest Changes"]
+
+Bearing on the API styles page:
+
+- **Server-Sent Events (SSE).** Added in FastAPI 0.135.0 (2026-03-01). [FastAPI Server-Sent Events, note under the title; FastAPI Release Notes, "0.135.0"]
+  - Use `yield` in a path operation and set `response_class=EventSourceResponse`, imported from `fastapi.sse`. [FastAPI Server-Sent Events, "Stream SSE with FastAPI"]
+  - `EventSourceResponse` is a `StreamingResponse` with media type `text/event-stream`. [FastAPI Reference, "Server-Sent Events", `EventSourceResponse`]
+  - Each yielded item is "encoded as JSON and sent in the data: field". [FastAPI Server-Sent Events, "Stream SSE with FastAPI"]
+  - Yield `ServerSentEvent` objects to set `event`, `id`, `retry` or `comment`. Use `raw_data` for text that is not JSON, such as `[DONE]`. [FastAPI Server-Sent Events, "ServerSentEvent", "Raw Data"]
+  - A browser that reconnects sends `Last-Event-ID`. You read it as a header parameter and resume. [FastAPI Server-Sent Events, "Resuming with Last-Event-ID"]
+  - SSE works with any HTTP method. The page names MCP, which "stream[s] SSE over POST". [FastAPI Server-Sent Events, "SSE with POST"]
+  - FastAPI sends a keep-alive ping comment every 15 seconds, and sets `Cache-Control: no-cache` and `X-Accel-Buffering: no`. [FastAPI Server-Sent Events, "Technical Details"]
+  - The page says browsers support the format natively "with the EventSource API". [FastAPI Server-Sent Events, intro]
+- **Stream JSON Lines.** Added in FastAPI 0.134.0 (2026-02-27). [FastAPI Stream JSON Lines, note under the title; FastAPI Release Notes, "0.134.0"]
+  - A path operation that uses `yield` sends one JSON object per line, with content type `application/jsonl`. [FastAPI Stream JSON Lines, "JSON Lines", "Stream JSON Lines with FastAPI"]
+  - A return type such as `AsyncIterable[Item]` validates, documents and serializes each item. Without one, FastAPI uses `jsonable_encoder`. [FastAPI Stream JSON Lines, "Stream JSON Lines with FastAPI"]
+  - Plain `def` functions can use `yield` too (return type `Iterable[Item]`). [FastAPI Stream JSON Lines, "Non-async path operation functions"]
+- **Stream Data.** Added in FastAPI 0.134.0. For binary data or plain strings, use `response_class=StreamingResponse` and `yield` each chunk. FastAPI hands each chunk over "as is", with no JSON. To set a `Content-Type`, subclass `StreamingResponse` and set `media_type`. [FastAPI Stream Data, "A StreamingResponse with yield", "A Custom PNGStreamingResponse"]
+- **WebSockets.** FastAPI supports them, from Starlette. You can "receive and send binary, text, and JSON data" on one connection, and use `Depends`, `Header`, `Query` and `Cookie` in a WebSocket route. [FastAPI WebSockets; FastAPI Features, "Starlette features"]
+  - WebSockets are a separate protocol from HTTP request-response. No FastAPI page calls them REST. (derived)
+- **OpenAPI version.** FastAPI emits OpenAPI 3.1.0. [FastAPI First Steps, "OpenAPI"]
+  - The `FastAPI` class docs: "FastAPI will generate OpenAPI version 3.1.0". [FastAPI Reference, "FastAPI class", `openapi_version`]
+  - Extending OpenAPI says `get_openapi()` uses, "By default, the latest: 3.1.0". [FastAPI Extending OpenAPI]
+  - You can set `app.openapi_version = "3.0.2"` for tools that reject 3.1, but the docs call it "a hack", and it does not change the schema FastAPI generates. [FastAPI Reference, "FastAPI class", `openapi_version`]
+  - No page mentions OpenAPI 3.2, and the Release Notes have no entry for it. The docs still call 3.1.0 "the latest", although the OpenAPI site lists 3.2.1 (§Sources of the research note).
+  - Support for 3.1.0 arrived in FastAPI 0.99.0. [FastAPI Metadata, "Metadata for API"]
+- **Docs UIs.** Swagger UI is served at `/docs` and ReDoc at `/redoc`. The schema is at `/openapi.json`. [FastAPI First Steps, "Interactive API docs"; FastAPI Metadata, "Docs URLs"]
+  - Set `openapi_url`, `docs_url` or `redoc_url` to change them. `None` turns one off. `openapi_url=None` also turns off both UIs. [FastAPI Metadata, "Docs URLs"]
+  - Hiding the docs "shouldn't be the way to protect your API". [FastAPI Conditional OpenAPI]
+  - By default Swagger UI and ReDoc load their JavaScript and CSS "from a CDN". [FastAPI Custom Docs UI Assets]
+  - Swagger UI is pinned to major version 5 by default. [FastAPI Reference, "OpenAPI docs", `get_swagger_ui_html`]
+- **Client generation.** Because FastAPI is "based on the OpenAPI specification", tools can generate SDKs. The page uses Hey API for TypeScript (`npx @hey-api/openapi-ts -i http://localhost:8000/openapi.json -o src/client`) and names OpenAPI Generator for many languages. [FastAPI Generate Clients, intro, "Generating a TypeScript Client"]
+  - FastAPI generates OpenAPI 3.1, so any client tool "must support this version". [FastAPI Generate Clients, Tip]
+  - Default method names look like `createItemItemsPost`, because FastAPI builds operation IDs from function name, path and method. You can change that with `generate_unique_id_function`. [FastAPI Generate Clients, "Operation ID"]
+  - Tags split the generated client into one class per tag, such as `ItemsService`. [FastAPI Generate Clients, "FastAPI App with Tags"]
+  - One model can appear twice in the schema, `Item-Input` and `Item-Output`, if it has defaults. You can turn this off with `separate_input_output_schemas=False`. [FastAPI Separate OpenAPI Schemas]
+  - This parallels gRPC code generation from a `.proto` file. The OpenAPI file is made from the server code, not written first. (derived)
+- **Errors.** Raise `HTTPException(status_code=404, detail="Item not found")`. The client gets the status and `{"detail": "Item not found"}`. `detail` can be any JSON-able value. [FastAPI Handling Errors, "Use HTTPException", "Add custom headers"]
+  - Invalid input raises `RequestValidationError`. The default response is `{"detail": [...]}`, a list. In the Path Parameters example each item has `type` (`int_parsing`), `loc` (`["path", "item_id"]`), `msg` and `input`. [FastAPI Path Parameters, "Data validation"]
+  - The status is 422. The docs say it in three places: a custom handler returns `status_code=422`, a bad query value "produces a 422 validation error", and the generated OpenAPI lists `"422"` with "Validation Error". [FastAPI Handling Errors, "Use the RequestValidationError body"; FastAPI Query Parameters; FastAPI Additional Responses]
+  - The Handling Errors page still shows the old body (`type_error.integer`) in one sample. The Path Parameters page shows the current one. Use the Path Parameters shape. [FastAPI Handling Errors, "Override the request validation exceptions handler"]
+  - `fastapi.status` has the constant `HTTP_422_UNPROCESSABLE_CONTENT = 422`. [FastAPI Reference, "Status Codes"]
+  - You can document extra error responses with `responses={404: {"model": Message}}`, but you must return the `JSONResponse` yourself. [FastAPI Additional Responses]
+- **401 vs 403.** Before FastAPI 0.122.0, the built-in security classes answered a failed authentication with 403. From 0.122.0 they use "the more appropriate" 401 Unauthorized, with a `WWW-Authenticate` header. [FastAPI Authentication Error Status Code; FastAPI Release Notes, "0.122.0" (2025-11-24)]
+  - To get the old 403, override `make_not_authenticated_error` in a subclass such as `HTTPBearer`. [FastAPI Authentication Error Status Code]
+  - A 401 "is supposed to also return a WWW-Authenticate header". For bearer tokens the value is `Bearer`. [FastAPI Simple OAuth2, "Return the token"]
+- **Security tools.** `fastapi.security` ships: `APIKeyHeader`, `APIKeyQuery`, `APIKeyCookie`, `HTTPBasic`, `HTTPBearer`, `HTTPDigest`, `OAuth2`, `OAuth2PasswordBearer`, `OAuth2AuthorizationCodeBearer`, `OAuth2PasswordRequestForm` (and `...Strict`), `OpenIdConnect`, `SecurityScopes`. [FastAPI Reference, "Security Tools"]
+  - They plug in with `Depends()`, and they show up in OpenAPI, the docs UI and generated clients. [FastAPI Reference, "Security Tools"]
+  - OpenAPI defines `apiKey` (query, header or cookie), `http` (bearer, Basic, Digest), `oauth2` and `openIdConnect`. [FastAPI Security, "OpenAPI"]
+  - `OAuth2PasswordBearer` reads `Authorization: Bearer <token>` and "will respond with a 401 status code error" if it is missing. [FastAPI Security First Steps, "FastAPI's OAuth2PasswordBearer"]
+  - `auto_error=False` makes the dependency return `None` instead of an error, for optional auth. [FastAPI Reference, "Security Tools", `APIKeyCookie`]
+  - The JWT page recommends Argon2 through `pwdlib`, and `PyJWT` for tokens. A JWT "is not encrypted", only signed. [FastAPI OAuth2 with JWT]
+- **Timeouts.** No page sets a request or server timeout. A search of every non-reference page for "timeout" found none; the only hits are the `TestClient` reference (it warns against passing `timeout`), and status-code constants 408 and 504. [FastAPI Reference, "TestClient"; FastAPI Reference, "Status Codes"]
+  - `fastapi dev` and `fastapi run` use Uvicorn. The CLI page lists reload, host and `FASTAPI_ENV`, and no timeout. [FastAPI CLI, "fastapi dev", "fastapi run"]
+  - `max_body_size` limits the size of the request body, not time. Over the limit, FastAPI "returns an HTTP 413 Content Too Large response". It is unlimited unless you set it. It was added in 0.164.0 (2026-11-18). [FastAPI Request Body Limits; FastAPI Reference, "FastAPI class", `max_body_size`; FastAPI Release Notes, "0.164.0"]
+  - Form limits (`max_fields`, `max_files`, `max_part_size`) return 400. They came in 0.165.0. [FastAPI Request Body Limits, "form_limits"; FastAPI Release Notes, "0.165.0"]
+- **Health checks.** No page documents a health or readiness endpoint. The only mention of "health" is one OpenTelemetry example that excludes the path `/health` from metrics, which is a name the user picks. [FastAPI OpenTelemetry, "exclude"]
+  - Deployment Concepts covers restarts as a job for an outside tool (Docker, Kubernetes, systemd, Supervisor). It does not name health probes. [FastAPI Deployment Concepts, "Restarts"]
+- **Versioning and deprecation.**
+  - Deployment Versions is about pinning FastAPI itself, such as `fastapi[standard]>=0.112.0,<0.113.0`. FastAPI is 0.x, "each version could potentially have breaking changes", and breaking changes come in MINOR versions. [FastAPI Deployment Versions]
+  - The `version` metadata field is "the version of your own application, not of OpenAPI". [FastAPI Metadata, "Metadata for API"]
+  - To retire a route without removing it, pass `deprecated=True` to the decorator. The docs UI marks it. [FastAPI Path Operation Configuration, "Deprecate a path operation"]
+  - Query parameters take `deprecated=True` too. [FastAPI Query Parameters and String Validations, "Deprecating parameters"]
+  - The `/api/v1` prefix in Behind a Proxy is a proxy path prefix (`--root-path`), not an API versioning policy. [FastAPI Behind a Proxy, "Proxy with a stripped path prefix"]
+  - Sub-applications can be mounted at a path, each with its own OpenAPI and docs, for example `/subapi/docs`. The page does not suggest it for versions. [FastAPI Sub Applications - Mounts]
+- **From a browser (CORS).** Add `CORSMiddleware` with `allow_origins` and the other arguments. Defaults are "restrictive": `allow_methods` is `['GET']`, `allow_headers` is `[]`, `allow_credentials` is `False`. [FastAPI CORS]
+  - A `*` for origins "will only allow certain types of communication, excluding everything that involves credentials", such as `Authorization` headers. [FastAPI CORS]
+  - FastAPI rejects a JSON body that lacks a JSON `Content-Type`, by default, since 0.132.0. This blocks a cross-site request forgery trick against local apps that have no auth. Set `strict_content_type=False` for old clients. [FastAPI Strict Content-Type, intro; FastAPI Release Notes, "0.132.0"]
+- **Response format.** FastAPI returns JSON by default. A `response_model` serializes it with Pydantic. For "maximum performance", use a response model and no `response_class`. [FastAPI Custom Response, intro]
+  - Other media types are a `response_class` away (HTML, files, streams). [FastAPI Custom Response]
+  - JSON cannot hold raw bytes. Use `val_json_bytes="base64"` only if you must, because base64 is bigger than files. [FastAPI JSON with Bytes as Base64]
+- **Snippets, install, run.**
+  - Install: `uv add "fastapi[standard]"`, with quotes, or `fastapi[standard]` with pip. [FastAPI home, "Installation"]
+  - `fastapi[standard]` includes `python-multipart` (needed for OAuth2 form login) and the telemetry packages. [FastAPI Security First Steps; FastAPI OpenTelemetry, "Install FastAPI"]
+  - Run: `fastapi dev` reads `main.py`, finds `app`, starts Uvicorn with auto-reload on 127.0.0.1. You may pass a file path. `fastapi run` is for production: no reload, listens on 0.0.0.0. [FastAPI home, "Run it"; FastAPI CLI]
+  - `async def` guidance: use it if a library says to `await`; use plain `def` for libraries without `await` support, "If you just don't know, use normal def"; use `async def` if the code "doesn't have to communicate with anything else". [FastAPI Concurrency and async / await, "In a hurry?"]
+  - The home page example uses plain `def`. First Steps and Path Parameters use `async def`. [FastAPI home, "Create it"; FastAPI First Steps; FastAPI Path Parameters]
+  - A recommended app entry point is `[tool.fastapi] entrypoint` in `pyproject.toml`. [FastAPI CLI, "fastapi dev"]
+- **OpenTelemetry.** FastAPI has OpenTelemetry for HTTP traces, metrics and logs "by default", and exporters are opt-in (`FASTAPI_OTEL_AUTO_CONFIGURE=true`). [FastAPI OpenTelemetry; FastAPI Release Notes, entry "Automatic OpenTelemetry exporter setup is now opt-in"]
+- **GraphQL.** Unchanged: ASGI libraries mount next to path operations, Strawberry is recommended, and the page warns "GraphQL solves some very specific use cases". [FastAPI How-to GraphQL]
+- **Webhooks and callbacks.** FastAPI can describe requests your app sends to others, in OpenAPI: `app.webhooks.post("new-subscription")` and callbacks. Registering URLs and sending the requests is "up to you". Webhooks need OpenAPI 3.1.0 or above (FastAPI 0.99.0 or above). [FastAPI OpenAPI Webhooks; FastAPI OpenAPI Callbacks]
+
+Outside this page's scope (one line each):
+
+- Intro and meta pages: about, resources, learn, newsletter, management, fastapi-people, help-fastapi, contributing, external-links, translations, history-design-future, project-generation, editor-support, ai-development (the bundled agent skill, `uvx library-skills`): who makes FastAPI, how to help, templates and tooling.
+- alternatives: what inspired FastAPI and how it compares. benchmarks: TechEmpower, with the warning to compare like with like (Uvicorn, Starlette, FastAPI). python-types: a refresher on type hints. async (middle sections): the burger story on concurrency and parallelism.
+- tutorial/* body, parameter and model pages (body, body-fields, body-multiple-params, body-nested-models, body-updates, query-params, query-params-str-validations, path-params-numeric-validations, cookie-params, header-params, the four `*-param-models`, request-forms, request-files, request-forms-and-files, request-form-models, extra-models, extra-data-types, encoder, response-model, schema-extra-example, path-operation-configuration beyond `deprecated`): declare and validate inputs and outputs with Pydantic.
+- tutorial/dependencies/* (dependencies, classes-as-dependencies, sub-dependencies, dependencies-in-path-operation-decorators, global-dependencies, dependencies-with-yield): the dependency injection system that the security tools use.
+- tutorial/security/get-current-user and oauth2-jwt (beyond the lines above): build a login with a user model, JWT and password hashing.
+- tutorial/middleware, background-tasks, bigger-applications, sql-databases, static-files, frontend (`app.frontend()` serves a built front end), debugging, testing: structure, middleware, in-process tasks, SQLModel, static files, debugger and `TestClient`.
+- tutorial/response-status-code and advanced/additional-status-codes, response-change-status-code, response-cookies, response-directly, response-headers, using-request-directly, path-operation-advanced-configuration: set status, headers, cookies, operation IDs, or return a `Response` yourself.
+- advanced/security (index), http-basic-auth, oauth2-scopes: HTTP Basic with `secrets.compare_digest`, and OAuth2 scopes as strings.
+- advanced/advanced-dependencies, advanced-python-types, dataclasses, middleware (HTTPSRedirect, TrustedHost, GZip), settings (`pydantic-settings`), events (`lifespan`), templates, wsgi, sub-applications, behind-a-proxy (`--root-path`, `--forwarded-allow-ips`): other features of the app object and Starlette.
+- advanced/async-tests, testing-dependencies, testing-events, testing-websockets: test recipes.
+- deployment/* (index, concepts, https, manually, server-workers, docker, cloud, fastapicloud, versions): HTTPS, restarts, `--workers`, containers, FastAPI Cloud, and pinning FastAPI.
+- how-to/* (index, general, migrate-from-pydantic-v1-to-pydantic-v2, testing-database, custom-docs-ui-assets, custom-request-and-route, configure-swagger-ui, extending-openapi, conditional-openapi): recipes for docs assets, Swagger UI options, custom OpenAPI, a custom `APIRoute`, and the Pydantic 2 migration.
+- reference/* pages other than sse, status, exceptions, security, openapi and the FastAPI class: API reference for each class (apirouter, background, dependencies, encoders, httpconnection, middleware, parameters, request, response, responses, staticfiles, templating, testclient, uploadfile, websockets).
+- release-notes: every release; read only for the version numbers cited above.
+
+Pages read for the facts above: home, features, async (top and `async def` rules), tutorial/first-steps, path-params, query-params, handling-errors, response-status-code, header-params, cors, middleware, metadata, testing, debugging, background-tasks, bigger-applications, server-sent-events, stream-json-lines; tutorial/security (index, first-steps, get-current-user, simple-oauth2, oauth2-jwt); advanced/stream-data, custom-response, additional-status-codes, additional-responses, response-headers, behind-a-proxy, websockets, events, openapi-callbacks, openapi-webhooks, generate-clients, strict-content-type, request-body-limits, json-base64-bytes, sub-applications, settings, opentelemetry, middleware, security (index, http-basic-auth, oauth2-scopes); fastapi-cli; deployment/concepts, server-workers, versions, https; how-to/graphql, conditional-openapi, extending-openapi, separate-openapi-schemas, configure-swagger-ui, authentication-error-status-code, custom-request-and-route; reference/sse, status, exceptions, security, fastapi, openapi (docs, models). Long pages (async, security/oauth2-jwt, deployment/concepts) were read for the bearing parts and grepped for the focus terms.
+
 ## Open questions
 
 - **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our `examples/communication/request_payload_size.py` script measures size for our own messages.
@@ -899,10 +1072,10 @@ Operations topics, outside this page's scope (one line each, from each guide's o
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.
 - **GraphQL status 294.** Not IANA-registered; how real proxies and caches handle it is unknown. [GoH §6.1]
 - **Persisted documents.** graphql.org says standardizing them in GraphQL-over-HTTP is underway [graphql.org/learn/security]; the September 2026 edition mentions them only in a note. [GoH §5.3]
-- **graphql.org vs GoH.** graphql.org's "Serving over HTTP" page has not caught up with the September 2026 edition (400 vs 422; "draft" status).
+- **graphql.org vs GoH.** graphql.org's "Serving over HTTP" page has not caught up with the September 2026 edition (400 vs 422; "draft" status). Its Common HTTP Errors page even calls 422 "not recommended by the specification for most cases" (§9.12).
 - **GraphQL subscription transports.** The community specs for WebSockets and SSE were not read.
 - **gRPC-Web future.** Whether browsers will ever run native gRPC (the "1-2 years" prediction) is unresolved.
-- **FastAPI and OAS 3.2.** FastAPI's tutorial shows OpenAPI 3.1.0; whether current FastAPI can emit 3.2 was not checked.
+- **FastAPI and OAS 3.2.** Answered on 2026-11-23 (§9.13): FastAPI 0.165.0 emits OpenAPI 3.1.0 and calls it "the latest"; no page or release note mentions 3.2.
 - **gRPC Python prerequisite.** The quick start says Python 3.7+; the page was last modified 2024-11-25 and may be stale.
 - **Not researched:** gRPC over HTTP/3, the Connect protocol, gRPC JSON transcoding, Strawberry's DataLoader support, current package versions on PyPI (the PyPI JSON API timed out for most packages).
 - **UTF-8 byte counts.** That an ASCII character is one byte in UTF-8 was checked by running Python, not by reading the UTF-8 RFC (RFC 3629).
@@ -1068,3 +1241,9 @@ Added for §9.11, all read on 2026-11-23 (last-modified dates from each page's f
 - grpc.io, Custom Backend Metrics guide: https://grpc.io/docs/guides/custom-backend-metrics/
 - grpc.io, OpenTelemetry Metrics guide: https://grpc.io/docs/guides/opentelemetry-metrics/
 - grpc.io, Python Generated-code reference (2021-08-11): https://grpc.io/docs/languages/python/generated-code/
+
+Added for §9.12 and §9.13, all read on 2026-11-23:
+
+- graphql.org Learn, all 29 pages: https://graphql.org/learn/ (index). New for §9.12: queries, mutations, validation, response, thinking-in-graphs, file-uploads, error-handling, global-object-identification, federation, robust-applications, debug-errors (Common HTTP Errors and How to Debug Them), naming-design, schema-review, governance-ownership, governance-tooling, governance-versioning (Schema Change Management), each at https://graphql.org/learn/<name>/
+- graphql.org FAQ (re-read): https://graphql.org/faq/
+- FastAPI docs, 154 pages from the home page nav: https://fastapi.tiangolo.com/ . Read in full or for the bearing parts (§9.13 lists them): tutorial/server-sent-events, stream-json-lines, path-operation-configuration, query-params, query-params-str-validations, cors, metadata, security/* ; advanced/stream-data, generate-clients, websockets, request-body-limits, strict-content-type, openapi-webhooks, openapi-callbacks, behind-a-proxy, sub-applications, opentelemetry ; fastapi-cli ; deployment/concepts, versions ; how-to/authentication-error-status-code, extending-openapi, conditional-openapi, separate-openapi-schemas ; reference/sse, status, security, fastapi, openapi ; release-notes (versions 0.122.0 to 0.165.0). Each at https://fastapi.tiangolo.com/<path>/

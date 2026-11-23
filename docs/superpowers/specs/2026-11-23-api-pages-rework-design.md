@@ -61,6 +61,7 @@ My calls (the owner can change any of them):
 
 - Page 01's code folds into `<details>` blocks. Each option keeps one visible line on what its code shows. The template does the same.
 - The rest of grpc.io's guides were read (research note §9.11). Page 01 gained gRPC's built-in retries, the error message beside the status code, and gRPC's own compression.
+- The owner then asked for the same full survey of graphql.org (all 29 Learn pages and the FAQ, §9.12) and FastAPI's docs (154 pages, §9.13). Page 01 gained: GraphQL's 2xx status beside partial data, no built-in file uploads, `curl` for debugging; FastAPI's OpenAPI 3.1 and client generation, built-in SSE, `deprecated=True`, the `{"detail": ...}` body with `422`, and Swagger UI at `/docs`.
 
 ## Left to the builder
 

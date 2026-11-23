@@ -38,6 +38,11 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
   - Small notes left for later: the messaging analogy shows a queue only, not a copy to every station (owner's call); "methods" and "number" mean different things for REST and gRPC; "USB is Universal Serial Bus." dangles, and HTML, JPEG and RFC are not spelled out on page 01; the cell-source link could point at §9.10.
 - 2026-11-23: the owner chose to fold page 01's code into `<details>` blocks; each option keeps one visible line on what its code shows. The template does the same.
 - 2026-11-23: the owner asked whether all of grpc.io/docs was read. It was not: 9 of 24 guides had been. The other 15 and the Python generated-code page are now in the research note §9.11. From them, page 01 gained gRPC's built-in retries (a pro), the error message beside the status code, and gRPC's own compression. The rest are operations topics (keepalive, load balancing, and so on), outside this page.
+- 2026-11-23: the owner said "Yes, survey them": the same full survey for graphql.org (all 29 Learn pages and the FAQ, research note §9.12) and FastAPI's docs (154 pages, §9.13). Every quote used was checked against the fetched text. Page 01 cells changed:
+  - GraphQL: 2xx status beside partial data (Errors), no built-in file uploads (Payload), `curl` (Debugging).
+  - REST: OpenAPI 3.1 and client generation (Contract), SSE built into FastAPI (Call types), `deprecated=True` (Changing the API), `{"detail": ...}` and `422` (Errors), Swagger UI at `/docs` (Debugging).
+  - The open question on OpenAPI 3.2 is answered: FastAPI emits 3.1.0 only. graphql.org's own pages disagree on 422 for validation errors (§9.12; the page does not use it).
+  - Strawberry's docs have not had a full survey; only the pages the snippets needed were read.
 
 ## Decisions the owner made
 
@@ -55,7 +60,8 @@ A from-scratch system design learning hub with **low cognitive load**: short Mar
 - **Real-world analogies** (2026-11-23): explain concepts with everyday examples, like a restaurant waiter, so they are easy to grasp and remember. We write them in our own words. Analogies need no source; facts still do.
 - Material the owner shares (videos, other agents' answers) guides topics and layout only. It is never a source, and pages are not shaped around its claims.
 - **Keep everything short.** The owner finds long text tiring, so chat replies, pages and comments must all be brief.
-- On decision pages, code folds into `<details>` blocks (2026-11-23), so the page reads short and the code is a click away.- Example naming: the prefix shows the purpose.
+- On decision pages, code folds into `<details>` blocks (2026-11-23), so the page reads short and the code is a click away.
+- Example naming: the prefix shows the purpose.
   - `concurrency/`: `lock_`, `limit_`, `wait_`.
   - `patterns/`: `creational_`, then `structural_` and `behavioral_`.
   - SOLID: `s_`, `o_`, `l_`, `i_`, `d_`.
