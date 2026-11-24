@@ -7,6 +7,39 @@ Is Protobuf the better approach? This benchmark measures the whole "get order 42
 - **Same data:** both servers return the same order, from [order_data.py](order_data.py). The schema is [order.proto](order.proto). Before timing, the script checks that every client gets the same order back.
 - **Two REST clients:** aiohttp and httpx. The client turned out to matter as much as the protocol.
 
+## What "better" means
+
+| Question | Measured as | In real life |
+|---|---|---|
+| How fast is one call? | Latency (p50, p99) | One customer, one order: how long until the food arrives? |
+| How many calls can one server handle? | Calls per second | A packed restaurant: how many meals per hour? |
+| How hard does the computer work? | CPU µs per call | How much effort the cook puts into each plate |
+| How much crosses the network? | Wire bytes per call | How heavy the delivery box is |
+
+```mermaid
+flowchart TB
+    accTitle: Benchmark setup
+    accDescr: run.py drives two clients. The REST clients send JSON over HTTP/1.1 to the FastAPI server. The gRPC client sends Protobuf over HTTP/2 to the grpcio server. Both servers return the same order.
+    R[run.py: starts servers, checks answers, measures] --> C1[REST client: aiohttp or httpx]
+    R --> C2[gRPC client: grpcio]
+    C1 -- JSON over HTTP/1.1 --> S1[rest_server.py: FastAPI on Uvicorn]
+    C2 -- Protobuf over HTTP/2 --> S2[grpc_server.py: grpcio asyncio]
+    S1 --- D[order_data.py: the same order]
+    S2 --- D
+```
+
+## The files
+
+| File | What it does |
+|---|---|
+| [order.proto](order.proto) | The schema gRPC needs: messages with field numbers, and the `GetOrder` call. `run.py` generates Python code from it on its first run. |
+| [order_data.py](order_data.py) | The same order for both servers, with 2, 100 or 1,000 items. |
+| [rest_server.py](rest_server.py) | FastAPI route `GET /orders/{id}?items=N`. Its return type makes Pydantic, which is written in Rust, write the JSON. |
+| [grpc_server.py](grpc_server.py) | grpcio asyncio server with the same `GetOrder`. |
+| [run.py](run.py) | The referee: starts both servers, checks the answers, measures, and prints the table. |
+
+Both servers build each order once and cache it. So the benchmark measures sending an order, not building it. A real app would read a database at that point, which costs the same for both styles.
+
 ## How it measures
 
 The scenarios follow [grpc.io's benchmarking guide](https://grpc.io/docs/guides/benchmarking/):
@@ -17,6 +50,30 @@ The scenarios follow [grpc.io's benchmarking guide](https://grpc.io/docs/guides/
 4. **Bytes on the wire:** a small TCP proxy counts the bytes in each direction for 200 calls on a warm connection. That covers HTTP headers plus body, but not TCP/IP headers.
 
 Each server is one process. The gRPC client reuses one channel, as grpc.io's [performance guide](https://grpc.io/docs/guides/performance/) advises.
+
+What `run.py` does, in order:
+
+1. Generates `order_pb2.py` and `order_pb2_grpc.py` from `order.proto` if they are missing.
+2. Stops unless protobuf uses its `upb` backend. The pure-Python backend is 3–5× slower than JSON (see [request_encode_speed.py](../../examples/communication/request_encode_speed.py)).
+3. Starts both servers as separate processes, then waits until each one accepts connections.
+4. Asks every client for every size and checks that the answer equals `make_order(42, n)`. A server that sends different data would make the race unfair.
+5. For each size and each client, it measures latency, throughput with CPU, and wire bytes. Warm-up calls come first, because the first calls open connections and fill caches.
+6. Stops the servers, even if something failed.
+
+**p50 and p99:** sort all 5,000 times. The middle one is p50, a typical call. The one 99% of the way along is p99: 1 call in 100 is slower than that.
+
+## A lesson from building it: check who is busy
+
+The first version used one client process with httpx. REST got only 768 calls per second, while its server was only about 8% busy. If the kitchen is idle and orders are still slow, the waiter is the problem, not the kitchen.
+
+Testing the two REST clients alone showed it:
+
+| Client | p50 | Calls/s (64 in flight, one process) | Client CPU per call |
+|---|---|---|---|
+| httpx | 600 µs | 727 | 1,073 µs |
+| aiohttp | 156 µs | 17,366 | 49 µs |
+
+So the benchmark now spreads the load over 4 client processes (one Python process uses about one core), and it reports both REST clients. When a benchmark result looks odd, measure the client as well as the server.
 
 ## Results
 
@@ -61,3 +118,10 @@ python3 -m venv .venv
 ```
 
 `run.py` generates the gRPC code from `order.proto` on its first run, starts both servers on ports 8011 and 50061, and prints the table.
+
+## Try it yourself
+
+1. Run `run.py --quick` and compare your numbers with the table above.
+2. Set `CLIENT_PROCESSES, IN_FLIGHT_EACH = 1, 64` in `run.py`. REST with httpx collapses, because the client becomes the limit.
+3. Add `"huge (10,000 items)": 10000` to `SIZES`. Does gRPC's lead grow?
+4. Remove `--no-access-log` from the uvicorn command and see what logging costs per call.
