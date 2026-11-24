@@ -1160,11 +1160,30 @@ The owner asked "what about speed?". No primary source gives JSON vs Protobuf sp
 | `python` (protobuf 7.36.2, forced) | 2.31 | 2.66 | 7.48 | 12.57 |
 
 - **Derived:** with `upb`, Protobuf encodes about 12× and decodes about 6× faster than JSON for this message; with the pure-Python backend it is 3–5× slower. So "Protobuf is faster" depends on the library, not only the format.
-- **Not measured:** full calls (network, HTTP/2 framing, server work), other languages, larger or nested messages, `orjson` or other JSON libraries.
+- **Not measured here:** full calls (see §12.1), other languages, `orjson` or other JSON libraries.
+
+### 12.1 Full call: REST vs gRPC (2026-11-24)
+
+The owner asked for a "full 100% complete benchmark to see if protobuf is better approach", with `upb`. Code, method and full table: `benchmarks/rest_vs_grpc/README.md`.
+
+- Method follows grpc.io's benchmarking scenarios: "contentionless latency" (one call at a time; median and tail) and QPS with many calls outstanding; grpc.io uses 2 client machines per server so QPS "is not client-limited". [grpc.io Benchmarking guide] We use 4 client processes instead.
+- grpc.io advice applied: "Always re-use stubs and channels"; for Python, "Using asyncio could improve performance", and streaming RPCs are "much slower than unary RPCs in gRPC Python". [grpc.io Performance Best Practices] So: one reused channel, the asyncio server, unary calls.
+- FastAPI advice applied: declaring the return type makes FastAPI "Serialize the returned data to JSON using Pydantic, which is written in Rust". [FastAPI, Response Model - Return Type]
+- Measured on 2026-11-24 (M1 Pro, Python 3.12.4, FastAPI 0.165.0, Uvicorn 0.54.0, grpcio 1.85.4, protobuf 7.36.2 `upb`, aiohttp 3.14.5, httpx 0.28.1; localhost; two runs agreed within ~1% p50, ~5% calls/s):
+  - Wire bytes per call, down: small 269 (REST) vs 104 (gRPC); large 44,185 vs 15,075. Up: about 145 vs 61.
+  - Small (2 items): p50 157 µs REST+aiohttp, 598 REST+httpx, 350 gRPC; calls/s 16,421 / 2,428 / 6,495.
+  - Medium (100 items): p50 205 / 653 / 360; calls/s 12,647 / 2,077 / 6,214.
+  - Large (1,000 items): p50 703 / 1,120 / 447; calls/s 4,204 / 1,528 / 5,674.
+  - Server CPU per call: FastAPI 60–236 µs, grpcio 236–255 µs. Client CPU per call: aiohttp 90–485, httpx 1,270–2,043, grpcio 195–229.
+  - A first try with 64 in flight from one httpx process gave REST only 768 calls/s while its server was ~8% busy: client-limited. That is why the run uses several client processes and a second REST client.
+  - Quick check: grpcio's sync thread-pool server gave about the same calls/s as the asyncio one (6,357 small), with a lower small p50 (269 µs) and a worse large p99 (2,549 µs).
+- **Derived:** Protobuf is always ~3× smaller on the wire, and HTTP/2 headers are smaller. In Python on localhost, gRPC is faster end to end only for large messages, or against a slow REST client; for small and medium messages the framework, not the format, sets the time. Over a 10 Mbit/s link the large response's bytes alone take ~35 ms (REST) vs ~12 ms (gRPC), which outweighs the microseconds measured here.
+- **Not measured:** a real network, TLS, compression, other languages, REST over HTTP/2, more than one server process.
+
 
 ## Open questions
 
-- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our scripts measure size (`request_payload_size.py`) and encode/decode time (`request_encode_speed.py`, §12) for our own message. Full-call speed (REST vs gRPC) is still unmeasured.
+- **Size and speed ratios.** No primary source gives numbers for JSON vs Protobuf size or REST vs gRPC speed. Our scripts measure size (`request_payload_size.py`) and encode/decode time (`request_encode_speed.py`, §12) for our own message. Full-call speed was measured on localhost in Python (§12.1); a real network and other languages are not.
 - **"REST" in our pages.** Answered: pages say "REST" in the everyday sense, and the REST page compares strict and everyday REST (§11).
 - **REST and versioning.** The REST sources read (Fielding 2000 ch. 5–6, Fielding 2008, RFC 9110) do not give a versioning stance comparable to GraphQL's. Provider guidelines were read on 2026-11-23 (§9.6): Google puts the major version in the path, Azure forbids that and uses an `api-version` query parameter. No standards-body rule was found.
 - **Webhooks standard.** No IETF RFC for generic webhooks was found in this research, but no exhaustive search was done. W3C WebSub (a hub-based pattern) is a W3C Recommendation; Standard Webhooks is a community spec.
@@ -1226,6 +1245,8 @@ gRPC and Protobuf:
 - protobuf.dev, Protobuf Basics: Python: https://protobuf.dev/getting-started/pythontutorial/
 - protobuf.dev, Protobuf Compiler Installation: https://protobuf.dev/installation/
 - PyPI, `protobuf` project: https://pypi.org/project/protobuf/
+- grpc.io, Performance Best Practices, read 2026-11-24: https://grpc.io/docs/guides/performance/
+- FastAPI, Response Model - Return Type, read 2026-11-24: https://fastapi.tiangolo.com/tutorial/response-model/
 - protobuf GitHub, Python README ("Implementation backends"), read 2026-11-23: https://github.com/protocolbuffers/protobuf/blob/main/python/README.md
 - RFC 9113, HTTP/2 (June 2022; obsoletes RFC 7540 and 8740): https://www.rfc-editor.org/rfc/rfc9113.txt
 - RFC 7541, HPACK: Header Compression for HTTP/2 (May 2015): https://www.rfc-editor.org/rfc/rfc7541.txt

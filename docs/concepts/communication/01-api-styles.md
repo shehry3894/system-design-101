@@ -239,7 +239,7 @@ Call it: `curl localhost:8000/orders/42`
 python3 examples/communication/request_payload_size.py
 ```
 It prints `JSON: 143 bytes` and `Protobuf: 40 bytes` for the same order with two items. See [request_payload_size.py](../../../examples/communication/request_payload_size.py); the schema is a comment at the top.
-- This is one order, uncompressed. For speed, run [request_encode_speed.py](../../../examples/communication/request_encode_speed.py) (needs `pip install protobuf`). On one Apple M1 Pro, Protobuf encoded about 12× and decoded about 6× faster than JSON, but only with the library's default C backend. Its [pure-Python backend](https://github.com/protocolbuffers/protobuf/blob/main/python/README.md) was 3–5× slower than JSON. Your numbers will differ.
+- This is one order, uncompressed. For speed, run [request_encode_speed.py](../../../examples/communication/request_encode_speed.py) (needs `pip install protobuf`). On one Apple M1 Pro, Protobuf encoded about 12× and decoded about 6× faster than JSON, but only with the library's default C backend. Its [pure-Python backend](https://github.com/protocolbuffers/protobuf/blob/main/python/README.md) was 3–5× slower than JSON. For a full call, see the [REST vs gRPC benchmark](../../../benchmarks/rest_vs_grpc/README.md): gRPC always sent fewer bytes, but in Python it was faster only for large messages.
 - The counts are message bodies only. gRPC adds a 5-byte prefix to each message, and HTTP adds headers.
 - Protobuf is not always smaller: a field holding `-2` as an `int32` takes 11 bytes (1 tag byte plus a 10-byte value). `{"a":-2}` in JSON takes 8.
 - JSON compresses well with gzip. Protobuf does not compress itself, but gRPC can compress each call or message.

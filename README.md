@@ -16,6 +16,7 @@ Learn system design step by step, from scratch. Every page explains one idea, wi
 | [Concepts](docs/concepts/) | [Communication styles](docs/concepts/communication/00-overview.md), [API styles: GraphQL, gRPC, REST](docs/concepts/communication/01-api-styles.md), [REST](docs/concepts/communication/02-rest.md) and [gRPC](docs/concepts/communication/03-grpc.md) |
 | [Project](project/foodpanda/) | The food-delivery build log and services |
 | [Examples](examples/) | Small runnable snippets: locks, design patterns, SOLID, payload size (JSON vs Protobuf) |
+| [Benchmarks](benchmarks/rest_vs_grpc/README.md) | REST vs gRPC full-call benchmark (latency, calls per second, CPU, bytes) |
 
 ## Run the examples
 

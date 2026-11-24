@@ -29,6 +29,7 @@
 
 - [Examples index](examples/README.md): every snippet with a one-line summary
 - [Communication](examples/communication/): JSON vs Protobuf bytes and encode/decode time for the same order
+- [REST vs gRPC benchmark](benchmarks/rest_vs_grpc/README.md): full-call latency, calls per second, CPU and wire bytes, FastAPI vs grpcio
 - [Concurrency](examples/concurrency/): mutex, RLock, semaphore, bounded semaphore, event, condition, barrier, GIL
 - [Design patterns](examples/patterns/): singleton, factory method, abstract factory, builder, prototype
 - [SOLID](examples/principles/solid/): the five principles, each with a bad and a good version
